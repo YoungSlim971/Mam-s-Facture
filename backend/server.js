@@ -334,12 +334,16 @@ app.get('/api/stats', (req, res) => {
 });
 
 // Démarrage du serveur
-app.listen(PORT, () => {
-  console.log(`🚀 Serveur de facturation démarré sur le port ${PORT}`);
-  console.log(`📊 API disponible sur http://localhost:${PORT}/api`);
-  console.log(`💾 Stockage: Fichiers JSON`);
-  console.log(`📂 Dossier données: ${path.join(__dirname, 'database', 'data')}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Serveur de facturation démarré sur le port ${PORT}`);
+    console.log(`📊 API disponible sur http://localhost:${PORT}/api`);
+    console.log(`💾 Stockage: Fichiers JSON`);
+    console.log(`📂 Dossier données: ${path.join(__dirname, 'database', 'data')}`);
+  });
+}
+
+module.exports = app;
 
 // Gestion propre de l'arrêt
 process.on('SIGINT', () => {
