@@ -232,6 +232,9 @@ L'application inclut des données d'exemple pour la démonstration :
 - Tester l'API avec un client REST (Postman, curl)
 - Interface testable directement dans le navigateur
 - Génération PDF testable via l'interface
+- **Tests automatisés** :
+  - Backend : `cd backend && pnpm test`
+  - Frontend : `cd frontend && pnpm test`
 
 ## ⚡ Production
 
