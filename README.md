@@ -178,7 +178,8 @@ Mam-s-Facture/
 - `POST /api/factures` - Créer une nouvelle facture
 - `PUT /api/factures/:id` - Modifier une facture
 - `DELETE /api/factures/:id` - Supprimer une facture
- - `GET /api/factures/:id/html` - Exporter la facture en HTML
+- `GET /api/factures/:id/html` - Exporter la facture en HTML
+- `GET /api/factures/:id/mistral-html` - Exporter la facture en HTML généré par Mistral
 - `GET /api/clients` - Liste des clients
 - `POST /api/clients` - Créer un client
 - `GET /api/clients/:id` - Détails d'un client

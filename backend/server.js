@@ -4,6 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const buildFactureHTML = require('./services/htmlService');
+const { generateMistralHTML } = require('./services/mistralService.ts');
 const JSONDatabase = require('./database/storage');
 const { computeTotals } = require('./utils/computeTotals.ts');
 
@@ -441,6 +442,24 @@ app.get('/api/factures/:id/html', (req, res) => {
     res.send(html);
   } catch (err) {
     res.status(500).json({ error: 'Erreur lors de la génération du HTML' });
+  }
+});
+
+// GET /api/factures/:id/mistral-html - Génère le HTML via Mistral
+app.get('/api/factures/:id/mistral-html', async (req, res) => {
+  const facture = db.getFactureById(req.params.id);
+  if (!facture) {
+    return res.status(404).json({ error: 'Facture non trouvée' });
+  }
+  try {
+    const html = await generateMistralHTML(facture);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  } catch (err) {
+    res.status(500).json({
+      error: 'Erreur lors de la génération du HTML via Mistral',
+      details: err.message
+    });
   }
 });
 
