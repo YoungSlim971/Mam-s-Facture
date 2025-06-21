@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { FunFactCard } from './FunFactCard';
 
 global.fetch = jest.fn(() =>
