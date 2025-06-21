@@ -14,7 +14,7 @@ global.fetch = jest.fn(() =>
 
 test('affiche une image', async () => {
   render(<SunsetImageCard />);
-  const img = await screen.findByRole('img');
+  const img = (await screen.findByRole('img')) as HTMLImageElement;
   expect(img.src).toContain('data:image/png;base64,imgdata');
 });
 
