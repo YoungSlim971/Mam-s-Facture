@@ -36,7 +36,17 @@ Une application web moderne et complète pour la gestion de factures, développ�
 - Node.js 18+ 
 - pnpm (ou npm)
 
-### Installation
+### Installation rapide
+
+Exécutez le script `install.sh` à la racine du projet. Il détecte
+automatiquement `pnpm` (ou `npm`) et installe toutes les dépendances
+avant de construire l'interface :
+
+```bash
+./install.sh
+```
+
+### Installation manuelle
 
 1. **Cloner ou télécharger le projet**
    ```bash
