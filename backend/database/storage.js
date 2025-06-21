@@ -195,7 +195,7 @@ class JSONDatabase {
     };
 
     const now = new Date().toISOString();
-    const nouveauFacture = {
+    const nouvelleFacture = {
       id: newId,
       ...defaultFields,
       ...data,
@@ -203,7 +203,7 @@ class JSONDatabase {
       updated_at: now
     };
 
-    factures.push(nouveauFacture);
+    factures.push(nouvelleFacture);
 
     // Ajouter les lignes
     const nouvelleLignes = data.lignes.map((ligne, index) => ({
