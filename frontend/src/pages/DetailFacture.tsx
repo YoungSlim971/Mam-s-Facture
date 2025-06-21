@@ -23,6 +23,7 @@ interface Facture {
   siret?: string;
   legal_form?: string;
   vat_number?: string;
+  vat_rate?: number;
   rcs_number?: string;
   lignes: LigneFacture[];
 }
@@ -340,6 +341,12 @@ export default function DetailFacture() {
                 <div>
                   <p className="text-sm text-gray-500 mb-1">N° TVA</p>
                   <p className="font-semibold text-gray-900">{facture.vat_number}</p>
+                </div>
+              )}
+              {typeof facture.vat_rate !== 'undefined' && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Taux de TVA</p>
+                  <p className="font-semibold text-gray-900">{facture.vat_rate}%</p>
                 </div>
               )}
               {facture.rcs_number && (

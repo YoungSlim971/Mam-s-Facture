@@ -127,6 +127,7 @@ app.post('/api/factures', (req, res) => {
       siret = '',
       legal_form = '',
       vat_number = '',
+      vat_rate = 0,
       rcs_number = ''
     } = req.body;
 
@@ -161,6 +162,7 @@ app.post('/api/factures', (req, res) => {
       siret,
       legal_form,
       vat_number,
+      vat_rate,
       rcs_number
     };
 
@@ -197,6 +199,7 @@ app.put('/api/factures/:id', (req, res) => {
       siret = '',
       legal_form = '',
       vat_number = '',
+      vat_rate = 0,
       rcs_number = ''
     } = req.body;
 
@@ -228,6 +231,7 @@ app.put('/api/factures/:id', (req, res) => {
       siret,
       legal_form,
       vat_number,
+      vat_rate,
       rcs_number
     };
 
