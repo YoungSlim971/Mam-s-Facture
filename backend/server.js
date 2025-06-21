@@ -352,7 +352,15 @@ app.get('/api/factures/:id/pdf', async (req, res) => {
   const tmpFile = tmp.fileSync({ postfix: '.pdf' });
   try {
     await buildFacturePDF(facture, tmpFile.name);
-    res.download(tmpFile.name, `facture-${facture.numero_facture}.pdf`, err => {
+
+    const date = new Date(facture.date_facture);
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yy = String(date.getFullYear()).slice(2);
+    const formattedDate = `${dd}/${mm}/${yy}`;
+    const fileName = `Facture - ${formattedDate} - ${facture.nom_entreprise}.pdf`;
+
+    res.download(tmpFile.name, fileName, err => {
       tmpFile.removeCallback();
       if (err) res.status(500).end();
     });

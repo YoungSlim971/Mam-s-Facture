@@ -103,7 +103,12 @@ export default function ListeFactures() {
     }
   };
 
-  const telechargerPDF = async (id: number, numeroFacture: string) => {
+  const telechargerPDF = async (
+    id: number,
+    numeroFacture: string,
+    dateFacture: string,
+    nomEntreprise?: string
+  ) => {
     try {
       const response = await fetch(`${API_URL}/factures/${id}/pdf`);
       if (!response.ok) {
@@ -114,7 +119,14 @@ export default function ListeFactures() {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `facture-${numeroFacture}.pdf`;
+
+      const date = new Date(dateFacture);
+      const dd = String(date.getDate()).padStart(2, '0');
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const yy = String(date.getFullYear()).slice(2);
+      const formattedDate = `${dd}/${mm}/${yy}`;
+      const company = nomEntreprise ? ` - ${nomEntreprise}` : '';
+      link.download = `Facture - ${formattedDate}${company}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -361,7 +373,14 @@ export default function ListeFactures() {
                               <Edit className="h-4 w-4" />
                             </Link>
                             <button
-                              onClick={() => telechargerPDF(facture.id, facture.numero_facture)}
+                              onClick={() =>
+                                telechargerPDF(
+                                  facture.id,
+                                  facture.numero_facture,
+                                  facture.date_facture,
+                                  facture.nom_entreprise
+                                )
+                              }
                               className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                               title="Télécharger PDF"
                             >
