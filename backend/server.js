@@ -166,11 +166,29 @@ app.post('/api/factures', (req, res) => {
 
     // Validation
     if (!nom_client || !date_facture || !lignes.length) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Données manquantes',
-        details: 'Le nom du client, la date et au moins une ligne sont requis' 
+        details: 'Le nom du client, la date et au moins une ligne sont requis'
       });
     }
+
+    for (let i = 0; i < lignes.length; i++) {
+      const q = parseFloat(lignes[i].quantite);
+      const pu = parseFloat(lignes[i].prix_unitaire);
+      if (!(q > 0)) {
+        return res.status(400).json({
+          error: 'Quantité invalide',
+          details: `La quantité de la ligne ${i + 1} doit être supérieure à 0`
+        });
+      }
+      if (!(pu >= 0)) {
+        return res.status(400).json({
+          error: 'Prix unitaire invalide',
+          details: `Le prix unitaire de la ligne ${i + 1} doit être positif`
+        });
+      }
+    }
+
 
     // Calculer le montant total
     const montant_total = lignes.reduce((total, ligne) => {
@@ -242,6 +260,22 @@ app.put('/api/factures/:id', (req, res) => {
         error: 'Données manquantes',
         details: 'Le nom du client, la date et au moins une ligne sont requis' 
       });
+    }
+    for (let i = 0; i < lignes.length; i++) {
+      const q = parseFloat(lignes[i].quantite);
+      const pu = parseFloat(lignes[i].prix_unitaire);
+      if (!(q > 0)) {
+        return res.status(400).json({
+          error: 'Quantité invalide',
+          details: `La quantité de la ligne ${i + 1} doit être supérieure à 0`
+        });
+      }
+      if (!(pu >= 0)) {
+        return res.status(400).json({
+          error: 'Prix unitaire invalide',
+          details: `Le prix unitaire de la ligne ${i + 1} doit être positif`
+        });
+      }
     }
 
     // Calculer le montant total
