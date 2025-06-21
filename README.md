@@ -2,6 +2,8 @@
 
 Une application web moderne et complète pour la gestion de factures, développée avec React, Node.js, et stockage JSON. Interface entièrement en français avec génération de PDF professionnels.
 
+Pour une installation simplifiée, lancez `./install.sh` à la racine du projet. Ce script installe toutes les dépendances et construit automatiquement le frontend.
+
 ## 🌟 Fonctionnalités principales
 
 ### ✅ Interface utilisateur complète
@@ -38,9 +40,7 @@ Une application web moderne et complète pour la gestion de factures, développ�
 
 ### Installation rapide
 
-Exécutez le script `install.sh` à la racine du projet. Il détecte
-automatiquement `pnpm` (ou `npm`) et installe toutes les dépendances
-avant de construire l'interface :
+Exécutez le script `install.sh` à la racine du projet. Il détecte automatiquement `pnpm` (ou `npm`), gère l'installation du backend et du frontend, puis construit ce dernier :
 
 ```bash
 ./install.sh
