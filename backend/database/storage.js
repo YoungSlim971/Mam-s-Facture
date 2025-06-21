@@ -393,6 +393,19 @@ class JSONDatabase {
     return newId;
   }
 
+  updateClient(id, data) {
+    const index = this.clients.findIndex(c => c.id === parseInt(id));
+    if (index === -1) return false;
+    this.clients[index] = {
+      ...this.clients[index],
+      ...data,
+      id: parseInt(id),
+      updated_at: new Date().toISOString()
+    };
+    this.writeData(this.clientsFile, this.clients);
+    return true;
+  }
+
   addFactureToClient(clientId, factureId) {
     const client = this.clients.find(c => c.id === parseInt(clientId));
     if (!client) return false;
