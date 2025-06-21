@@ -4,7 +4,6 @@ import {
   FunFactCard,
   WeatherClockCard,
   InvoicePieChart,
-  ApiInfoCard,
 } from '@/components/cards';
 
 export default function Accueil() {
@@ -47,7 +46,6 @@ export default function Accueil() {
         <FunFactCard />
         <WeatherClockCard />
         <InvoicePieChart />
-        <ApiInfoCard />
       </div>
 
         {/* Action Cards */}
