@@ -91,6 +91,23 @@ Un script spécifique `install_macos.sh` simplifie l'installation sur macOS avec
   ```
   L'application est accessible sur http://localhost:5173
 
+### Configuration de l'URL API (VITE_API_URL)
+
+L'interface frontend lit l'adresse de l'API via la variable d'environnement `VITE_API_URL`.
+Si cette variable n'est pas définie, l'URL par défaut `http://localhost:3001/api` est utilisée (voir `frontend/src/lib/api.ts`).
+
+Exemples :
+
+- **Développement** : créer un fichier `.env` dans `frontend/` contenant
+  ```bash
+  VITE_API_URL=http://localhost:3001/api
+  ```
+
+- **Production** : définir la variable lors du build ou sur votre hébergeur
+  ```bash
+  VITE_API_URL=https://mon-domaine.com/api pnpm run build
+  ```
+
 #### Lancement rapide sur macOS
 
 Le script `launch_safari.sh` démarre le backend et le frontend puis ouvre automatiquement Safari sur l'URL de l'application :
