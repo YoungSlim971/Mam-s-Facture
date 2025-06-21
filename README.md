@@ -31,6 +31,7 @@ Pour une installation simplifiée, lancez `./install.sh` à la racine du projet.
 - Informations client complètes (nom, entreprise, téléphone, adresse)
 - Recherche rapide par nom de client ou entreprise
 - Historique des factures par client
+- Nouvelle page "Clients" pour créer et lister des clients récurrents
 
 ## 🚀 Installation et démarrage
 
@@ -142,6 +143,9 @@ Mam-s-Facture/
 - `PUT /api/factures/:id` - Modifier une facture
 - `DELETE /api/factures/:id` - Supprimer une facture
 - `GET /api/factures/:id/pdf` - Télécharger le PDF d'une facture
+- `GET /api/clients` - Liste des clients
+- `POST /api/clients` - Créer un client
+- `GET /api/clients/:id` - Détails d'un client
 
 ### Utilitaires
 - `GET /api/health` - État de santé de l'API

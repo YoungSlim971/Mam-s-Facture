@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Home, FileText, PlusCircle, CircleAlert, Sun } from 'lucide-react'
+import { Home, FileText, PlusCircle, CircleAlert, Sun, Users } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 
 export default function Sidebar() {
@@ -23,6 +23,10 @@ export default function Sidebar() {
         <NavLink to="/factures?status=unpaid" className="flex items-center space-x-2 hover:text-primary">
           <CircleAlert className="h-5 w-5" />
           <span>Factures non payées</span>
+        </NavLink>
+        <NavLink to="/clients" className="flex items-center space-x-2 hover:text-primary">
+          <Users className="h-5 w-5" />
+          <span>Clients</span>
         </NavLink>
         <button onClick={toggleTheme} className="flex items-center space-x-2 hover:text-primary">
           <Sun className="h-5 w-5" />
