@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Download, Trash2, FileText, User, Calendar, Euro } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { API_URL } from '@/lib/api';
+import { fromTTC } from '@/lib/utils';
 
 interface Facture {
   id: number;
@@ -163,6 +164,7 @@ export default function DetailFacture() {
   const totalHT = facture.montant_total;
   const tauxTVA = facture.vat_rate ?? 0;
   const totalTTC = totalHT * (1 + tauxTVA / 100);
+  const { tva: montantTVA } = fromTTC(totalTTC, tauxTVA);
 
   return (
     <div className="min-h-screen">
@@ -417,6 +419,14 @@ export default function DetailFacture() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <p className="text-lg font-bold text-indigo-600">{formatEuro(totalHT)}</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colSpan={3} className="px-6 py-4 text-right">
+                      <p className="text-lg font-bold text-gray-900">TVA {tauxTVA}%</p>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <p className="text-lg font-bold text-indigo-600">{formatEuro(montantTVA)}</p>
                     </td>
                   </tr>
                   <tr>
