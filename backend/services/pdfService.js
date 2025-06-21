@@ -86,12 +86,14 @@ function buildFacturePDF(facture, outPath) {
     });
 
     const totalTTC = totalHT + totalTVA;
+    const prixHTFromTTC = totalTTC / 1.2;
 
     y += 10;
     doc.moveTo(350, y).lineTo(550, y).stroke();
     y += 5;
     doc.text(`Total HT : ${totalHT.toFixed(2)} €`, 350, (y += 15));
     doc.text(`TVA (${tauxTVA}% ) : ${totalTVA.toFixed(2)} €`, 350, (y += 15));
+    doc.text(`Prix HT : ${prixHTFromTTC.toFixed(2)} €`, 350, (y += 15));
     doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 350, (y += 15));
 
     // Conditions de paiement

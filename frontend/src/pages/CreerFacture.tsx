@@ -42,6 +42,9 @@ export default function CreerFacture() {
     return total + (ligne.quantite * ligne.prix_unitaire);
   }, 0);
 
+  // Prix HT calculé à partir du montant TTC
+  const montantHT = montantTotal / 1.2;
+
   // Formatage des devises en français
   const formatEuro = (amount: number) => {
     return new Intl.NumberFormat('fr-FR', {
@@ -468,6 +471,14 @@ export default function CreerFacture() {
 
             {/* Récapitulatif */}
             <div className="mt-6 p-4 bg-indigo-50 rounded-lg">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-indigo-900">
+                  Prix HT
+                </span>
+                <span className="text-lg font-semibold text-indigo-600">
+                  {formatEuro(montantHT)}
+                </span>
+              </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center">
                   <Calculator className="h-5 w-5 text-indigo-600 mr-2" />
