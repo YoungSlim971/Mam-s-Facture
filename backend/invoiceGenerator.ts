@@ -86,7 +86,7 @@ export interface Totals {
  * Calculate totals for the provided invoice lines.
  */
 export function computeTotals(
-  lignes: InvoiceData['lignes'],
+  lignes: ReadonlyArray<{ description: string; quantite: number; prix_unitaire: number }>,
   tvaRate: number = 20
 ): Totals {
   const totalHT = lignes.reduce(
@@ -238,7 +238,7 @@ export async function generateInvoicePDF(
   });
 
   // Totals
-  const totals = computeTotals(parsed.lignes, parsed.tvaRate);
+  const totals = computeTotals(parsed.lignes as InvoiceData['lignes'], parsed.tvaRate);
   const boxWidth = 140;
   const boxX = layout.margin + pageWidth - boxWidth;
   doc.moveDown();
