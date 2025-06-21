@@ -63,7 +63,11 @@ export default function Clients() {
       setEntreprise('')
       setTelephone('')
       setAdresse('')
+      setShowForm(false)
       chargerClients()
+    } else {
+      const data = await res.json().catch(() => null)
+      alert(data?.error || 'Erreur lors de la création du client')
     }
   }
 
