@@ -24,6 +24,7 @@ export default function CreerFacture() {
   const [title, setTitle] = useState('');
   const [status, setStatus] = useState<'paid' | 'unpaid'>('unpaid');
   const [logoPath, setLogoPath] = useState('');
+  const [numeroFacture, setNumeroFacture] = useState('');
   const [siren, setSiren] = useState('');
   const [siret, setSiret] = useState('');
   const [legalForm, setLegalForm] = useState('');
@@ -131,6 +132,7 @@ export default function CreerFacture() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          numero_facture: numeroFacture.trim(),
           nom_client: nomClient.trim(),
           nom_entreprise: nomEntreprise.trim(),
           telephone: telephone.trim(),
@@ -277,6 +279,17 @@ export default function CreerFacture() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-6">Informations légales</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Numéro de facture
+              </label>
+              <input
+                type="text"
+                value={numeroFacture}
+                onChange={(e) => setNumeroFacture(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Intitulé
