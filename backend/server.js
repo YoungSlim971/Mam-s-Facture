@@ -149,6 +149,7 @@ app.get('/api/factures/:id', (req, res) => {
 app.post('/api/factures', (req, res) => {
   try {
     const {
+      numero_facture: numero_facture_input = '',
       nom_client,
       nom_entreprise = '',
       telephone = '',
@@ -200,7 +201,7 @@ app.post('/api/factures', (req, res) => {
       return total + (parseFloat(ligne.quantite) * parseFloat(ligne.prix_unitaire));
     }, 0);
 
-    const numero_facture = generateInvoiceNumber();
+    const numero_facture = numero_facture_input.trim() || generateInvoiceNumber();
 
     const factureData = {
       numero_facture,
@@ -242,6 +243,7 @@ app.put('/api/factures/:id', (req, res) => {
   try {
     const { id } = req.params;
     const {
+      numero_facture: numero_facture_input = '',
       nom_client,
       nom_entreprise = '',
       telephone = '',
@@ -292,6 +294,7 @@ app.put('/api/factures/:id', (req, res) => {
     }, 0);
 
     const factureData = {
+      ...(numero_facture_input ? { numero_facture: numero_facture_input.trim() } : {}),
       nom_client: nom_client.trim(),
       nom_entreprise: nom_entreprise.trim(),
       telephone: telephone.trim(),
