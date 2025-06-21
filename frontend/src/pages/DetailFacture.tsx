@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Download, Trash2, FileText, User, Calendar, Euro } from 'lucide-react';
 
@@ -33,7 +33,7 @@ export default function DetailFacture() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const chargerFacture = async () => {
+  const chargerFacture = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`http://localhost:3001/api/factures/${id}`);
@@ -54,13 +54,13 @@ export default function DetailFacture() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     if (id) {
       chargerFacture();
     }
-  }, [id]);
+  }, [id, chargerFacture]);
 
   const supprimerFacture = async () => {
     if (!facture || !confirm(`Êtes-vous sûr de vouloir supprimer la facture ${facture.numero_facture} ?`)) {

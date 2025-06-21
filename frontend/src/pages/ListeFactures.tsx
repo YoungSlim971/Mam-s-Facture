@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Filter, FileText, Plus, Eye, Edit, Trash2, Download, ArrowLeft, Calendar } from 'lucide-react';
 
@@ -37,7 +37,7 @@ export default function ListeFactures() {
   const [dateDebut, setDateDebut] = useState('');
   const [dateFin, setDateFin] = useState('');
 
-  const chargerFactures = async () => {
+  const chargerFactures = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -61,11 +61,11 @@ export default function ListeFactures() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit, recherche, dateDebut, dateFin]);
 
   useEffect(() => {
     chargerFactures();
-  }, [pagination.page, recherche, dateDebut, dateFin]);
+  }, [chargerFactures]);
 
   const supprimerFacture = async (id: number, numeroFacture: string) => {
     if (!confirm(`Êtes-vous sûr de vouloir supprimer la facture ${numeroFacture} ?`)) {
