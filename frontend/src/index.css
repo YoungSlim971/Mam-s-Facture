@@ -29,7 +29,7 @@
   }
 
   html.dark {
-    --sidebar-background: 240 5.9% 10%;
+       --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
@@ -55,6 +55,10 @@ body {
 
 html.sunset body {
   background-image: linear-gradient(to bottom, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+  background-image: url('/wallpaper-sunset.png');
+  background-size: cover;
+  background-position: center;
+  background-color: var(--gradient-start);
 }
 
 html.light body {
@@ -62,11 +66,17 @@ html.light body {
 }
 
 html.system body {
+  background-image: url('/wallpaper-system.png');
+  background-size: cover;
+  background-position: center;
   background-color: white;
   color: var(--foreground);
 }
 
 html.dark body {
+  background-image: url('/wallpaper-dark.png');
+  background-size: cover;
+  background-position: center;
   background-color: #1f2937;
   color: var(--foreground);
 }
@@ -82,10 +92,4 @@ body.app-fade {
   to {
     opacity: 1;
   }
-}
-
-
-
-img {
-  object-position: top;
 }
