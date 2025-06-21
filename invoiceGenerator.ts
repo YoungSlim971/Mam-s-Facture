@@ -1,6 +1,7 @@
 import PDFDocument from 'pdfkit';
 import { pipeline } from 'stream/promises';
-import { createWriteStream, existsSync } from 'fs';
+import { createWriteStream, existsSync, mkdirSync } from 'fs';
+import path from 'path';
 import { z } from 'zod';
 
 /**
@@ -100,6 +101,10 @@ export async function generateInvoicePDF(
   const parsed = invoiceSchema.parse(data);
   const { variant, outPath } = opts;
   const doc = new PDFDocument({ margin: mm(15), size: 'A4' });
+  const dir = path.dirname(outPath);
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
   const writeStream = createWriteStream(outPath);
   const pipe = pipeline(doc, writeStream);
 
