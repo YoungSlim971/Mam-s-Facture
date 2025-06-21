@@ -1,6 +1,11 @@
 import { Link } from 'react-router-dom';
 import { FileText, Plus, BarChart3, Users } from 'lucide-react';
-import { FunFactCard, WeatherClockCard, InvoicePieChart } from '@/components/cards';
+import {
+  FunFactCard,
+  WeatherClockCard,
+  InvoicePieChart,
+  ApiInfoCard,
+} from '@/components/cards';
 
 export default function Accueil() {
   return (
@@ -42,6 +47,7 @@ export default function Accueil() {
         <FunFactCard />
         <WeatherClockCard />
         <InvoicePieChart />
+        <ApiInfoCard />
       </div>
 
         {/* Action Cards */}
