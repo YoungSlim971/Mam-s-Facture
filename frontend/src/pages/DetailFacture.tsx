@@ -100,10 +100,17 @@ export default function DetailFacture() {
 
   const telechargerHTML = async () => {
     if (!facture) return;
-    const response = await fetch(`${API_URL}/factures/${facture.id}/html`);
-    const html = await response.text();
-    const blob = new Blob([html], { type: 'text/html' });
-    saveAs(blob, `facture-${facture.numero_facture}.html`);
+    try {
+      const response = await fetch(`${API_URL}/factures/${facture.id}/html`);
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération du fichier');
+      }
+      const html = await response.text();
+      const blob = new Blob([html], { type: 'text/html' });
+      saveAs(blob, `facture-${facture.numero_facture}.html`);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Erreur lors du téléchargement');
+    }
   };
 
   const formatEuro = (amount: number) => {
