@@ -114,23 +114,12 @@ export default function ListeFactures() {
       if (!response.ok) {
         throw new Error('Erreur lors de la génération du PDF');
       }
-
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-
-      const date = new Date(dateFacture);
-      const dd = String(date.getDate()).padStart(2, '0');
-      const mm = String(date.getMonth() + 1).padStart(2, '0');
-      const yy = String(date.getFullYear()).slice(2);
-      const formattedDate = `${dd}/${mm}/${yy}`;
-      const company = nomEntreprise ? ` - ${nomEntreprise}` : '';
-      link.download = `Facture - ${formattedDate}${company}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // Ouvre un nouvel onglet pour afficher un aperçu du PDF
+      window.open(url, '_blank');
+      // Libère l'URL après l'ouverture de l'onglet
+      setTimeout(() => window.URL.revokeObjectURL(url), 100);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Erreur lors du téléchargement');
     }

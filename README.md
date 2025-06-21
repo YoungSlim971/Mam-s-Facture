@@ -190,9 +190,11 @@ Mam-s-Facture/
 3. Cliquer sur les actions : Voir, Modifier, Télécharger PDF, Supprimer
 
 ### Exporter en PDF
-- Cliquer sur l'icône de téléchargement dans la liste
-- Ou utiliser le bouton "Télécharger PDF" dans les détails
-- Le PDF est généré avec une mise en forme professionnelle
+ - Cliquer sur l'icône de téléchargement dans la liste ou sur le bouton
+   "Télécharger PDF" dans les détails
+ - Un aperçu du document s'ouvre dans un nouvel onglet ; le navigateur permet
+   ensuite d'enregistrer le fichier
+ - Le PDF est généré avec une mise en forme professionnelle
 
 ## 🎨 Fonctionnalités interface
 
