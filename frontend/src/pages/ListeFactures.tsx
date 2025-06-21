@@ -39,6 +39,8 @@ export default function ListeFactures() {
   const [dateDebut, setDateDebut] = useState('');
   const [dateFin, setDateFin] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [sortField, setSortField] = useState('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const chargerFactures = useCallback(async () => {
     try {
@@ -49,7 +51,9 @@ export default function ListeFactures() {
         search: recherche,
         dateDebut,
         dateFin,
-        status: statusFilter
+        status: statusFilter,
+        sortBy: sortField,
+        order: sortOrder
       });
 
       const response = await fetch(`http://localhost:3001/api/factures?${params}`);
@@ -65,7 +69,7 @@ export default function ListeFactures() {
     } finally {
       setLoading(false);
     }
-  }, [pagination.page, pagination.limit, recherche, dateDebut, dateFin, statusFilter]);
+  }, [pagination.page, pagination.limit, recherche, dateDebut, dateFin, statusFilter, sortField, sortOrder]);
 
   useEffect(() => {
     chargerFactures();
@@ -219,6 +223,29 @@ export default function ListeFactures() {
               <option value="">Tous</option>
               <option value="unpaid">Non payées</option>
               <option value="paid">Payées</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Trier par</label>
+            <select
+              value={sortField}
+              onChange={(e) => setSortField(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="date">Date</option>
+              <option value="nom">Nom</option>
+              <option value="entreprise">Entreprise</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Ordre</label>
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="asc">Croissant</option>
+              <option value="desc">Décroissant</option>
             </select>
           </div>
         </div>
