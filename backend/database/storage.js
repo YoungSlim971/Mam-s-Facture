@@ -6,12 +6,14 @@ class JSONDatabase {
     this.dataDir = path.join(__dirname, 'data');
     this.facturesFile = path.join(this.dataDir, 'factures.json');
     this.lignesFile = path.join(this.dataDir, 'lignes.json');
+    this.factures = [];
+    this.lignes = [];
     
     // Créer le dossier data s'il n'existe pas
     if (!fs.existsSync(this.dataDir)) {
       fs.mkdirSync(this.dataDir, { recursive: true });
     }
-    
+
     this.init();
   }
 
@@ -103,6 +105,10 @@ class JSONDatabase {
       ];
       this.writeData(this.lignesFile, sampleLignes);
     }
+
+    // Charger les données en mémoire
+    this.factures = this.readData(this.facturesFile);
+    this.lignes = this.readData(this.lignesFile);
   }
 
   readData(file) {
@@ -127,7 +133,7 @@ class JSONDatabase {
 
   // FACTURES
   getFactures(filters = {}) {
-    let factures = this.readData(this.facturesFile);
+    let factures = [...this.factures];
     
     // Appliquer les filtres
     if (filters.search) {
@@ -153,10 +159,9 @@ class JSONDatabase {
     }
 
     // Ajouter le nombre de lignes
-    const lignes = this.readData(this.lignesFile);
     factures = factures.map(f => ({
       ...f,
-      nombre_lignes: lignes.filter(l => l.facture_id === f.id).length
+      nombre_lignes: this.lignes.filter(l => l.facture_id === f.id).length
     }));
 
     // Trier par date décroissante
@@ -166,21 +171,19 @@ class JSONDatabase {
   }
 
   getFactureById(id) {
-    const factures = this.readData(this.facturesFile);
-    const facture = factures.find(f => f.id === parseInt(id));
+    const facture = this.factures.find(f => f.id === parseInt(id));
     
     if (!facture) return null;
 
-    const lignes = this.readData(this.lignesFile);
     return {
       ...facture,
-      lignes: lignes.filter(l => l.facture_id === facture.id)
+      lignes: this.lignes.filter(l => l.facture_id === facture.id)
     };
   }
 
   createFacture(data) {
-    const factures = this.readData(this.facturesFile);
-    const lignes = this.readData(this.lignesFile);
+    const factures = this.factures;
+    const lignes = this.lignes;
     
     // Générer un nouvel ID
     const newId = factures.length > 0 ? Math.max(...factures.map(f => f.id)) + 1 : 1;
@@ -230,12 +233,16 @@ class JSONDatabase {
     this.writeData(this.facturesFile, factures);
     this.writeData(this.lignesFile, lignes);
 
+    // Mettre à jour les caches
+    this.factures = factures;
+    this.lignes = lignes;
+
     return newId;
   }
 
   updateFacture(id, data) {
-    const factures = this.readData(this.facturesFile);
-    const lignes = this.readData(this.lignesFile);
+    const factures = this.factures;
+    const lignes = this.lignes;
     
     const index = factures.findIndex(f => f.id === parseInt(id));
     if (index === -1) return false;
@@ -269,12 +276,15 @@ class JSONDatabase {
     this.writeData(this.facturesFile, factures);
     this.writeData(this.lignesFile, lignesFiltered);
 
+    this.factures = factures;
+    this.lignes = lignesFiltered;
+
     return true;
   }
 
   deleteFacture(id) {
-    const factures = this.readData(this.facturesFile);
-    const lignes = this.readData(this.lignesFile);
+    const factures = this.factures;
+    const lignes = this.lignes;
     
     const index = factures.findIndex(f => f.id === parseInt(id));
     if (index === -1) return false;
@@ -288,6 +298,9 @@ class JSONDatabase {
     // Sauvegarder
     this.writeData(this.facturesFile, factures);
     this.writeData(this.lignesFile, lignesFiltered);
+
+    this.factures = factures;
+    this.lignes = lignesFiltered;
 
     return true;
   }
