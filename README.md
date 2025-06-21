@@ -40,7 +40,7 @@ Une application web moderne et complète pour la gestion de factures, développ�
 
 1. **Cloner ou télécharger le projet**
    ```bash
-   cd billing-app
+   cd Mam-s-Facture
    ```
 
 2. **Installer les dépendances du backend**
@@ -75,7 +75,7 @@ Une application web moderne et complète pour la gestion de factures, développ�
 ## 📁 Structure du projet
 
 ```
-billing-app/
+Mam-s-Facture/
 ├── backend/                    # API Node.js/Express
 │   ├── database/              # Système de stockage JSON
 │   │   ├── storage.js         # Gestionnaire de base de données JSON
