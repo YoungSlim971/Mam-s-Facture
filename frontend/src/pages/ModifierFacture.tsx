@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
 import { API_URL } from '@/lib/api';
+import { computeTotals } from '@/lib/utils';
 
 interface LigneFacture {
   description: string;
@@ -148,10 +149,10 @@ export default function ModifierFacture() {
     }
   }, [id, chargerFacture]);
 
-  // Calcul du montant total
-  const montantTotal = lignes.reduce((total, ligne) => {
-    return total + (ligne.quantite * ligne.prix_unitaire);
-  }, 0);
+  const { totalHT: montantHT, totalTTC: montantTotal } = computeTotals(
+    lignes,
+    vatRate
+  );
 
   // Formatage des devises en français
   const formatEuro = (amount: number) => {
