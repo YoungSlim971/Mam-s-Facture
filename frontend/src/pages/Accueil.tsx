@@ -37,7 +37,7 @@ export default function Accueil() {
 
         {/* Action Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-          {/* Voir les factures */}
+          {/* Toutes les factures */}
           <Link
             to="/factures"
             className="group relative bg-gradient-to-br from-[var(--gradient-start)] via-[var(--gradient-mid)] to-[var(--gradient-end)] text-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300"
@@ -46,7 +46,7 @@ export default function Accueil() {
               <FileText className="h-8 w-8 text-indigo-600" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-3">
-              Voir les factures
+              Toutes les factures
             </h3>
             <p className="text-gray-600 mb-4">
               Consultez, recherchez et gérez toutes vos factures existantes. 

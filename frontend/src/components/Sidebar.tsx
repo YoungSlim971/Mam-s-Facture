@@ -14,7 +14,7 @@ export default function Sidebar() {
         </NavLink>
         <NavLink to="/factures" className="flex items-center space-x-2 hover:text-primary">
           <FileText className="h-5 w-5" />
-          <span>Voir les factures</span>
+          <span>Toutes les factures</span>
         </NavLink>
         <NavLink to="/factures/nouvelle" className="flex items-center space-x-2 hover:text-primary">
           <PlusCircle className="h-5 w-5" />

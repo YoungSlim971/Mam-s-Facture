@@ -52,12 +52,45 @@ const generateInvoiceNumber = () => {
 // GET /api/factures - Liste toutes les factures avec pagination et recherche
 app.get('/api/factures', (req, res) => {
   try {
-    const { page = 1, limit = 10, search = '', dateDebut = '', dateFin = '', status = '' } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      search = '',
+      dateDebut = '',
+      dateFin = '',
+      status = '',
+      sortBy = 'date',
+      order = 'desc'
+    } = req.query;
     const offset = (page - 1) * limit;
 
     const filters = { search, dateDebut, dateFin };
     if (status) filters.status = status;
     const allFactures = db.getFactures(filters);
+
+    // Tri
+    const sortFieldMap = {
+      nom: 'nom_client',
+      entreprise: 'nom_entreprise',
+      date: 'date_facture'
+    };
+    const sortField = sortFieldMap[sortBy] || 'date_facture';
+    const sortOrder = order === 'asc' ? 1 : -1;
+
+    allFactures.sort((a, b) => {
+      const aVal =
+        sortField === 'date_facture'
+          ? new Date(a[sortField])
+          : (a[sortField] || '').toString().toLowerCase();
+      const bVal =
+        sortField === 'date_facture'
+          ? new Date(b[sortField])
+          : (b[sortField] || '').toString().toLowerCase();
+      if (aVal < bVal) return -1 * sortOrder;
+      if (aVal > bVal) return 1 * sortOrder;
+      return 0;
+    });
+
     const total = allFactures.length;
     
     // Pagination
