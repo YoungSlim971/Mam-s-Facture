@@ -15,28 +15,35 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>('system')
+  const getSystem = () =>
+    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return 'system'
+    const stored = localStorage.getItem('theme') as Theme | null
+    return stored ?? 'system'
+  })
 
   useEffect(() => {
     const root = document.documentElement
     const applyTheme = () => {
-      root.classList.remove('theme-sunset', 'theme-light', 'theme-dark', 'dark')
+      root.classList.remove('light', 'dark', 'sunset')
 
       if (theme === 'sunset') {
-        root.classList.add('theme-sunset')
+        root.classList.add('sunset')
         return
       }
 
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      const prefersDark = getSystem() === 'dark'
 
       if (theme === 'dark' || (theme === 'system' && prefersDark)) {
-        root.classList.add('theme-dark', 'dark')
+        root.classList.add('dark')
       } else {
-        root.classList.add('theme-light')
+        root.classList.add('light')
       }
     }
 
     applyTheme()
+    localStorage.setItem('theme', theme)
 
     if (theme === 'system') {
       const media = window.matchMedia('(prefers-color-scheme: dark)')
