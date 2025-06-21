@@ -33,8 +33,17 @@ const formatDateFR = (dateString) => {
 // Générer un numéro de facture automatique
 const generateInvoiceNumber = () => {
   const year = new Date().getFullYear();
-  const timestamp = Date.now().toString().slice(-6);
-  return `FACT-${year}-${timestamp}`;
+  const factures = db.getFactures();
+  const existingNumbers = factures
+    .map((f) => {
+      const match = f.numero_facture.match(/^FACT-(\d{4})-(\d+)/);
+      return match && parseInt(match[1], 10) === year
+        ? parseInt(match[2], 10)
+        : NaN;
+    })
+    .filter((n) => !isNaN(n));
+  const next = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+  return `FACT-${year}-${String(next).padStart(3, '0')}`;
 };
 
 // Routes API
