@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 # Installation script for macOS Apple Silicon
 if [[ "$(uname)" != "Darwin" ]]; then
@@ -18,22 +18,34 @@ if ! command -v brew >/dev/null 2>&1; then
   exit 1
 fi
 
+brew update >/dev/null
+
 if ! command -v node >/dev/null 2>&1; then
   echo "[installer] Installation de Node.js via Homebrew..."
   brew install node
 fi
 
-if ! command -v pnpm >/dev/null 2>&1; then
-  echo "[installer] Installation de pnpm..."
-  npm install -g pnpm
-fi
-
-# Détermine si la version de Node est suffisante
 NODE_MAJOR=$(node -v | sed 's/^v\([0-9]*\).*$/\1/')
 if [ "$NODE_MAJOR" -lt 18 ]; then
   echo "[installer] Mise à niveau de Node.js (>=18) via Homebrew..."
-  brew install node
+  brew upgrade node || brew install node
 fi
+
+
+if ! command -v pnpm >/dev/null 2>&1; then
+  if brew info pnpm >/dev/null 2>&1; then
+    echo "[installer] Installation de pnpm via Homebrew..."
+    brew install pnpm
+  else
+    echo "[installer] Installation de pnpm via npm..."
+    npm install -g pnpm
+  fi
+fi
+
+if command -v corepack >/dev/null 2>&1; then
+  corepack enable >/dev/null
+fi
+
 
 # Exécute le script générique en transmettant les options reçues
 ./install.sh "$@"
