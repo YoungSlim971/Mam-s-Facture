@@ -160,6 +160,10 @@ export default function DetailFacture() {
     );
   }
 
+  const totalHT = facture.montant_total;
+  const tauxTVA = facture.vat_rate ?? 0;
+  const totalTTC = totalHT * (1 + tauxTVA / 100);
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -407,10 +411,18 @@ export default function DetailFacture() {
                 <tfoot className="bg-indigo-50">
                   <tr>
                     <td colSpan={3} className="px-6 py-4 text-right">
-                      <p className="text-lg font-bold text-gray-900">Total de la facture</p>
+                      <p className="text-lg font-bold text-gray-900">Total HT</p>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <p className="text-xl font-bold text-indigo-600">{facture.montant_total_fr}</p>
+                      <p className="text-lg font-bold text-indigo-600">{formatEuro(totalHT)}</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colSpan={3} className="px-6 py-4 text-right">
+                      <p className="text-lg font-bold text-gray-900">Total TTC</p>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <p className="text-xl font-bold text-indigo-600">{formatEuro(totalTTC)}</p>
                     </td>
                   </tr>
                 </tfoot>
