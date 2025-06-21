@@ -1,5 +1,7 @@
 # React + TypeScript + Vite
 
+This frontend is part of the **Mam-s-Facture** application. You can install all dependencies at once by running `../install.sh` from the project root.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
