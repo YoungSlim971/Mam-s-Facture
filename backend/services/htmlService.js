@@ -34,3 +34,4 @@ function buildFactureHTML(facture) {
 }
 
 module.exports = buildFactureHTML;
+module.exports.mapFactureToInvoiceData = mapFactureToInvoiceData;
