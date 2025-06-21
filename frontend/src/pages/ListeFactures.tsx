@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Search, Filter, FileText, Plus, Eye, Edit, Trash2, Download, ArrowLeft, Calendar } from 'lucide-react';
 
 interface Facture {
@@ -7,6 +7,7 @@ interface Facture {
   numero_facture: string;
   nom_client: string;
   nom_entreprise?: string;
+  status?: 'paid' | 'unpaid';
   date_facture: string;
   date_facture_fr: string;
   montant_total: number;
@@ -22,6 +23,7 @@ interface PaginationInfo {
 }
 
 export default function ListeFactures() {
+  const location = useLocation();
   const [factures, setFactures] = useState<Facture[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +38,7 @@ export default function ListeFactures() {
   const [recherche, setRecherche] = useState('');
   const [dateDebut, setDateDebut] = useState('');
   const [dateFin, setDateFin] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   const chargerFactures = useCallback(async () => {
     try {
@@ -45,7 +48,8 @@ export default function ListeFactures() {
         limit: pagination.limit.toString(),
         search: recherche,
         dateDebut,
-        dateFin
+        dateFin,
+        status: statusFilter
       });
 
       const response = await fetch(`http://localhost:3001/api/factures?${params}`);
@@ -61,11 +65,17 @@ export default function ListeFactures() {
     } finally {
       setLoading(false);
     }
-  }, [pagination.page, pagination.limit, recherche, dateDebut, dateFin]);
+  }, [pagination.page, pagination.limit, recherche, dateDebut, dateFin, statusFilter]);
 
   useEffect(() => {
     chargerFactures();
   }, [chargerFactures]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const st = params.get('status');
+    if (st) setStatusFilter(st);
+  }, [location.search]);
 
   const supprimerFacture = async (id: number, numeroFacture: string) => {
     if (!confirm(`Êtes-vous sûr de vouloir supprimer la facture ${numeroFacture} ?`)) {
@@ -185,22 +195,34 @@ export default function ListeFactures() {
                 />
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date de fin
-              </label>
-              <div className="relative">
-                <Calendar className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-                <input
-                  type="date"
-                  value={dateFin}
-                  onChange={(e) => setDateFin(e.target.value)}
-                  className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Date de fin
+            </label>
+            <div className="relative">
+              <Calendar className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+              <input
+                type="date"
+                value={dateFin}
+                onChange={(e) => setDateFin(e.target.value)}
+                className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
             </div>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">Tous</option>
+              <option value="unpaid">Non payées</option>
+              <option value="paid">Payées</option>
+            </select>
+          </div>
         </div>
+      </div>
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
@@ -223,7 +245,7 @@ export default function ListeFactures() {
                 Aucune facture trouvée
               </h3>
               <p className="text-gray-600 mb-6">
-                {recherche || dateDebut || dateFin
+                {recherche || dateDebut || dateFin || statusFilter
                   ? "Aucune facture ne correspond à vos critères de recherche."
                   : "Vous n'avez pas encore créé de facture."}
               </p>
@@ -250,6 +272,9 @@ export default function ListeFactures() {
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Statut
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Montant total
@@ -282,6 +307,9 @@ export default function ListeFactures() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {facture.date_facture_fr}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          {facture.status === 'paid' ? 'Payée' : 'Non payée'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="text-lg font-semibold text-green-600">

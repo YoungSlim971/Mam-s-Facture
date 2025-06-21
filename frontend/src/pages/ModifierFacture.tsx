@@ -17,6 +17,14 @@ interface Facture {
   adresse?: string;
   date_facture: string;
   montant_total: number;
+  title?: string;
+  status?: 'paid' | 'unpaid';
+  logo_path?: string;
+  siren?: string;
+  siret?: string;
+  legal_form?: string;
+  vat_number?: string;
+  rcs_number?: string;
   lignes: Array<{
     id: number;
     description: string;
@@ -36,6 +44,14 @@ export default function ModifierFacture() {
   const [telephone, setTelephone] = useState('');
   const [adresse, setAdresse] = useState('');
   const [dateFacture, setDateFacture] = useState('');
+  const [title, setTitle] = useState('');
+  const [status, setStatus] = useState<'paid' | 'unpaid'>('unpaid');
+  const [logoPath, setLogoPath] = useState('');
+  const [siren, setSiren] = useState('');
+  const [siret, setSiret] = useState('');
+  const [legalForm, setLegalForm] = useState('');
+  const [vatNumber, setVatNumber] = useState('');
+  const [rcsNumber, setRcsNumber] = useState('');
   const [lignes, setLignes] = useState<LigneFacture[]>([
     { description: '', quantite: 1, prix_unitaire: 0 }
   ]);
@@ -57,13 +73,21 @@ export default function ModifierFacture() {
 
       const facture: Facture = await response.json();
       setFactureOriginale(facture);
-      
+
       // Remplir le formulaire avec les données existantes
       setNomClient(facture.nom_client);
       setNomEntreprise(facture.nom_entreprise || '');
       setTelephone(facture.telephone || '');
       setAdresse(facture.adresse || '');
       setDateFacture(facture.date_facture);
+      setTitle(facture.title || '');
+      setStatus(facture.status || 'unpaid');
+      setLogoPath(facture.logo_path || '');
+      setSiren(facture.siren || '');
+      setSiret(facture.siret || '');
+      setLegalForm(facture.legal_form || '');
+      setVatNumber(facture.vat_number || '');
+      setRcsNumber(facture.rcs_number || '');
       
       // Convertir les lignes au format du formulaire
       const lignesFormulaire = facture.lignes.map(ligne => ({
@@ -178,6 +202,14 @@ export default function ModifierFacture() {
           telephone: telephone.trim(),
           adresse: adresse.trim(),
           date_facture: dateFacture,
+          title: title.trim(),
+          status,
+          logo_path: logoPath.trim(),
+          siren: siren.trim(),
+          siret: siret.trim(),
+          legal_form: legalForm.trim(),
+          vat_number: vatNumber.trim(),
+          rcs_number: rcsNumber.trim(),
           lignes: lignesValides
         }),
       });
@@ -311,10 +343,91 @@ export default function ModifierFacture() {
                   placeholder="Ex: 123 Rue de la République, 75001 Paris"
                 />
               </div>
+          </div>
+        </div>
+
+        {/* Informations légales */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-6">Informations légales</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Intitulé</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value as 'paid' | 'unpaid')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="unpaid">Non payée</option>
+                <option value="paid">Payée</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Chemin logo</label>
+              <input
+                type="text"
+                value={logoPath}
+                onChange={(e) => setLogoPath(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">SIREN</label>
+              <input
+                type="text"
+                value={siren}
+                onChange={(e) => setSiren(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">SIRET</label>
+              <input
+                type="text"
+                value={siret}
+                onChange={(e) => setSiret(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Forme juridique</label>
+              <input
+                type="text"
+                value={legalForm}
+                onChange={(e) => setLegalForm(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">N° TVA</label>
+              <input
+                type="text"
+                value={vatNumber}
+                onChange={(e) => setVatNumber(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">N° RCS</label>
+              <input
+                type="text"
+                value={rcsNumber}
+                onChange={(e) => setRcsNumber(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
             </div>
           </div>
+        </div>
 
-          {/* Lignes de facturation */}
+        {/* Lignes de facturation */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold text-gray-900">
