@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
 import { API_URL } from '@/lib/api';
+import { computeTotals } from '@/lib/utils';
 
 interface LigneFacture {
   description: string;
@@ -67,13 +68,10 @@ export default function CreerFacture() {
     }
   }
 
-  // Calcul du montant total
-  const montantTotal = lignes.reduce((total, ligne) => {
-    return total + (ligne.quantite * ligne.prix_unitaire);
-  }, 0);
-
-  // Prix HT calculé à partir du montant TTC
-  const montantHT = montantTotal / 1.2;
+  const { totalHT: montantHT, totalTTC: montantTotal } = computeTotals(
+    lignes,
+    vatRate
+  );
 
   // Formatage des devises en français
   const formatEuro = (amount: number) => {

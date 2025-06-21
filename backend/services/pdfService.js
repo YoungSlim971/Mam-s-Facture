@@ -6,15 +6,15 @@ function mapFactureToInvoiceData(facture) {
   return {
     nom_entreprise: facture.nom_entreprise || '',
     siren: facture.siren || '',
-    adresse: facture.adresse ? facture.adresse.split('\n') : undefined,
+    adresse: undefined,
     logo_path: facture.logo_path
       ? path.isAbsolute(facture.logo_path)
         ? facture.logo_path
         : path.join(__dirname, '..', facture.logo_path)
       : undefined,
     nom_client: facture.nom_client,
-    adresse_client: facture.adresse_client
-      ? facture.adresse_client.split('\n')
+    adresse_client: facture.adresse
+      ? facture.adresse.split('\n')
       : undefined,
     numero: facture.numero_facture || facture.numero,
     date: facture.date_facture,
