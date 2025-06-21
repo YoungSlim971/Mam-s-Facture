@@ -1,6 +1,6 @@
 # Application de Facturation Complète
 
-Une application web moderne et complète pour la gestion de factures, développée avec React, Node.js, et stockage JSON. Interface entièrement en français avec génération de PDF professionnels.
+Une application web moderne et complète pour la gestion de factures, développée avec React, Node.js, et stockage JSON. Interface entièrement en français avec export HTML imprimable.
 
 Pour une installation simplifiée, lancez `./install.sh` à la racine du projet. Ce script installe toutes les dépendances et construit automatiquement le frontend.
 
@@ -21,7 +21,7 @@ Pour une installation simplifiée, lancez `./install.sh` à la racine du projet.
 - **Numérotation automatique** des factures
 
 ### ✅ Fonctionnalités avancées
-- **Export PDF** avec mise en forme professionnelle
+- **Export HTML** prêt pour impression
 - **Formatage français** des dates (DD/MM/YYYY) et devises (€)
 - **Stockage persistant** avec fichiers JSON
 - **API RESTful** complète avec gestion d'erreurs
@@ -160,7 +160,7 @@ Mam-s-Facture/
 - `POST /api/factures` - Créer une nouvelle facture
 - `PUT /api/factures/:id` - Modifier une facture
 - `DELETE /api/factures/:id` - Supprimer une facture
-- `GET /api/factures/:id/pdf` - Télécharger le PDF d'une facture
+ - `GET /api/factures/:id/html` - Exporter la facture en HTML
 - `GET /api/clients` - Liste des clients
 - `POST /api/clients` - Créer un client
 - `GET /api/clients/:id` - Détails d'un client
@@ -188,14 +188,12 @@ Mam-s-Facture/
 ### Gérer les factures
 1. Accéder à la liste des factures
 2. Utiliser les filtres pour rechercher
-3. Cliquer sur les actions : Voir, Modifier, Télécharger PDF, Supprimer
+3. Cliquer sur les actions : Voir, Modifier, Exporter, Supprimer
 
-### Exporter en PDF
- - Cliquer sur l'icône de téléchargement dans la liste ou sur le bouton
-   "Télécharger PDF" dans les détails
- - Un aperçu du document s'ouvre dans un nouvel onglet ; le navigateur permet
-   ensuite d'enregistrer le fichier
- - Le PDF est généré avec une mise en forme professionnelle
+### Exporter en HTML
+ - Cliquer sur l'icône d'export dans la liste ou sur le bouton
+   "Exporter" dans les détails
+ - Le fichier HTML peut ensuite être imprimé au format PDF
 
 ## 🎨 Fonctionnalités interface
 
@@ -227,14 +225,14 @@ L'application inclut des données d'exemple pour la démonstration :
 - Les factures comportent désormais un titre, des informations légales et un statut payé/non payé
 
 ### Personnalisation
-- **Informations entreprise** : Modifiables dans `server.js` (section PDF)
+- **Informations entreprise** : Modifiables dans `server.js` (section export)
 - **Styles** : Interface basée sur Tailwind CSS
 - **Stockage** : Facilement extensible vers une base de données
 
 ### Tests
 - Tester l'API avec un client REST (Postman, curl)
 - Interface testable directement dans le navigateur
-- Génération PDF testable via l'interface
+- Export HTML testable via l'interface
 - **Tests automatisés** :
   - Backend : `cd backend && pnpm test`
   - Frontend : `cd frontend && pnpm test`

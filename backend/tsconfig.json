@@ -7,5 +7,5 @@
     "strict": false,
     "skipLibCheck": true
   },
-  "include": ["invoiceGenerator.ts", "**/*.ts"]
+  "include": ["invoiceHTML.ts", "**/*.ts"]
 }
