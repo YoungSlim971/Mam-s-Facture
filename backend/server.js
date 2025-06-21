@@ -17,18 +17,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Base de données JSON
 const db = new JSONDatabase();
 
-// Utilitaire pour formater les nombres en français
-const formatEuro = (amount) => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'EUR'
-  }).format(amount);
-};
+// Formatters réutilisables pour éviter de recréer les objets à chaque appel
+const euroFormatter = new Intl.NumberFormat('fr-FR', {
+  style: 'currency',
+  currency: 'EUR'
+});
+const dateFormatter = new Intl.DateTimeFormat('fr-FR');
+
+// Utilitaire pour formater les montants en euros
+const formatEuro = (amount) => euroFormatter.format(amount);
 
 // Utilitaire pour formater les dates en français
 const formatDateFR = (dateString) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString('fr-FR');
+  return dateFormatter.format(date);
 };
 
 // Générer un numéro de facture automatique
