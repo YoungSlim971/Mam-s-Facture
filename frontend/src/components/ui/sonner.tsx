@@ -1,16 +1,28 @@
 "use client"
 
-import { useTheme } from "next-themes"
+import { useTheme } from "../../context/ThemeContext"
 import { Toaster as Sonner } from "sonner"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+  const { theme } = useTheme()
+
+  const systemPrefersDark =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  const toastTheme: ToasterProps["theme"] =
+    theme === "sunset"
+      ? "light"
+      : theme === "dark"
+        ? "dark"
+        : systemPrefersDark
+          ? "dark"
+          : "light"
 
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme={toastTheme}
       className="toaster group"
       toastOptions={{
         classNames: {

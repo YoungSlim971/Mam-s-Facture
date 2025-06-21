@@ -1,6 +1,10 @@
 import React, { useState, useEffect, createContext, useContext } from 'react'
 
-export type Theme = 'sunset' | 'light' | 'dark'
+// The application supports three modes:
+//  - "sunset"  : a custom colorful theme
+//  - "dark"    : a dark theme
+//  - "system"  : follows the OS preference (light or dark)
+export type Theme = 'sunset' | 'dark' | 'system'
 
 interface ThemeContextValue {
   theme: Theme
@@ -11,16 +15,38 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>('sunset')
+  const [theme, setTheme] = useState<Theme>('system')
 
   useEffect(() => {
-    const cls = `theme-${theme}`
-    document.documentElement.classList.remove('theme-sunset', 'theme-light', 'theme-dark')
-    document.documentElement.classList.add(cls)
+    const root = document.documentElement
+    const applyTheme = () => {
+      root.classList.remove('theme-sunset', 'theme-light', 'theme-dark', 'dark')
+
+      if (theme === 'sunset') {
+        root.classList.add('theme-sunset')
+        return
+      }
+
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+      if (theme === 'dark' || (theme === 'system' && prefersDark)) {
+        root.classList.add('theme-dark', 'dark')
+      } else {
+        root.classList.add('theme-light')
+      }
+    }
+
+    applyTheme()
+
+    if (theme === 'system') {
+      const media = window.matchMedia('(prefers-color-scheme: dark)')
+      media.addEventListener('change', applyTheme)
+      return () => media.removeEventListener('change', applyTheme)
+    }
   }, [theme])
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'sunset' ? 'light' : prev === 'light' ? 'dark' : 'sunset'))
+    setTheme((prev) => (prev === 'sunset' ? 'dark' : prev === 'dark' ? 'system' : 'sunset'))
   }
 
   return (

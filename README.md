@@ -174,7 +174,7 @@ Mam-s-Facture/
 - **Feedback visuel** : Confirmations et messages d'état
 - **Responsive design** : Fonctionne sur mobile et desktop
 - **Performance** : Chargement rapide avec pagination
-- **Thèmes** : Sunset (par défaut), Light et Dark sélectionnables depuis la barre latérale
+- **Thèmes** : Sunset, Système (par défaut) et Dark sélectionnables depuis la barre latérale
 
 ## 🛠️ Développement
 
