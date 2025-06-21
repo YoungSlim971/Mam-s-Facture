@@ -41,18 +41,19 @@ Pour une installation simplifiée, lancez `./install.sh` à la racine du projet.
 
 ### Installation rapide
 
-Exécutez le script `install.sh` à la racine du projet. Il détecte automatiquement `pnpm` (ou `npm`), gère l'installation du backend et du frontend, puis construit ce dernier :
+Exécutez le script `install.sh` à la racine du projet. Il vérifie la version de Node.js (>=18), détecte automatiquement `pnpm` (ou `npm`), gère l'installation du backend et du frontend puis construit ce dernier. Vous pouvez passer l'option `--skip-build` pour ignorer la construction du frontend :
 
 ```bash
-./install.sh
+./install.sh        # installation complète
+./install.sh --skip-build   # sans construction du frontend
 ```
 
 ### Installation macOS (Apple Silicon)
 
-Un script spécifique `install_macos.sh` simplifie l'installation sur macOS avec processeur Apple Silicon. Il vérifie que Homebrew, Node.js et pnpm sont présents puis lance `install.sh` :
+Un script spécifique `install_macos.sh` simplifie l'installation sur macOS avec processeur Apple Silicon. Il vérifie que Homebrew, Node.js et pnpm sont présents puis appelle `install.sh`. Les mêmes options peuvent lui être passées :
 
 ```bash
-./install_macos.sh
+./install_macos.sh --skip-build
 ```
 
 ### Installation manuelle
@@ -110,10 +111,10 @@ Exemples :
 
 #### Lancement rapide sur macOS
 
-Le script `launch_safari.sh` démarre le backend et le frontend puis ouvre automatiquement Safari sur l'URL de l'application :
+Le script `launch_safari.sh` démarre le backend et le frontend puis ouvre par défaut Safari sur l'URL de l'application. Vous pouvez choisir un autre navigateur avec `--browser=Chrome` ou ne pas en ouvrir avec `--no-browser` :
 
 ```bash
-./launch_safari.sh
+./launch_safari.sh --browser=Firefox
 ```
 
 ### Migration de la base de données

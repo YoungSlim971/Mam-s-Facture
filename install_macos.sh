@@ -28,5 +28,12 @@ if ! command -v pnpm >/dev/null 2>&1; then
   npm install -g pnpm
 fi
 
-# Execute generic install script
-./install.sh
+# Détermine si la version de Node est suffisante
+NODE_MAJOR=$(node -v | sed 's/^v\([0-9]*\).*$/\1/')
+if [ "$NODE_MAJOR" -lt 18 ]; then
+  echo "[installer] Mise à niveau de Node.js (>=18) via Homebrew..."
+  brew install node
+fi
+
+# Exécute le script générique en transmettant les options reçues
+./install.sh "$@"
