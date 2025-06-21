@@ -6,8 +6,8 @@ Pour une installation simplifiée, lancez `./install.sh` à la racine du projet.
 
 ## 🌟 Fonctionnalités principales
 
-### ✅ Interface utilisateur complète
-- **Page d'accueil** avec navigation intuitive
+-### ✅ Interface utilisateur complète
+- **Page d'accueil** avec navigation intuitive et barre latérale
 - **Gestion complète des factures** (CRUD)
 - **Recherche et filtrage** par client, période, montant
 - **Pagination** pour une navigation fluide
@@ -78,9 +78,17 @@ Exécutez le script `install.sh` à la racine du projet. Il détecte automatique
 2. **Démarrer l'interface frontend**
    ```bash
    cd frontend
-   pnpm run dev
-   ```
-   L'application est accessible sur http://localhost:5173
+  pnpm run dev
+  ```
+  L'application est accessible sur http://localhost:5173
+
+### Migration de la base de données
+Un script est fourni pour ajouter les nouveaux champs légaux aux anciennes factures :
+
+```bash
+cd backend
+node database/migrations/002-add-legal-fields.js
+```
 
 ## 📁 Structure du projet
 
@@ -166,6 +174,7 @@ Mam-s-Facture/
 - **Feedback visuel** : Confirmations et messages d'état
 - **Responsive design** : Fonctionne sur mobile et desktop
 - **Performance** : Chargement rapide avec pagination
+- **Thèmes** : Sunset (par défaut), Light et Dark sélectionnables depuis la barre latérale
 
 ## 🛠️ Développement
 
@@ -174,6 +183,7 @@ L'application inclut des données d'exemple pour la démonstration :
 - 3 factures pré-créées avec différents clients
 - Lignes de facturation variées
 - Montants et dates réalistes
+- Les factures comportent désormais un titre, des informations légales et un statut payé/non payé
 
 ### Personnalisation
 - **Informations entreprise** : Modifiables dans `server.js` (section PDF)

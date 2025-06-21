@@ -51,10 +51,11 @@ const generateInvoiceNumber = () => {
 // GET /api/factures - Liste toutes les factures avec pagination et recherche
 app.get('/api/factures', (req, res) => {
   try {
-    const { page = 1, limit = 10, search = '', dateDebut = '', dateFin = '' } = req.query;
+    const { page = 1, limit = 10, search = '', dateDebut = '', dateFin = '', status = '' } = req.query;
     const offset = (page - 1) * limit;
-    
+
     const filters = { search, dateDebut, dateFin };
+    if (status) filters.status = status;
     const allFactures = db.getFactures(filters);
     const total = allFactures.length;
     
@@ -117,7 +118,15 @@ app.post('/api/factures', (req, res) => {
       telephone = '',
       adresse = '',
       date_facture,
-      lignes = []
+      lignes = [],
+      title = '',
+      status = 'unpaid',
+      logo_path = '',
+      siren = '',
+      siret = '',
+      legal_form = '',
+      vat_number = '',
+      rcs_number = ''
     } = req.body;
 
     // Validation
@@ -143,7 +152,15 @@ app.post('/api/factures', (req, res) => {
       adresse: adresse.trim(),
       date_facture,
       montant_total,
-      lignes
+      lignes,
+      title,
+      status,
+      logo_path,
+      siren,
+      siret,
+      legal_form,
+      vat_number,
+      rcs_number
     };
 
     const factureId = db.createFacture(factureData);
@@ -171,7 +188,15 @@ app.put('/api/factures/:id', (req, res) => {
       telephone = '',
       adresse = '',
       date_facture,
-      lignes = []
+      lignes = [],
+      title = '',
+      status = 'unpaid',
+      logo_path = '',
+      siren = '',
+      siret = '',
+      legal_form = '',
+      vat_number = '',
+      rcs_number = ''
     } = req.body;
 
     // Validation
@@ -194,7 +219,15 @@ app.put('/api/factures/:id', (req, res) => {
       adresse: adresse.trim(),
       date_facture,
       montant_total,
-      lignes
+      lignes,
+      title,
+      status,
+      logo_path,
+      siren,
+      siret,
+      legal_form,
+      vat_number,
+      rcs_number
     };
 
     const success = db.updateFacture(id, factureData);
@@ -251,16 +284,23 @@ app.get('/api/factures/:id/pdf', (req, res) => {
     doc.pipe(res);
 
     // En-tête de la facture
-    doc.fontSize(20).text('FACTURE', 50, 50);
-    doc.fontSize(12).text(`Numéro: ${facture.numero_facture}`, 50, 80);
-    doc.text(`Date: ${formatDateFR(facture.date_facture)}`, 50, 100);
+    if (facture.logo_path) {
+      try {
+        doc.image(path.join(__dirname, facture.logo_path), 50, 40, { width: 80 });
+      } catch (e) {
+        // ignore logo errors
+      }
+    }
+    doc.fontSize(20).text(facture.title || 'FACTURE', 150, 50);
+    doc.fontSize(12).text(`Numéro: ${facture.numero_facture}`, 150, 80);
+    doc.text(`Date: ${formatDateFR(facture.date_facture)}`, 150, 100);
 
-    // Informations entreprise (exemple)
-    doc.text('Facturation Pro SARL', 400, 50);
-    doc.text('123 Rue de l\'Innovation', 400, 70);
-    doc.text('75001 Paris, France', 400, 90);
-    doc.text('contact@facturation-pro.fr', 400, 110);
-    doc.text('SIRET: 12345678901234', 400, 130);
+    // Informations entreprise
+    doc.text(facture.nom_entreprise || '', 400, 50);
+    if (facture.adresse) doc.text(facture.adresse, 400, 70, { width: 150 });
+    if (facture.siren) doc.text(`SIREN: ${facture.siren}`, 400, 110);
+    if (facture.siret) doc.text(`SIRET: ${facture.siret}`, 400, 130);
+    if (facture.vat_number) doc.text(`TVA: ${facture.vat_number}`, 400, 150);
 
     // Informations client
     doc.text('Facturé à:', 50, 160);
@@ -302,7 +342,10 @@ app.get('/api/factures/:id/pdf', (req, res) => {
     doc.fontSize(10);
     doc.text('Merci pour votre confiance !', 50, yPosition);
     doc.text('Conditions de paiement: 30 jours net', 50, yPosition + 15);
-    doc.text(`Facture générée le ${formatDateFR(new Date().toISOString())}`, 50, yPosition + 30);
+    if (facture.vat_number) {
+      doc.text(`TVA appliquée: ${facture.vat_number}`, 50, yPosition + 30);
+    }
+    doc.text(`Facture générée le ${formatDateFR(new Date().toISOString())}`, 50, yPosition + 45);
 
     doc.end();
   } catch (err) {
