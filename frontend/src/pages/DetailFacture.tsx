@@ -15,6 +15,14 @@ interface Facture {
   montant_total_fr: string;
   created_at: string;
   updated_at: string;
+  title?: string;
+  status?: 'paid' | 'unpaid';
+  logo_path?: string;
+  siren?: string;
+  siret?: string;
+  legal_form?: string;
+  vat_number?: string;
+  rcs_number?: string;
   lignes: LigneFacture[];
 }
 
@@ -234,6 +242,15 @@ export default function DetailFacture() {
                       <p className="font-semibold text-gray-900">{facture.numero_facture}</p>
                     </div>
                   </div>
+                  {facture.title && (
+                    <div className="flex items-center">
+                      <FileText className="h-5 w-5 text-gray-400 mr-3" />
+                      <div>
+                        <p className="text-sm text-gray-500">Intitulé</p>
+                        <p className="font-semibold text-gray-900">{facture.title}</p>
+                      </div>
+                    </div>
+                  )}
                   <div className="flex items-center">
                     <Calendar className="h-5 w-5 text-gray-400 mr-3" />
                     <div>
@@ -250,6 +267,17 @@ export default function DetailFacture() {
                       <p className="text-2xl font-bold text-green-600">{facture.montant_total_fr}</p>
                     </div>
                   </div>
+                  {facture.status && (
+                    <div className="flex items-center">
+                      <FileText className="h-5 w-5 text-gray-400 mr-3" />
+                      <div>
+                        <p className="text-sm text-gray-500">Statut</p>
+                        <p className="font-semibold text-gray-900">
+                          {facture.status === 'paid' ? 'Payée' : 'Non payée'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   <div className="flex items-center">
                     <FileText className="h-5 w-5 text-gray-400 mr-3" />
                     <div>
@@ -295,10 +323,51 @@ export default function DetailFacture() {
                   </div>
                 )}
               </div>
+          </div>
+        </div>
+
+        {/* Informations légales */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Informations légales</h3>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {facture.siren && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">SIREN</p>
+                  <p className="font-semibold text-gray-900">{facture.siren}</p>
+                </div>
+              )}
+              {facture.siret && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">SIRET</p>
+                  <p className="font-semibold text-gray-900">{facture.siret}</p>
+                </div>
+              )}
+              {facture.legal_form && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Forme juridique</p>
+                  <p className="font-semibold text-gray-900">{facture.legal_form}</p>
+                </div>
+              )}
+              {facture.vat_number && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">N° TVA</p>
+                  <p className="font-semibold text-gray-900">{facture.vat_number}</p>
+                </div>
+              )}
+              {facture.rcs_number && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">N° RCS</p>
+                  <p className="font-semibold text-gray-900">{facture.rcs_number}</p>
+                </div>
+              )}
             </div>
           </div>
+        </div>
 
-          {/* Lignes de facturation */}
+        {/* Lignes de facturation */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900">
