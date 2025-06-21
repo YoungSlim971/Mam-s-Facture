@@ -97,6 +97,28 @@ app.get('/api/clients/:id', (req, res) => {
   }
 });
 
+app.put('/api/clients/:id', (req, res) => {
+  try {
+    const { nom_client, nom_entreprise = '', telephone = '', adresse = '' } = req.body;
+    if (!nom_client) {
+      return res.status(400).json({ error: 'Nom du client requis' });
+    }
+    const success = db.updateClient(req.params.id, {
+      nom_client: nom_client.trim(),
+      nom_entreprise: nom_entreprise.trim(),
+      telephone: telephone.trim(),
+      adresse: adresse.trim()
+    });
+    if (!success) return res.status(404).json({ error: 'Client non trouvé' });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({
+      error: 'Erreur lors de la mise à jour du client',
+      details: err.message
+    });
+  }
+});
+
 // GET /api/factures - Liste toutes les factures avec pagination et recherche
 app.get('/api/factures', (req, res) => {
   try {
