@@ -6,5 +6,93 @@
     "quantite": 1,
     "prix_unitaire": 100,
     "sous_total": 100
+  },
+  {
+    "id": 9,
+    "facture_id": 5,
+    "description": "Item",
+    "quantite": 1,
+    "prix_unitaire": 10,
+    "sous_total": 10
+  },
+  {
+    "id": 10,
+    "facture_id": 6,
+    "description": "Service 1",
+    "quantite": 4,
+    "prix_unitaire": 41,
+    "sous_total": 164
+  },
+  {
+    "id": 11,
+    "facture_id": 6,
+    "description": "Service 2",
+    "quantite": 1,
+    "prix_unitaire": 98,
+    "sous_total": 98
+  },
+  {
+    "id": 12,
+    "facture_id": 6,
+    "description": "Service 3",
+    "quantite": 3,
+    "prix_unitaire": 94,
+    "sous_total": 282
+  },
+  {
+    "id": 13,
+    "facture_id": 7,
+    "description": "Service 1",
+    "quantite": 5,
+    "prix_unitaire": 59,
+    "sous_total": 295
+  },
+  {
+    "id": 14,
+    "facture_id": 8,
+    "description": "Service 1",
+    "quantite": 2,
+    "prix_unitaire": 115,
+    "sous_total": 230
+  },
+  {
+    "id": 15,
+    "facture_id": 8,
+    "description": "Service 2",
+    "quantite": 1,
+    "prix_unitaire": 67,
+    "sous_total": 67
+  },
+  {
+    "id": 16,
+    "facture_id": 8,
+    "description": "Service 3",
+    "quantite": 4,
+    "prix_unitaire": 41,
+    "sous_total": 164
+  },
+  {
+    "id": 17,
+    "facture_id": 9,
+    "description": "Service 1",
+    "quantite": 2,
+    "prix_unitaire": 113,
+    "sous_total": 226
+  },
+  {
+    "id": 18,
+    "facture_id": 9,
+    "description": "Service 2",
+    "quantite": 2,
+    "prix_unitaire": 89,
+    "sous_total": 178
+  },
+  {
+    "id": 19,
+    "facture_id": 10,
+    "description": "Service 1",
+    "quantite": 3,
+    "prix_unitaire": 55,
+    "sous_total": 165
   }
 ]
