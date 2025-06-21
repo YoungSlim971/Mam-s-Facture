@@ -35,6 +35,7 @@ class JSONDatabase {
           siret: '12345678900011',
           legal_form: 'SARL',
           vat_number: 'FR123456789',
+          vat_rate: 20,
           rcs_number: 'Paris B 123456789',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -55,6 +56,7 @@ class JSONDatabase {
           siret: '12345678900011',
           legal_form: 'SARL',
           vat_number: 'FR123456789',
+          vat_rate: 20,
           rcs_number: 'Paris B 123456789',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -75,6 +77,7 @@ class JSONDatabase {
           siret: '12345678900011',
           legal_form: 'SARL',
           vat_number: 'FR123456789',
+          vat_rate: 20,
           rcs_number: 'Paris B 123456789',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -191,6 +194,7 @@ class JSONDatabase {
       siret: data.siret || '',
       legal_form: data.legal_form || '',
       vat_number: data.vat_number || '',
+      vat_rate: typeof data.vat_rate !== 'undefined' ? parseFloat(data.vat_rate) : 0,
       rcs_number: data.rcs_number || ''
     };
 

@@ -63,11 +63,12 @@ function buildFacturePDF(facture, outPath) {
 
     let totalHT = 0;
     let totalTVA = 0;
+    const tauxTVA = parseFloat(facture.vat_rate || 0);
 
     (facture.lignes || []).forEach(ligne => {
       const qte = parseFloat(ligne.quantite) || 0;
       const pu = parseFloat(ligne.prix_unitaire) || 0;
-      const tva = parseFloat(ligne.tva || 0);
+      const tva = tauxTVA || parseFloat(ligne.tva || 0);
       const ht = qte * pu;
       const tvaMontant = ht * (tva / 100);
       const ttc = ht + tvaMontant;
@@ -90,7 +91,7 @@ function buildFacturePDF(facture, outPath) {
     doc.moveTo(350, y).lineTo(550, y).stroke();
     y += 5;
     doc.text(`Total HT : ${totalHT.toFixed(2)} €`, 350, (y += 15));
-    doc.text(`TVA : ${totalTVA.toFixed(2)} €`, 350, (y += 15));
+    doc.text(`TVA (${tauxTVA}% ) : ${totalTVA.toFixed(2)} €`, 350, (y += 15));
     doc.text(`Total TTC : ${totalTTC.toFixed(2)} €`, 350, (y += 15));
 
     // Conditions de paiement

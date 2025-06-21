@@ -24,6 +24,7 @@ interface Facture {
   siret?: string;
   legal_form?: string;
   vat_number?: string;
+  vat_rate?: number;
   rcs_number?: string;
   lignes: Array<{
     id: number;
@@ -51,6 +52,7 @@ export default function ModifierFacture() {
   const [siret, setSiret] = useState('');
   const [legalForm, setLegalForm] = useState('');
   const [vatNumber, setVatNumber] = useState('');
+  const [vatRate, setVatRate] = useState(20);
   const [rcsNumber, setRcsNumber] = useState('');
   const [lignes, setLignes] = useState<LigneFacture[]>([
     { description: '', quantite: 1, prix_unitaire: 0 }
@@ -87,6 +89,7 @@ export default function ModifierFacture() {
       setSiret(facture.siret || '');
       setLegalForm(facture.legal_form || '');
       setVatNumber(facture.vat_number || '');
+      setVatRate(facture.vat_rate ?? 20);
       setRcsNumber(facture.rcs_number || '');
       
       // Convertir les lignes au format du formulaire
@@ -209,6 +212,7 @@ export default function ModifierFacture() {
           siret: siret.trim(),
           legal_form: legalForm.trim(),
           vat_number: vatNumber.trim(),
+          vat_rate: vatRate,
           rcs_number: rcsNumber.trim(),
           lignes: lignesValides
         }),
@@ -412,6 +416,17 @@ export default function ModifierFacture() {
                 type="text"
                 value={vatNumber}
                 onChange={(e) => setVatNumber(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Taux de TVA (%)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={vatRate}
+                onChange={(e) => setVatRate(parseFloat(e.target.value) || 0)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>

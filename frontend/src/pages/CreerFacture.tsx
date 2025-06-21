@@ -27,6 +27,7 @@ export default function CreerFacture() {
   const [siret, setSiret] = useState('');
   const [legalForm, setLegalForm] = useState('');
   const [vatNumber, setVatNumber] = useState('');
+  const [vatRate, setVatRate] = useState(20);
   const [rcsNumber, setRcsNumber] = useState('');
   const [lignes, setLignes] = useState<LigneFacture[]>([
     { description: '', quantite: 1, prix_unitaire: 0 }
@@ -141,6 +142,7 @@ export default function CreerFacture() {
           siret: siret.trim(),
           legal_form: legalForm.trim(),
           vat_number: vatNumber.trim(),
+          vat_rate: vatRate,
           rcs_number: rcsNumber.trim(),
           lignes: lignesValides
         }),
@@ -374,7 +376,7 @@ export default function CreerFacture() {
             )}
 
             <div className="space-y-4">
-              {lignes.map((ligne, index) => (
+            {lignes.map((ligne, index) => (
                 <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 bg-gray-50 rounded-lg">
                   <div className="md:col-span-5">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -444,8 +446,22 @@ export default function CreerFacture() {
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
+            ))}
+          </div>
+
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Taux de TVA (%)
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={vatRate}
+              onChange={(e) => setVatRate(parseFloat(e.target.value) || 0)}
+              className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
 
             {/* Récapitulatif */}
             <div className="mt-6 p-4 bg-indigo-50 rounded-lg">
