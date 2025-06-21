@@ -46,6 +46,14 @@ Exécutez le script `install.sh` à la racine du projet. Il détecte automatique
 ./install.sh
 ```
 
+### Installation macOS (Apple Silicon)
+
+Un script spécifique `install_macos.sh` simplifie l'installation sur macOS avec processeur Apple Silicon. Il vérifie que Homebrew, Node.js et pnpm sont présents puis lance `install.sh` :
+
+```bash
+./install_macos.sh
+```
+
 ### Installation manuelle
 
 1. **Cloner ou télécharger le projet**
@@ -81,6 +89,14 @@ Exécutez le script `install.sh` à la racine du projet. Il détecte automatique
   pnpm run dev
   ```
   L'application est accessible sur http://localhost:5173
+
+#### Lancement rapide sur macOS
+
+Le script `launch_safari.sh` démarre le backend et le frontend puis ouvre automatiquement Safari sur l'URL de l'application :
+
+```bash
+./launch_safari.sh
+```
 
 ### Migration de la base de données
 Un script est fourni pour ajouter les nouveaux champs légaux aux anciennes factures :
