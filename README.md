@@ -53,17 +53,11 @@ Exécutez le script `install.sh` à la racine du projet. Il détecte automatique
    cd Mam-s-Facture
    ```
 
-2. **Installer les dépendances du backend**
+2. **Installer toutes les dépendances**
    ```bash
-   cd backend
    pnpm install
    ```
-
-3. **Installer les dépendances du frontend**
-   ```bash
-   cd ../frontend
-   pnpm install
-   ```
+   > Si vous utilisez `npm`, exécutez `npm install` séparément dans `backend/` et `frontend/`.
 
 ### Démarrage
 
