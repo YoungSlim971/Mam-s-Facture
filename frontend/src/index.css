@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @layer base {
   :root {
     --radius: 0.5rem;
@@ -12,13 +13,17 @@
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%
+    --sidebar-ring: 217.2 91.2% 59.8%;
     --gradient-start: #f97316;
     --gradient-mid: #ec4899;
     --gradient-end: #8b5cf6;
   }
 
-  .dark {
+  html.light {
+    --background: white;
+  }
+
+  html.dark {
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -26,30 +31,45 @@
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%
-  }
-
-  .theme-sunset {
-    --background: var(--gradient-start);
-  }
-  .theme-light {
-    --background: white;
-  }
-  .theme-dark {
+    --sidebar-ring: 217.2 91.2% 59.8%;
     --background: #1f2937;
     --foreground: #f9fafb;
   }
+
+  html.sunset {
+    --background: var(--gradient-start);
+  }
 }
 
-body.theme-sunset {
+html,
+body {
+  transition: background-color 0.2s, color 0.2s;
+}
+
+html.sunset body {
   background-image: linear-gradient(to bottom, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
 }
-body.theme-light {
+
+html.light body {
   background-color: white;
 }
-body.theme-dark {
+
+html.dark body {
   background-color: #1f2937;
   color: var(--foreground);
+}
+
+body.app-fade {
+  animation: fade-in 0.4s ease-in-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 
