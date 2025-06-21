@@ -13,6 +13,7 @@ const updated = factures.map(f => ({
   legal_form: f.legal_form || '',
   vat_number: f.vat_number || '',
   rcs_number: f.rcs_number || '',
+  vat_rate: typeof f.vat_rate !== 'undefined' ? f.vat_rate : 0,
   ...f
 }))
 

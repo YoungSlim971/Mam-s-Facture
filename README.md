@@ -89,6 +89,7 @@ Un script est fourni pour ajouter les nouveaux champs légaux aux anciennes fact
 cd backend
 node database/migrations/002-add-legal-fields.js
 ```
+Ce script renseigne également le champ `vat_rate` (taux de TVA) à `0` pour les factures qui n'en possèdent pas.
 
 ## 📁 Structure du projet
 
