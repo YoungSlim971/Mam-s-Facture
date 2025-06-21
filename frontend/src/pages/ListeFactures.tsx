@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, Filter, FileText, Plus, Eye, Edit, Trash2, Download, ArrowLeft, Calendar } from 'lucide-react';
+import { API_URL } from '@/lib/api';
 
 interface Facture {
   id: number;
@@ -56,7 +57,7 @@ export default function ListeFactures() {
         order: sortOrder
       });
 
-      const response = await fetch(`http://localhost:3001/api/factures?${params}`);
+      const response = await fetch(`${API_URL}/factures?${params}`);
       if (!response.ok) {
         throw new Error('Erreur lors du chargement des factures');
       }
@@ -87,7 +88,7 @@ export default function ListeFactures() {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/factures/${id}`, {
+      const response = await fetch(`${API_URL}/factures/${id}`, {
         method: 'DELETE'
       });
 
@@ -104,7 +105,7 @@ export default function ListeFactures() {
 
   const telechargerPDF = async (id: number, numeroFacture: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/factures/${id}/pdf`);
+      const response = await fetch(`${API_URL}/factures/${id}/pdf`);
       if (!response.ok) {
         throw new Error('Erreur lors de la génération du PDF');
       }
