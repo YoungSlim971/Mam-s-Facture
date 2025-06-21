@@ -29,7 +29,7 @@ class JSONDatabase {
           date_facture: '2024-01-15',
           montant_total: 1200.00,
           title: 'Facture #1',
-          status: 'paid', // use 'unpaid' for the third sample
+          status: 'paid',
           logo_path: '',
           siren: '123456789',
           siret: '12345678900011',
@@ -49,7 +49,7 @@ class JSONDatabase {
           date_facture: '2024-01-20',
           montant_total: 2500.50,
           title: 'Facture #2',
-          status: 'paid', // use 'unpaid' for the third sample
+          status: 'paid',
           logo_path: '',
           siren: '123456789',
           siret: '12345678900011',
