@@ -374,12 +374,35 @@ app.get('/api/factures/:id/pdf', async (req, res) => {
 
 // Route de santé
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     message: 'API de facturation opérationnelle',
     timestamp: new Date().toISOString(),
     storage: 'JSON Files'
   });
+});
+
+// Route pour le camembert factures payées vs impayées du mois courant
+app.get('/api/invoices', (req, res) => {
+  const { month } = req.query;
+  if (month !== 'current') {
+    return res.status(400).json({ error: 'Paramètre month invalide' });
+  }
+  try {
+    const now = new Date();
+    const year = now.getFullYear();
+    const monthIndex = now.getMonth();
+    const factures = db.getFactures();
+    const current = factures.filter(f => {
+      const d = new Date(f.date_facture);
+      return d.getFullYear() === year && d.getMonth() === monthIndex;
+    });
+    const paid = current.filter(f => f.status === 'paid').length;
+    const unpaid = current.filter(f => f.status !== 'paid').length;
+    res.json({ paid, unpaid });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur interne', details: err.message });
+  }
 });
 
 // Route de statistiques

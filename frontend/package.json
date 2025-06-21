@@ -7,7 +7,8 @@
     "dev": "yes | pnpm install && vite",
     "build": "yes | pnpm install && rm -rf node_modules/.vite-temp && tsc -b && vite build",
     "lint": "yes | pnpm install && eslint .",
-    "preview": "yes | pnpm install && vite preview"
+    "preview": "yes | pnpm install && vite preview",
+    "test": "jest"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -62,6 +63,9 @@
   "devDependencies": {
     "@eslint/js": "^9.15.0",
     "@tailwindcss/forms": "^0.5.10",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^22.10.7",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
@@ -72,8 +76,11 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",
     "globals": "^15.12.0",
+    "jest": "^30.0.2",
+    "jest-environment-jsdom": "^30.0.2",
     "postcss": "8.4.49",
     "tailwindcss": "v3.4.16",
+    "ts-jest": "^29.4.0",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.15.0",
     "vite": "^6.0.1"
