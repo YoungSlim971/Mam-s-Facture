@@ -26,17 +26,17 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const root = document.documentElement
     const applyTheme = () => {
-      root.classList.remove('light', 'dark', 'sunset')
+      root.classList.remove('light', 'dark', 'sunset', 'system')
 
       if (theme === 'sunset') {
         root.classList.add('sunset')
         return
       }
 
-      const prefersDark = getSystem() === 'dark'
-
-      if (theme === 'dark' || (theme === 'system' && prefersDark)) {
+      if (theme === 'dark') {
         root.classList.add('dark')
+      } else if (theme === 'system') {
+        root.classList.add('system')
       } else {
         root.classList.add('light')
       }
@@ -45,11 +45,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     applyTheme()
     localStorage.setItem('theme', theme)
 
-    if (theme === 'system') {
-      const media = window.matchMedia('(prefers-color-scheme: dark)')
-      media.addEventListener('change', applyTheme)
-      return () => media.removeEventListener('change', applyTheme)
-    }
+    // no system media listener
   }, [theme])
 
   const toggleTheme = () => {

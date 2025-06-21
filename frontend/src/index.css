@@ -23,6 +23,11 @@
     --background: white;
   }
 
+  html.system {
+    --background: white;
+    --foreground: #1e3a8a;
+  }
+
   html.dark {
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -54,6 +59,11 @@ html.sunset body {
 
 html.light body {
   background-color: white;
+}
+
+html.system body {
+  background-color: white;
+  color: var(--foreground);
 }
 
 html.dark body {
