@@ -1,10 +1,11 @@
+require('ts-node/register/transpile-only');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const buildFactureHTML = require('./services/htmlService');
 const JSONDatabase = require('./database/storage');
-const Decimal = require('decimal.js');
+const { computeTotals } = require('./utils/computeTotals.ts');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -265,12 +266,9 @@ app.post('/api/factures', (req, res) => {
     }
 
 
-    // Calculer le montant total
-    const montant_total = lignes.reduce(
-      (sum, ligne) =>
-        sum.plus(new Decimal(ligne.quantite).mul(ligne.prix_unitaire)),
-      new Decimal(0)
-    ).toNumber();
+    // Calculer les montants HT/TTC
+    const { totalHT } = computeTotals(lignes, parsedVatRate);
+    const montant_total = totalHT;
 
     const numero_facture = numero_facture_input.trim() || generateInvoiceNumber();
 
@@ -364,12 +362,9 @@ app.put('/api/factures/:id', (req, res) => {
       }
     }
 
-    // Calculer le montant total
-    const montant_total = lignes.reduce(
-      (sum, ligne) =>
-        sum.plus(new Decimal(ligne.quantite).mul(ligne.prix_unitaire)),
-      new Decimal(0)
-    ).toNumber();
+    // Calculer les montants HT/TTC
+    const { totalHT } = computeTotals(lignes, parsedVatRate);
+    const montant_total = totalHT;
 
     const factureData = {
       ...(numero_facture_input ? { numero_facture: numero_facture_input.trim() } : {}),

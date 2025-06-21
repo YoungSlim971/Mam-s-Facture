@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import Decimal from 'decimal.js';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { computeTotals } = require('./utils/computeTotals.ts');
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import numeral from 'numeral';
@@ -47,28 +49,6 @@ const invoiceSchema = z.object({
   penalites: z.string(),
 });
 
-export interface Totals {
-  totalHT: number;
-  totalTVA: number;
-  totalTTC: number;
-}
-
-export function computeTotals(
-  lignes: ReadonlyArray<{ description: string; quantite: number; prix_unitaire: number }>,
-  tvaRate: number = 20
-): Totals {
-  const totalHT = lignes.reduce(
-    (sum, l) => sum.plus(new Decimal(l.quantite).mul(l.prix_unitaire)),
-    new Decimal(0)
-  );
-  const totalTVA = totalHT.mul(tvaRate).div(100);
-  const totalTTC = totalHT.plus(totalTVA);
-  return {
-    totalHT: Number(totalHT.toFixed(2)),
-    totalTVA: Number(totalTVA.toFixed(2)),
-    totalTTC: Number(totalTTC.toFixed(2)),
-  };
-}
 
 export function generateInvoiceHTML(data: InvoiceData): string {
   const parsed = invoiceSchema.parse(data);
