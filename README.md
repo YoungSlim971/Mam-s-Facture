@@ -43,13 +43,18 @@ Une application web moderne et complète pour la gestion de factures, développ�
    cd billing-app
    ```
 
-2. **Installer les dépendances du backend**
+2. **macOS** : automatiser l'installation
+   ```bash
+   ./install_mac.sh
+   ```
+
+3. **Installer les dépendances du backend**
    ```bash
    cd backend
    pnpm install
    ```
 
-3. **Installer les dépendances du frontend**
+4. **Installer les dépendances du frontend**
    ```bash
    cd ../frontend
    pnpm install
