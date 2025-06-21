@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-const PDFDocument = require('pdfkit');
+const buildFacturePDF = require('./services/pdfService');
+const tmp = require('tmp');
 const JSONDatabase = require('./database/storage');
 
 const app = express();
@@ -265,94 +266,22 @@ app.delete('/api/factures/:id', (req, res) => {
 });
 
 // GET /api/factures/:id/pdf - Génère et télécharge le PDF d'une facture
-app.get('/api/factures/:id/pdf', (req, res) => {
+app.get('/api/factures/:id/pdf', async (req, res) => {
+  const facture = db.getFactureById(req.params.id);
+  if (!facture) {
+    return res.status(404).json({ error: 'Facture non trouvée' });
+  }
+
+  const tmpFile = tmp.fileSync({ postfix: '.pdf' });
   try {
-    const { id } = req.params;
-    const facture = db.getFactureById(id);
-
-    if (!facture) {
-      return res.status(404).json({ error: 'Facture non trouvée' });
-    }
-
-    // Créer le PDF
-    const doc = new PDFDocument({ margin: 50 });
-    
-    // Headers pour le téléchargement
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="facture-${facture.numero_facture}.pdf"`);
-    
-    doc.pipe(res);
-
-    // En-tête de la facture
-    if (facture.logo_path) {
-      try {
-        doc.image(path.join(__dirname, facture.logo_path), 50, 40, { width: 80 });
-      } catch (e) {
-        // ignore logo errors
-      }
-    }
-    doc.fontSize(20).text(facture.title || 'FACTURE', 150, 50);
-    doc.fontSize(12).text(`Numéro: ${facture.numero_facture}`, 150, 80);
-    doc.text(`Date: ${formatDateFR(facture.date_facture)}`, 150, 100);
-
-    // Informations entreprise
-    doc.text(facture.nom_entreprise || '', 400, 50);
-    if (facture.adresse) doc.text(facture.adresse, 400, 70, { width: 150 });
-    if (facture.siren) doc.text(`SIREN: ${facture.siren}`, 400, 110);
-    if (facture.siret) doc.text(`SIRET: ${facture.siret}`, 400, 130);
-    if (facture.vat_number) doc.text(`TVA: ${facture.vat_number}`, 400, 150);
-
-    // Informations client
-    doc.text('Facturé à:', 50, 160);
-    doc.text(facture.nom_client, 50, 180);
-    if (facture.nom_entreprise) doc.text(facture.nom_entreprise, 50, 200);
-    if (facture.adresse) doc.text(facture.adresse, 50, 220);
-    if (facture.telephone) doc.text(`Tél: ${facture.telephone}`, 50, 240);
-
-    // Tableau des lignes
-    let yPosition = 300;
-    
-    // En-têtes du tableau
-    doc.text('Description', 50, yPosition);
-    doc.text('Qté', 300, yPosition);
-    doc.text('Prix Unit.', 350, yPosition);
-    doc.text('Sous-total', 450, yPosition);
-    
-    yPosition += 20;
-    doc.moveTo(50, yPosition).lineTo(550, yPosition).stroke();
-    yPosition += 10;
-
-    // Lignes du tableau
-    facture.lignes.forEach(ligne => {
-      doc.text(ligne.description, 50, yPosition, { width: 240 });
-      doc.text(ligne.quantite.toLocaleString('fr-FR', { minimumFractionDigits: 2 }), 300, yPosition);
-      doc.text(formatEuro(ligne.prix_unitaire), 350, yPosition);
-      doc.text(formatEuro(ligne.sous_total), 450, yPosition);
-      yPosition += 30;
+    await buildFacturePDF(facture, tmpFile.name);
+    res.download(tmpFile.name, `facture-${facture.numero_facture}.pdf`, err => {
+      tmpFile.removeCallback();
+      if (err) res.status(500).end();
     });
-
-    // Total
-    yPosition += 20;
-    doc.moveTo(350, yPosition).lineTo(550, yPosition).stroke();
-    yPosition += 10;
-    doc.fontSize(14).text('Total: ' + formatEuro(facture.montant_total), 400, yPosition);
-
-    // Pied de page
-    yPosition += 50;
-    doc.fontSize(10);
-    doc.text('Merci pour votre confiance !', 50, yPosition);
-    doc.text('Conditions de paiement: 30 jours net', 50, yPosition + 15);
-    if (facture.vat_number) {
-      doc.text(`TVA appliquée: ${facture.vat_number}`, 50, yPosition + 30);
-    }
-    doc.text(`Facture générée le ${formatDateFR(new Date().toISOString())}`, 50, yPosition + 45);
-
-    doc.end();
   } catch (err) {
-    res.status(500).json({ 
-      error: 'Erreur lors de la génération du PDF',
-      details: err.message 
-    });
+    tmpFile.removeCallback();
+    res.status(500).json({ error: 'Erreur lors de la génération du PDF' });
   }
 });
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Download, Trash2, FileText, User, Calendar, Euro } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface Facture {
   id: number;
@@ -37,6 +38,7 @@ interface LigneFacture {
 export default function DetailFacture() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
   const [facture, setFacture] = useState<Facture | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,27 +93,9 @@ export default function DetailFacture() {
     }
   };
 
-  const telechargerPDF = async () => {
+  const telechargerPDF = () => {
     if (!facture) return;
-
-    try {
-      const response = await fetch(`http://localhost:3001/api/factures/${id}/pdf`);
-      if (!response.ok) {
-        throw new Error('Erreur lors de la génération du PDF');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `facture-${facture.numero_facture}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erreur lors du téléchargement');
-    }
+    window.open(`${API_URL}/factures/${facture.id}/pdf`, '_blank');
   };
 
   const formatEuro = (amount: number) => {
@@ -204,13 +188,14 @@ export default function DetailFacture() {
                 <Edit className="h-5 w-5 mr-2" />
                 Modifier
               </Link>
-              <button
+              <Button
+                variant="outline"
                 onClick={telechargerPDF}
-                className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                title="Télécharger la facture PDF"
               >
                 <Download className="h-5 w-5 mr-2" />
                 Télécharger PDF
-              </button>
+              </Button>
               <button
                 onClick={supprimerFacture}
                 className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
