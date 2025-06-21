@@ -1,0 +1,10 @@
+[
+  {
+    "id": 8,
+    "facture_id": 4,
+    "description": "création d'un logiciel de facturation ",
+    "quantite": 1,
+    "prix_unitaire": 100,
+    "sous_total": 100
+  }
+]
