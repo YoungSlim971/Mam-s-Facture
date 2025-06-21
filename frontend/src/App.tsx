@@ -6,21 +6,28 @@ import CreerFacture from './pages/CreerFacture'
 import ModifierFacture from './pages/ModifierFacture'
 import DetailFacture from './pages/DetailFacture'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import Sidebar from './components/Sidebar'
+import { ThemeProvider } from './context/ThemeContext'
 
 function App() {
   return (
     <ErrorBoundary>
-      <Router>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-          <Routes>
-            <Route path="/" element={<Accueil />} />
-            <Route path="/factures" element={<ListeFactures />} />
-            <Route path="/factures/nouvelle" element={<CreerFacture />} />
-            <Route path="/factures/:id" element={<DetailFacture />} />
-            <Route path="/factures/:id/modifier" element={<ModifierFacture />} />
-          </Routes>
-        </div>
-      </Router>
+      <ThemeProvider>
+        <Router>
+          <div className="flex">
+            <Sidebar />
+            <main className="ml-64 flex-1 min-h-screen p-0">
+              <Routes>
+                <Route path="/" element={<Accueil />} />
+                <Route path="/factures" element={<ListeFactures />} />
+                <Route path="/factures/nouvelle" element={<CreerFacture />} />
+                <Route path="/factures/:id" element={<DetailFacture />} />
+                <Route path="/factures/:id/modifier" element={<ModifierFacture />} />
+              </Routes>
+            </main>
+          </div>
+        </Router>
+      </ThemeProvider>
     </ErrorBoundary>
   )
 }

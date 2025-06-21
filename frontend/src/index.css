@@ -13,6 +13,9 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%
+    --gradient-start: #f97316;
+    --gradient-mid: #ec4899;
+    --gradient-end: #8b5cf6;
   }
 
   .dark {
@@ -25,6 +28,28 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%
   }
+
+  .theme-sunset {
+    --background: var(--gradient-start);
+  }
+  .theme-light {
+    --background: white;
+  }
+  .theme-dark {
+    --background: #1f2937;
+    --foreground: #f9fafb;
+  }
+}
+
+body.theme-sunset {
+  background-image: linear-gradient(to bottom, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+}
+body.theme-light {
+  background-color: white;
+}
+body.theme-dark {
+  background-color: #1f2937;
+  color: var(--foreground);
 }
 
 

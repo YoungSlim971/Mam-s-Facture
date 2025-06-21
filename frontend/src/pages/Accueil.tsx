@@ -26,11 +26,11 @@ export default function Accueil() {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-            Bienvenue dans votre
-            <span className="text-indigo-600 block">espace facturation</span>
+            Bienvenue dans votre espace de facturation,{' '}
+            <span className="text-indigo-600">Caroline MIRRE</span>
           </h2>
           <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-600">
-            Gérez vos factures facilement avec notre solution complète. 
+            Gérez vos factures facilement avec notre solution complète.
             Créez, modifiez et exportez vos factures en quelques clics.
           </p>
         </div>
@@ -40,7 +40,7 @@ export default function Accueil() {
           {/* Voir les factures */}
           <Link
             to="/factures"
-            className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-indigo-200"
+            className="group relative bg-gradient-to-br from-[var(--gradient-start)] via-[var(--gradient-mid)] to-[var(--gradient-end)] text-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300"
           >
             <div className="flex items-center justify-center w-16 h-16 bg-indigo-100 rounded-xl mb-6 group-hover:bg-indigo-200 transition-colors">
               <FileText className="h-8 w-8 text-indigo-600" />
@@ -63,7 +63,7 @@ export default function Accueil() {
           {/* Créer une nouvelle facture */}
           <Link
             to="/factures/nouvelle"
-            className="group relative bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 text-white"
+            className="group relative bg-gradient-to-br from-[var(--gradient-start)] via-[var(--gradient-mid)] to-[var(--gradient-end)] rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 text-white"
           >
             <div className="flex items-center justify-center w-16 h-16 bg-white bg-opacity-20 rounded-xl mb-6 group-hover:bg-opacity-30 transition-colors">
               <Plus className="h-8 w-8 text-white" />
