@@ -194,7 +194,10 @@ class JSONDatabase {
       siret: data.siret || '',
       legal_form: data.legal_form || '',
       vat_number: data.vat_number || '',
-      vat_rate: typeof data.vat_rate !== 'undefined' ? parseFloat(data.vat_rate) : 0,
+      vat_rate:
+        data.vat_rate !== undefined && data.vat_rate !== ''
+          ? parseFloat(data.vat_rate)
+          : 0,
       rcs_number: data.rcs_number || ''
     };
 

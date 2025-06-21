@@ -163,6 +163,9 @@ app.post('/api/factures', (req, res) => {
       vat_rate = 0,
       rcs_number = ''
     } = req.body;
+    const parsedVatRate =
+      vat_rate !== undefined && vat_rate !== '' ? parseFloat(vat_rate) : 0;
+
 
     // Validation
     if (!nom_client || !date_facture || !lignes.length) {
@@ -213,7 +216,7 @@ app.post('/api/factures', (req, res) => {
       siret,
       legal_form,
       vat_number,
-      vat_rate,
+      vat_rate: parsedVatRate,
       rcs_number
     };
 
@@ -253,6 +256,9 @@ app.put('/api/factures/:id', (req, res) => {
       vat_rate = 0,
       rcs_number = ''
     } = req.body;
+    const parsedVatRate =
+      vat_rate !== undefined && vat_rate !== '' ? parseFloat(vat_rate) : 0;
+
 
     // Validation
     if (!nom_client || !date_facture || !lignes.length) {
@@ -298,7 +304,7 @@ app.put('/api/factures/:id', (req, res) => {
       siret,
       legal_form,
       vat_number,
-      vat_rate,
+      vat_rate: parsedVatRate,
       rcs_number
     };
 
