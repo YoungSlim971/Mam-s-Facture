@@ -44,6 +44,8 @@
 html,
 body {
   transition: background-color 0.2s, color 0.2s;
+  font-family: 'Inter', sans-serif;
+  @apply antialiased;
 }
 
 html.sunset body {
