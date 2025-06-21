@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
 jest.mock('@/lib/api', () => ({ API_URL: 'http://localhost:3001/api' }));
 import { InvoicePieChart } from './InvoicePieChart';
 
