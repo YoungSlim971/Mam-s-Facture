@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
+import { API_URL } from '@/lib/api';
 
 interface LigneFacture {
   description: string;
@@ -67,7 +68,7 @@ export default function ModifierFacture() {
   const chargerFacture = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3001/api/factures/${id}`);
+      const response = await fetch(`${API_URL}/factures/${id}`);
       
       if (!response.ok) {
         throw new Error('Facture non trouvée');
@@ -194,7 +195,7 @@ export default function ModifierFacture() {
         ligne.description.trim() && ligne.quantite > 0 && ligne.prix_unitaire >= 0
       );
 
-      const response = await fetch(`http://localhost:3001/api/factures/${id}`, {
+      const response = await fetch(`${API_URL}/factures/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

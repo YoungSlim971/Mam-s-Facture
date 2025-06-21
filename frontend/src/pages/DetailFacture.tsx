@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Download, Trash2, FileText, User, Calendar, Euro } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { API_URL } from '@/lib/api';
 
 interface Facture {
   id: number;
@@ -39,7 +40,6 @@ interface LigneFacture {
 export default function DetailFacture() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
   const [facture, setFacture] = useState<Facture | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +47,7 @@ export default function DetailFacture() {
   const chargerFacture = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3001/api/factures/${id}`);
+      const response = await fetch(`${API_URL}/factures/${id}`);
       
       if (!response.ok) {
         if (response.status === 404) {
@@ -79,7 +79,7 @@ export default function DetailFacture() {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/factures/${id}`, {
+      const response = await fetch(`${API_URL}/factures/${id}`, {
         method: 'DELETE'
       });
 

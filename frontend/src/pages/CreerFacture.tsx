@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
+import { API_URL } from '@/lib/api';
 
 interface LigneFacture {
   description: string;
@@ -124,7 +125,7 @@ export default function CreerFacture() {
         ligne.description.trim() && ligne.quantite > 0 && ligne.prix_unitaire >= 0
       );
 
-      const response = await fetch('http://localhost:3001/api/factures', {
+      const response = await fetch(`${API_URL}/factures`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
