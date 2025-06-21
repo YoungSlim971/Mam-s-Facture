@@ -2,8 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-const buildFacturePDF = require('./services/pdfService');
-const tmp = require('tmp');
+const buildFactureHTML = require('./services/htmlService');
 const JSONDatabase = require('./database/storage');
 
 const app = express();
@@ -425,31 +424,19 @@ app.delete('/api/factures/:id', (req, res) => {
   }
 });
 
-// GET /api/factures/:id/pdf - Génère et télécharge le PDF d'une facture
-app.get('/api/factures/:id/pdf', async (req, res) => {
+// GET /api/factures/:id/html - Génère le HTML d'une facture
+app.get('/api/factures/:id/html', (req, res) => {
   const facture = db.getFactureById(req.params.id);
   if (!facture) {
     return res.status(404).json({ error: 'Facture non trouvée' });
   }
 
-  const tmpFile = tmp.fileSync({ postfix: '.pdf' });
   try {
-    await buildFacturePDF(facture, tmpFile.name);
-
-    const date = new Date(facture.date_facture);
-    const dd = String(date.getDate()).padStart(2, '0');
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const yy = String(date.getFullYear()).slice(2);
-    const formattedDate = `${dd}/${mm}/${yy}`;
-    const fileName = `Facture - ${formattedDate} - ${facture.nom_entreprise}.pdf`;
-
-    res.download(tmpFile.name, fileName, err => {
-      tmpFile.removeCallback();
-      if (err) res.status(500).end();
-    });
+    const html = buildFactureHTML(facture);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
   } catch (err) {
-    tmpFile.removeCallback();
-    res.status(500).json({ error: 'Erreur lors de la génération du PDF' });
+    res.status(500).json({ error: 'Erreur lors de la génération du HTML' });
   }
 });
 

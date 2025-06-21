@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, Filter, FileText, Plus, Eye, Edit, Trash2, Download, ArrowLeft, Calendar } from 'lucide-react';
 import { API_URL } from '@/lib/api';
+import { saveAs } from 'file-saver';
 
 interface Facture {
   id: number;
@@ -103,23 +104,23 @@ export default function ListeFactures() {
     }
   };
 
-  const telechargerPDF = async (
+  const telechargerFacture = async (
     id: number,
     numeroFacture: string,
     dateFacture: string,
     nomEntreprise?: string
   ) => {
     try {
-      const response = await fetch(`${API_URL}/factures/${id}/pdf`);
+      const response = await fetch(`${API_URL}/factures/${id}/html`);
       if (!response.ok) {
-        throw new Error('Erreur lors de la génération du PDF');
+        throw new Error('Erreur lors de la génération du fichier');
       }
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      // Ouvre un nouvel onglet pour afficher un aperçu du PDF
-      window.open(url, '_blank');
-      // Libère l'URL après l'ouverture de l'onglet
-      setTimeout(() => window.URL.revokeObjectURL(url), 100);
+      const html = await response.text();
+      const blob = new Blob([html], { type: 'text/html' });
+      saveAs(
+        blob,
+        `facture-${numeroFacture}-${dateFacture}-${nomEntreprise ? nomEntreprise.replace(/\s+/g, '-') : ''}.html`
+      );
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Erreur lors du téléchargement');
     }
@@ -365,7 +366,7 @@ export default function ListeFactures() {
                             </Link>
                             <button
                               onClick={() =>
-                                telechargerPDF(
+                                telechargerFacture(
                                   facture.id,
                                   facture.numero_facture,
                                   facture.date_facture,
@@ -373,7 +374,7 @@ export default function ListeFactures() {
                                 )
                               }
                               className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                              title="Télécharger PDF"
+                              title="Exporter"
                             >
                               <Download className="h-4 w-4" />
                             </button>

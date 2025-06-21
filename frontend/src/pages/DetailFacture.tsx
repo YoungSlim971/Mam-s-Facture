@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Download, Trash2, FileText, User, Calendar, Euro } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { API_URL } from '@/lib/api';
+import { saveAs } from 'file-saver';
 
 interface Facture {
   id: number;
@@ -94,9 +95,12 @@ export default function DetailFacture() {
     }
   };
 
-  const telechargerPDF = () => {
+  const telechargerHTML = async () => {
     if (!facture) return;
-    window.open(`${API_URL}/factures/${facture.id}/pdf`, '_blank');
+    const response = await fetch(`${API_URL}/factures/${facture.id}/html`);
+    const html = await response.text();
+    const blob = new Blob([html], { type: 'text/html' });
+    saveAs(blob, `facture-${facture.numero_facture}.html`);
   };
 
   const formatEuro = (amount: number) => {
@@ -198,11 +202,11 @@ export default function DetailFacture() {
               </Link>
               <Button
                 variant="outline"
-                onClick={telechargerPDF}
-                title="Télécharger la facture PDF"
+                onClick={telechargerHTML}
+                title="Exporter la facture"
               >
                 <Download className="h-5 w-5 mr-2" />
-                Télécharger PDF
+                Exporter
               </Button>
               <button
                 onClick={supprimerFacture}
