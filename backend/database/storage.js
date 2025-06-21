@@ -6,8 +6,10 @@ class JSONDatabase {
     this.dataDir = path.join(__dirname, 'data');
     this.facturesFile = path.join(this.dataDir, 'factures.json');
     this.lignesFile = path.join(this.dataDir, 'lignes.json');
+    this.clientsFile = path.join(this.dataDir, 'clients.json');
     this.factures = [];
     this.lignes = [];
+    this.clients = [];
     
     // Créer le dossier data s'il n'existe pas
     if (!fs.existsSync(this.dataDir)) {
@@ -23,6 +25,7 @@ class JSONDatabase {
       const sampleFactures = [
         {
           id: 1,
+          client_id: 1,
           numero_facture: 'FACT-2024-001',
           nom_client: 'Martin Dupont',
           nom_entreprise: 'Dupont SARL',
@@ -44,6 +47,7 @@ class JSONDatabase {
         },
         {
           id: 2,
+          client_id: 2,
           numero_facture: 'FACT-2024-002',
           nom_client: 'Sophie Bernard',
           nom_entreprise: 'Bernard & Associés',
@@ -65,6 +69,7 @@ class JSONDatabase {
         },
         {
           id: 3,
+          client_id: 3,
           numero_facture: 'FACT-2024-003',
           nom_client: 'Pierre Lambert',
           nom_entreprise: 'Lambert Consulting',
@@ -106,9 +111,46 @@ class JSONDatabase {
       this.writeData(this.lignesFile, sampleLignes);
     }
 
+    if (!fs.existsSync(this.clientsFile)) {
+      const sampleClients = [
+        {
+          id: 1,
+          nom_client: 'Martin Dupont',
+          nom_entreprise: 'Dupont SARL',
+          telephone: '01 23 45 67 89',
+          adresse: '123 Rue de la République, 75001 Paris',
+          factures: [1],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 2,
+          nom_client: 'Sophie Bernard',
+          nom_entreprise: 'Bernard & Associés',
+          telephone: '01 98 76 54 32',
+          adresse: '456 Avenue des Champs, 69000 Lyon',
+          factures: [2],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 3,
+          nom_client: 'Pierre Lambert',
+          nom_entreprise: 'Lambert Consulting',
+          telephone: '04 56 78 90 12',
+          adresse: '789 Boulevard Saint-Michel, 13000 Marseille',
+          factures: [3],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
+      this.writeData(this.clientsFile, sampleClients);
+    }
+
     // Charger les données en mémoire
     this.factures = this.readData(this.facturesFile);
     this.lignes = this.readData(this.lignesFile);
+    this.clients = this.readData(this.clientsFile);
   }
 
   readData(file) {
@@ -201,7 +243,8 @@ class JSONDatabase {
         data.vat_rate !== undefined && data.vat_rate !== ''
           ? parseFloat(data.vat_rate)
           : 0,
-      rcs_number: data.rcs_number || ''
+      rcs_number: data.rcs_number || '',
+      client_id: data.client_id ? parseInt(data.client_id) : null
     };
 
     const { lignes: lignesData = [], ...factureSansLignes } = data;
@@ -254,6 +297,10 @@ class JSONDatabase {
       ...factures[index],
       ...factureSansLignes,
       id: parseInt(id),
+      client_id:
+        factureSansLignes.client_id !== undefined
+          ? parseInt(factureSansLignes.client_id)
+          : factures[index].client_id || null,
       updated_at: new Date().toISOString()
     };
 
@@ -289,9 +336,17 @@ class JSONDatabase {
     const index = factures.findIndex(f => f.id === parseInt(id));
     if (index === -1) return false;
 
-    // Supprimer la facture
-    factures.splice(index, 1);
+    const facture = factures.splice(index, 1)[0];
 
+    // Retirer la facture du client associé si besoin
+    if (facture && facture.client_id) {
+      const client = this.clients.find(c => c.id === facture.client_id);
+      if (client) {
+        client.factures = client.factures.filter(fid => fid !== facture.id);
+        client.updated_at = new Date().toISOString();
+        this.writeData(this.clientsFile, this.clients);
+      }
+    }
     // Supprimer les lignes associées
     const lignesFiltered = lignes.filter(l => l.facture_id !== parseInt(id));
 
@@ -307,6 +362,46 @@ class JSONDatabase {
 
   getTotalCount(filters = {}) {
     return this.getFactures(filters).length;
+  }
+
+  // CLIENTS
+  getClients() {
+    return [...this.clients];
+  }
+
+  getClientById(id) {
+    return this.clients.find(c => c.id === parseInt(id)) || null;
+  }
+
+  createClient(data) {
+    const clients = this.clients;
+    const newId = clients.length > 0 ? Math.max(...clients.map(c => c.id)) + 1 : 1;
+    const now = new Date().toISOString();
+    const client = {
+      id: newId,
+      nom_client: data.nom_client,
+      nom_entreprise: data.nom_entreprise || '',
+      telephone: data.telephone || '',
+      adresse: data.adresse || '',
+      factures: [],
+      created_at: now,
+      updated_at: now
+    };
+    clients.push(client);
+    this.writeData(this.clientsFile, clients);
+    this.clients = clients;
+    return newId;
+  }
+
+  addFactureToClient(clientId, factureId) {
+    const client = this.clients.find(c => c.id === parseInt(clientId));
+    if (!client) return false;
+    if (!client.factures.includes(factureId)) {
+      client.factures.push(factureId);
+      client.updated_at = new Date().toISOString();
+      this.writeData(this.clientsFile, this.clients);
+    }
+    return true;
   }
 }
 

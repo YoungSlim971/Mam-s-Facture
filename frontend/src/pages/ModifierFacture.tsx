@@ -27,6 +27,7 @@ interface Facture {
   vat_number?: string;
   vat_rate?: number;
   rcs_number?: string;
+  client_id?: number;
   lignes: Array<{
     id: number;
     description: string;
@@ -56,6 +57,8 @@ export default function ModifierFacture() {
   const [vatNumber, setVatNumber] = useState('');
   const [vatRate, setVatRate] = useState(20);
   const [rcsNumber, setRcsNumber] = useState('');
+  const [clients, setClients] = useState<Array<{id:number; nom_client:string; nom_entreprise?:string; telephone?:string; adresse?:string}>>([])
+  const [clientId, setClientId] = useState<number | ''>('')
   const [lignes, setLignes] = useState<LigneFacture[]>([
     { description: '', quantite: 1, prix_unitaire: 0 }
   ]);
@@ -64,6 +67,33 @@ export default function ModifierFacture() {
   const [submitting, setSubmitting] = useState(false);
   const [erreurs, setErreurs] = useState<{ [key: string]: string }>({});
   const [factureOriginale, setFactureOriginale] = useState<Facture | null>(null);
+
+  useEffect(() => {
+    const fetchClients = async () => {
+      const res = await fetch(`${API_URL}/clients`)
+      if (res.ok) {
+        const data = await res.json()
+        setClients(data)
+      }
+    }
+    fetchClients()
+  }, [])
+
+  const handleSelectClient = (id: string) => {
+    if (!id) {
+      setClientId('')
+      return
+    }
+    const cid = parseInt(id)
+    setClientId(cid)
+    const client = clients.find(c => c.id === cid)
+    if (client) {
+      setNomClient(client.nom_client)
+      setNomEntreprise(client.nom_entreprise || '')
+      setTelephone(client.telephone || '')
+      setAdresse(client.adresse || '')
+    }
+  }
 
   // Charger la facture existante
   const chargerFacture = useCallback(async () => {
@@ -94,6 +124,7 @@ export default function ModifierFacture() {
       setVatNumber(facture.vat_number || '');
       setVatRate(facture.vat_rate ?? 20);
       setRcsNumber(facture.rcs_number || '');
+      setClientId(facture.client_id ?? '')
       
       // Convertir les lignes au format du formulaire
       const lignesFormulaire = facture.lignes.map(ligne => ({
@@ -204,6 +235,7 @@ export default function ModifierFacture() {
         },
         body: JSON.stringify({
           numero_facture: numeroFacture.trim(),
+          client_id: clientId || undefined,
           nom_client: nomClient.trim(),
           nom_entreprise: nomEntreprise.trim(),
           telephone: telephone.trim(),
@@ -284,6 +316,21 @@ export default function ModifierFacture() {
               Informations du client
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Sélectionner un client enregistré</label>
+                <select
+                  value={clientId}
+                  onChange={(e) => handleSelectClient(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                >
+                  <option value="">-- Aucun --</option>
+                  {clients.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nom_client}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Nom du client *

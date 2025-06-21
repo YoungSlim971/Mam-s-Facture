@@ -51,6 +51,52 @@ const generateInvoiceNumber = () => {
 
 // Routes API
 
+// Gestion des clients
+app.get('/api/clients', (req, res) => {
+  try {
+    res.json(db.getClients());
+  } catch (err) {
+    res.status(500).json({
+      error: 'Erreur lors de la récupération des clients',
+      details: err.message
+    });
+  }
+});
+
+app.post('/api/clients', (req, res) => {
+  try {
+    const { nom_client, nom_entreprise = '', telephone = '', adresse = '' } = req.body;
+    if (!nom_client) {
+      return res.status(400).json({ error: 'Nom du client requis' });
+    }
+    const id = db.createClient({
+      nom_client: nom_client.trim(),
+      nom_entreprise: nom_entreprise.trim(),
+      telephone: telephone.trim(),
+      adresse: adresse.trim()
+    });
+    res.status(201).json({ id });
+  } catch (err) {
+    res.status(500).json({
+      error: 'Erreur lors de la création du client',
+      details: err.message
+    });
+  }
+});
+
+app.get('/api/clients/:id', (req, res) => {
+  try {
+    const client = db.getClientById(req.params.id);
+    if (!client) return res.status(404).json({ error: 'Client non trouvé' });
+    res.json(client);
+  } catch (err) {
+    res.status(500).json({
+      error: 'Erreur lors de la récupération du client',
+      details: err.message
+    });
+  }
+});
+
 // GET /api/factures - Liste toutes les factures avec pagination et recherche
 app.get('/api/factures', (req, res) => {
   try {
@@ -150,6 +196,7 @@ app.post('/api/factures', (req, res) => {
   try {
     const {
       numero_facture: numero_facture_input = '',
+      client_id = null,
       nom_client,
       nom_entreprise = '',
       telephone = '',
@@ -205,6 +252,7 @@ app.post('/api/factures', (req, res) => {
 
     const factureData = {
       numero_facture,
+      ...(client_id ? { client_id: parseInt(client_id) } : {}),
       nom_client: nom_client.trim(),
       nom_entreprise: nom_entreprise.trim(),
       telephone: telephone.trim(),
@@ -224,6 +272,9 @@ app.post('/api/factures', (req, res) => {
     };
 
     const factureId = db.createFacture(factureData);
+    if (client_id) {
+      db.addFactureToClient(client_id, factureId);
+    }
 
     res.status(201).json({
       message: 'Facture créée avec succès',
@@ -244,6 +295,7 @@ app.put('/api/factures/:id', (req, res) => {
     const { id } = req.params;
     const {
       numero_facture: numero_facture_input = '',
+      client_id = null,
       nom_client,
       nom_entreprise = '',
       telephone = '',
@@ -295,6 +347,7 @@ app.put('/api/factures/:id', (req, res) => {
 
     const factureData = {
       ...(numero_facture_input ? { numero_facture: numero_facture_input.trim() } : {}),
+      ...(client_id ? { client_id: parseInt(client_id) } : {}),
       nom_client: nom_client.trim(),
       nom_entreprise: nom_entreprise.trim(),
       telephone: telephone.trim(),
@@ -314,6 +367,9 @@ app.put('/api/factures/:id', (req, res) => {
     };
 
     const success = db.updateFacture(id, factureData);
+    if (success && client_id) {
+      db.addFactureToClient(client_id, parseInt(id));
+    }
 
     if (!success) {
       return res.status(404).json({ error: 'Facture non trouvée' });
