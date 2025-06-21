@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
 
@@ -46,7 +46,7 @@ export default function ModifierFacture() {
   const [factureOriginale, setFactureOriginale] = useState<Facture | null>(null);
 
   // Charger la facture existante
-  const chargerFacture = async () => {
+  const chargerFacture = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`http://localhost:3001/api/factures/${id}`);
@@ -79,13 +79,13 @@ export default function ModifierFacture() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
 
   useEffect(() => {
     if (id) {
       chargerFacture();
     }
-  }, [id]);
+  }, [id, chargerFacture]);
 
   // Calcul du montant total
   const montantTotal = lignes.reduce((total, ligne) => {
