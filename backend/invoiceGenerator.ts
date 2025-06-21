@@ -253,7 +253,10 @@ export async function generateInvoicePDF(
   doc.y = y + 10;
 
   // Totals block
-  const totals = computeTotals(parsed.lignes, parsed.tvaRate);
+  const totals = computeTotals(
+    parsed.lignes as { description: string; quantite: number; prix_unitaire: number }[],
+    parsed.tvaRate
+  );
   const col1 = pageWidth * 0.5;
   const col2 = pageWidth * 0.25;
   const col3 = pageWidth - col1 - col2;
