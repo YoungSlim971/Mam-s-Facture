@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { FileText, Plus, BarChart3, Users } from 'lucide-react';
 import {
-  FunFactCard,
-  WeatherClockCard,
+  QuoteCard,
+  SunsetImageCard,
   InvoicePieChart,
 } from '@/components/cards';
 
@@ -43,8 +43,8 @@ export default function Accueil() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-12">
-        <FunFactCard />
-        <WeatherClockCard />
+        <QuoteCard />
+        <SunsetImageCard />
         <InvoicePieChart />
       </div>
 
