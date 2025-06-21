@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const buildFactureHTML = require('./services/htmlService');
 const JSONDatabase = require('./database/storage');
+const Decimal = require('decimal.js');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -17,19 +18,19 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const db = new JSONDatabase();
 
 // Formatters réutilisables pour éviter de recréer les objets à chaque appel
-const euroFormatter = new Intl.NumberFormat('fr-FR', {
-  style: 'currency',
-  currency: 'EUR'
-});
-const dateFormatter = new Intl.DateTimeFormat('fr-FR');
+const numeral = require('numeral');
+require('numeral/locales/fr');
+numeral.locale('fr');
+const { format } = require('date-fns');
+const { fr } = require('date-fns/locale');
 
 // Utilitaire pour formater les montants en euros
-const formatEuro = (amount) => euroFormatter.format(amount);
+const formatEuro = (amount) => numeral(amount).format('0,0.00 $');
 
 // Utilitaire pour formater les dates en français
 const formatDateFR = (dateString) => {
   const date = new Date(dateString);
-  return dateFormatter.format(date);
+  return format(date, 'dd/MM/yyyy', { locale: fr });
 };
 
 // Générer un numéro de facture automatique
@@ -265,9 +266,11 @@ app.post('/api/factures', (req, res) => {
 
 
     // Calculer le montant total
-    const montant_total = lignes.reduce((total, ligne) => {
-      return total + (parseFloat(ligne.quantite) * parseFloat(ligne.prix_unitaire));
-    }, 0);
+    const montant_total = lignes.reduce(
+      (sum, ligne) =>
+        sum.plus(new Decimal(ligne.quantite).mul(ligne.prix_unitaire)),
+      new Decimal(0)
+    ).toNumber();
 
     const numero_facture = numero_facture_input.trim() || generateInvoiceNumber();
 
@@ -362,9 +365,11 @@ app.put('/api/factures/:id', (req, res) => {
     }
 
     // Calculer le montant total
-    const montant_total = lignes.reduce((total, ligne) => {
-      return total + (parseFloat(ligne.quantite) * parseFloat(ligne.prix_unitaire));
-    }, 0);
+    const montant_total = lignes.reduce(
+      (sum, ligne) =>
+        sum.plus(new Decimal(ligne.quantite).mul(ligne.prix_unitaire)),
+      new Decimal(0)
+    ).toNumber();
 
     const factureData = {
       ...(numero_facture_input ? { numero_facture: numero_facture_input.trim() } : {}),

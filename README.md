@@ -75,6 +75,24 @@ Un script spécifique `install_macos.sh` simplifie l'installation sur macOS avec
    pnpm install
    ```
 
+### Packages recommandés
+
+Pour enrichir la mise en page et les exports des factures, vous pouvez installer :
+
+- **Handlebars** ou **EJS** pour générer l'HTML
+- **easyinvoice** pour un modèle prêt à l'emploi
+- **Tailwind CSS** et **Paged.js** pour le style et l'impression
+- **Puppeteer**, **pdfmake**, **docx**, **exceljs** pour exporter en PDF ou Office
+- **date-fns**, **numeral**, **decimal.js** pour le formatage et les calculs
+
+Installation rapide :
+
+```bash
+pnpm add handlebars tailwindcss pagedjs date-fns numeral decimal.js qrcode
+# Export optionnels
+pnpm add puppeteer pdfmake docx exceljs
+```
+
 ### Démarrage
 
 1. **Démarrer le serveur backend**

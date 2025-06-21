@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
 import { API_URL } from '@/lib/api';
 import { computeTotals } from '@/lib/utils';
+import numeral from 'numeral';
 
 interface LigneFacture {
   description: string;
@@ -75,18 +76,12 @@ export default function CreerFacture() {
 
   // Formatage des devises en français
   const formatEuro = (amount: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount);
+    return numeral(amount).format('0,0.00 $');
   };
 
   // Formatage des nombres français
   const formatNombre = (number: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(number);
+    return numeral(number).format('0,0.00');
   };
 
   // Ajouter une ligne

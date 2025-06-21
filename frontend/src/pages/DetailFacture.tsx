@@ -4,6 +4,9 @@ import { ArrowLeft, Edit, Download, Trash2, FileText, User, Calendar, Euro } fro
 import { Button } from '@/components/ui/button';
 import { API_URL } from '@/lib/api';
 import { saveAs } from 'file-saver';
+import numeral from 'numeral';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 interface Facture {
   id: number;
@@ -104,30 +107,17 @@ export default function DetailFacture() {
   };
 
   const formatEuro = (amount: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount);
+    return numeral(amount).format('0,0.00 $');
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    return format(date, 'd MMMM yyyy', { locale: fr });
   };
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return format(date, 'd MMMM yyyy HH:mm', { locale: fr });
   };
 
   if (loading) {

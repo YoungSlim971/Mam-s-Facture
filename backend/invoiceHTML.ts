@@ -1,4 +1,11 @@
 import { z } from 'zod';
+import Decimal from 'decimal.js';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import numeral from 'numeral';
+import 'numeral/locales/fr';
+
+numeral.locale('fr');
 
 export interface InvoiceData {
   nom_entreprise: string;
@@ -50,23 +57,30 @@ export function computeTotals(
   lignes: ReadonlyArray<{ description: string; quantite: number; prix_unitaire: number }>,
   tvaRate: number = 20
 ): Totals {
-  const totalHT = lignes.reduce((sum, l) => sum + l.quantite * l.prix_unitaire, 0);
-  const totalTVA = (totalHT * tvaRate) / 100;
-  const totalTTC = totalHT + totalTVA;
-  return { totalHT, totalTVA, totalTTC };
+  const totalHT = lignes.reduce(
+    (sum, l) => sum.plus(new Decimal(l.quantite).mul(l.prix_unitaire)),
+    new Decimal(0)
+  );
+  const totalTVA = totalHT.mul(tvaRate).div(100);
+  const totalTTC = totalHT.plus(totalTVA);
+  return {
+    totalHT: Number(totalHT.toFixed(2)),
+    totalTVA: Number(totalTVA.toFixed(2)),
+    totalTTC: Number(totalTTC.toFixed(2)),
+  };
 }
 
 export function generateInvoiceHTML(data: InvoiceData): string {
   const parsed = invoiceSchema.parse(data);
   const totals = computeTotals(parsed.lignes, parsed.tvaRate);
-  const currency = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
-  const dateStr = new Intl.DateTimeFormat('fr-FR').format(new Date(parsed.date));
+  const formatEuro = (v: number) => numeral(v).format('0,0.00 $');
+  const dateStr = format(new Date(parsed.date), 'dd/MM/yyyy', { locale: fr });
   const lignesHtml = parsed.lignes
     .map(l => {
-      const lineTotal = l.quantite * l.prix_unitaire;
-      return `<tr><td>${l.description}</td><td>${l.quantite}</td><td class="price">${currency.format(
+      const lineTotal = new Decimal(l.quantite).mul(l.prix_unitaire);
+      return `<tr><td>${l.description}</td><td>${l.quantite}</td><td class="price">${formatEuro(
         l.prix_unitaire
-      )}</td><td class="price">${currency.format(lineTotal)}</td></tr>`;
+      )}</td><td class="price">${formatEuro(lineTotal.toNumber())}</td></tr>`;
     })
     .join('');
 
@@ -117,9 +131,9 @@ table.lines td.price, .totals p{ text-align:right; }
   <tbody>${lignesHtml}</tbody>
 </table>
 <section class="totals">
-  <p>Sous-total HT : ${currency.format(totals.totalHT)}</p>
-  <p>TVA ${parsed.tvaRate ?? 20} % : ${currency.format(totals.totalTVA)}</p>
-  <p class="grand">TOTAL TTC : ${currency.format(totals.totalTTC)}</p>
+  <p>Sous-total HT : ${formatEuro(totals.totalHT)}</p>
+  <p>TVA ${parsed.tvaRate ?? 20} % : ${formatEuro(totals.totalTVA)}</p>
+  <p class="grand">TOTAL TTC : ${formatEuro(totals.totalTTC)}</p>
 </section>
 <footer>
   <p>Conditions de paiement : règlement à réception.</p>
