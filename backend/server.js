@@ -133,7 +133,11 @@ app.get('/api/factures', (req, res) => {
       sortBy = 'date',
       order = 'desc'
     } = req.query;
-    const offset = (page - 1) * limit;
+
+    // Sécuriser et convertir les paramètres de pagination
+    const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+    const limitNum = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 100);
+    const offset = (pageNum - 1) * limitNum;
 
     const filters = { search, dateDebut, dateFin };
     if (status) filters.status = status;
@@ -165,7 +169,7 @@ app.get('/api/factures', (req, res) => {
     const total = allFactures.length;
     
     // Pagination
-    const factures = allFactures.slice(offset, offset + parseInt(limit));
+    const factures = allFactures.slice(offset, offset + limitNum);
 
     // Ajouter le formatage français
     const facturesFormatees = factures.map(row => ({
@@ -177,10 +181,10 @@ app.get('/api/factures', (req, res) => {
     res.json({
       factures: facturesFormatees,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page: pageNum,
+        limit: limitNum,
         total,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limitNum)
       }
     });
   } catch (err) {
