@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { FileText, Plus, BarChart3, Users } from 'lucide-react';
+import { FunFactCard, WeatherClockCard, InvoicePieChart } from '@/components/cards';
 
 export default function Accueil() {
   return (
@@ -31,11 +32,17 @@ export default function Accueil() {
             Bienvenue dans votre espace de facturation,{' '}
             <span className="text-indigo-600">Caroline MIRRE</span>
           </h2>
-          <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-600">
-            Gérez vos factures facilement avec notre solution complète.
-            Créez, modifiez et exportez vos factures en quelques clics.
-          </p>
-        </div>
+        <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-600">
+          Gérez vos factures facilement avec notre solution complète.
+          Créez, modifiez et exportez vos factures en quelques clics.
+        </p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-12">
+        <FunFactCard />
+        <WeatherClockCard />
+        <InvoicePieChart />
+      </div>
 
         {/* Action Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
