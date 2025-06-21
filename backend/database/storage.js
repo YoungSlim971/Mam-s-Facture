@@ -194,11 +194,13 @@ class JSONDatabase {
       rcs_number: data.rcs_number || ''
     };
 
+    const { lignes: lignesData = [], ...factureSansLignes } = data;
+
     const now = new Date().toISOString();
     const nouveauFacture = {
       id: newId,
       ...defaultFields,
-      ...data,
+      ...factureSansLignes,
       created_at: now,
       updated_at: now
     };
@@ -206,7 +208,7 @@ class JSONDatabase {
     factures.push(nouveauFacture);
 
     // Ajouter les lignes
-    const nouvelleLignes = data.lignes.map((ligne, index) => ({
+    const nouvelleLignes = lignesData.map((ligne, index) => ({
       id: lignes.length > 0 ? Math.max(...lignes.map(l => l.id)) + 1 + index : 1 + index,
       facture_id: newId,
       description: ligne.description,
@@ -232,9 +234,11 @@ class JSONDatabase {
     if (index === -1) return false;
 
     // Mettre à jour la facture
+    const { lignes: lignesData = [], ...factureSansLignes } = data;
+
     factures[index] = {
       ...factures[index],
-      ...data,
+      ...factureSansLignes,
       id: parseInt(id),
       updated_at: new Date().toISOString()
     };
@@ -243,7 +247,7 @@ class JSONDatabase {
     const lignesFiltered = lignes.filter(l => l.facture_id !== parseInt(id));
     
     // Ajouter les nouvelles lignes
-    const nouvelleLignes = data.lignes.map((ligne, ligneIndex) => ({
+    const nouvelleLignes = lignesData.map((ligne, ligneIndex) => ({
       id: lignes.length > 0 ? Math.max(...lignes.map(l => l.id)) + 1 + ligneIndex : 1 + ligneIndex,
       facture_id: parseInt(id),
       description: ligne.description,
