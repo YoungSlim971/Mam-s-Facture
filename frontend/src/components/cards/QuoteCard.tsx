@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { API_URL } from '@/lib/api';
 
 interface QuoteState {
   text: string;
@@ -27,7 +28,7 @@ export function QuoteCard() {
 
     async function load() {
       try {
-        const { text, author } = await fetch('/api/quote').then(r => r.json());
+        const { text, author } = await fetch(`${API_URL}/quote`).then(r => r.json());
         const data = { text, author };
         setQuote(data);
         localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
