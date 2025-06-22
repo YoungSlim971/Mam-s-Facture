@@ -41,6 +41,29 @@ const upload = multer({
     cb(null, true);
   }
 });
+
+const clientLogoDir = path.join(uploadDir, 'logos');
+if (!fs.existsSync(clientLogoDir)) {
+  fs.mkdirSync(clientLogoDir, { recursive: true });
+}
+const clientLogoStorage = multer.diskStorage({
+  destination: clientLogoDir,
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const name = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    cb(null, name);
+  }
+});
+const uploadClientLogo = multer({
+  storage: clientLogoStorage,
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Invalid file type'));
+    }
+    cb(null, true);
+  }
+});
 app.use('/uploads', express.static(uploadDir));
 
 let db;
@@ -90,6 +113,14 @@ app.post('/api/upload/logo', upload.single('logo'), (req, res) => {
   res.json({ filename: req.file.filename });
 });
 
+// Upload du logo client
+app.post('/api/upload/logo-client', uploadClientLogo.single('logo'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Aucun fichier fourni' });
+  }
+  res.json({ path: `/uploads/logos/${req.file.filename}` });
+});
+
 // Gestion des clients
 app.get('/api/clients', (req, res) => {
   try {
@@ -104,15 +135,32 @@ app.get('/api/clients', (req, res) => {
 
 app.post('/api/clients', (req, res) => {
   try {
-    const { nom_client, nom_entreprise = '', telephone = '', adresse = '' } = req.body;
+    const {
+      nom_client,
+      prenom_client = '',
+      nom_entreprise = '',
+      telephone = '',
+      email = '',
+      adresse_facturation = '',
+      adresse_livraison = '',
+      siret = '',
+      tva = '',
+      logo = ''
+    } = req.body;
     if (!nom_client) {
       return res.status(400).json({ error: 'Nom du client requis' });
     }
     const id = db.createClient({
       nom_client: nom_client.trim(),
+      prenom_client: prenom_client.trim(),
       nom_entreprise: nom_entreprise.trim(),
       telephone: telephone.trim(),
-      adresse: adresse.trim()
+      email: email.trim(),
+      adresse_facturation: adresse_facturation.trim(),
+      adresse_livraison: adresse_livraison.trim(),
+      siret: siret.trim(),
+      tva: tva.trim(),
+      logo: logo.trim()
     });
     const client = db.getClientById(id);
     res.status(201).json(client);
@@ -139,15 +187,32 @@ app.get('/api/clients/:id', (req, res) => {
 
 app.put('/api/clients/:id', (req, res) => {
   try {
-    const { nom_client, nom_entreprise = '', telephone = '', adresse = '' } = req.body;
+    const {
+      nom_client,
+      prenom_client = '',
+      nom_entreprise = '',
+      telephone = '',
+      email = '',
+      adresse_facturation = '',
+      adresse_livraison = '',
+      siret = '',
+      tva = '',
+      logo = ''
+    } = req.body;
     if (!nom_client) {
       return res.status(400).json({ error: 'Nom du client requis' });
     }
     const success = db.updateClient(req.params.id, {
       nom_client: nom_client.trim(),
+      prenom_client: prenom_client.trim(),
       nom_entreprise: nom_entreprise.trim(),
       telephone: telephone.trim(),
-      adresse: adresse.trim()
+      email: email.trim(),
+      adresse_facturation: adresse_facturation.trim(),
+      adresse_livraison: adresse_livraison.trim(),
+      siret: siret.trim(),
+      tva: tva.trim(),
+      logo: logo.trim()
     });
     if (!success) return res.status(404).json({ error: 'Client non trouvé' });
     res.json({ success: true });
