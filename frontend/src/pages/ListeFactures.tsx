@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Filter, FileText, Plus, Eye, Edit, Trash2, Download, ArrowLeft, Calendar } from 'lucide-react';
+import { Search, Filter, FileText, Plus, Eye, Edit, Trash2, Download, Check, ArrowLeft, Calendar } from 'lucide-react';
 import { API_URL } from '@/lib/api';
 import { saveAs } from 'file-saver';
 
@@ -134,6 +134,22 @@ export default function ListeFactures() {
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Erreur lors du téléchargement');
+    }
+  };
+
+  const marquerPayee = async (id: number) => {
+    try {
+      const response = await fetch(`${API_URL}/factures/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'paid' })
+      });
+      if (!response.ok) {
+        throw new Error('Erreur lors du changement de statut');
+      }
+      chargerFactures();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Erreur inattendue');
     }
   };
 
@@ -400,6 +416,15 @@ export default function ListeFactures() {
                             >
                               <Download className="h-4 w-4" />
                             </button>
+                            {facture.status !== 'paid' && (
+                              <button
+                                onClick={() => marquerPayee(facture.id)}
+                                className="p-2 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                title="Marquer comme payée"
+                              >
+                                <Check className="h-4 w-4" />
+                              </button>
+                            )}
                             <button
                               onClick={() => supprimerFacture(facture.id, facture.numero_facture)}
                               className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"

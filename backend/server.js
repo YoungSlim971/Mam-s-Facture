@@ -517,9 +517,34 @@ app.put('/api/factures/:id', (req, res) => {
 
     res.json({ message: 'Facture mise à jour avec succès' });
   } catch (err) {
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Erreur lors de la mise à jour de la facture',
-      details: err.message 
+      details: err.message
+    });
+  }
+});
+
+// PATCH /api/factures/:id/status - Met à jour uniquement le statut d'une facture
+app.patch('/api/factures/:id/status', (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (status !== 'paid' && status !== 'unpaid') {
+      return res.status(400).json({ error: 'Statut invalide' });
+    }
+    const facture = db.getFactureById(id);
+    if (!facture) {
+      return res.status(404).json({ error: 'Facture non trouvée' });
+    }
+    const success = db.updateFacture(id, { ...facture, status });
+    if (!success) {
+      return res.status(404).json({ error: 'Facture non trouvée' });
+    }
+    res.json({ message: 'Statut mis à jour' });
+  } catch (err) {
+    res.status(500).json({
+      error: 'Erreur lors de la mise à jour du statut',
+      details: err.message
     });
   }
 });

@@ -39,6 +39,10 @@ export default function Sidebar() {
           <CircleAlert className="h-5 w-5" />
           <span>Factures non payées</span>
         </NavLink>
+        <NavLink to="/factures?status=paid" className="flex items-center space-x-2 hover:text-primary">
+          <CircleAlert className="h-5 w-5" />
+          <span>Factures payées</span>
+        </NavLink>
         <NavLink to="/clients" className="flex items-center space-x-2 hover:text-primary">
           <Users className="h-5 w-5" />
           <span>Clients</span>

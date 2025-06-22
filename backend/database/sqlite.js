@@ -47,6 +47,7 @@ class SQLiteDatabase {
       adresse TEXT,
       date_facture TEXT NOT NULL,
       montant_total REAL NOT NULL,
+      status TEXT DEFAULT 'unpaid',
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );`);
@@ -153,8 +154,8 @@ class SQLiteDatabase {
 
   createFacture(data) {
     const { lignes = [], ...fact } = data;
-    const stmt = this.db.prepare('INSERT INTO factures (client_id, numero_facture, nom_client, nom_entreprise, telephone, adresse, date_facture, montant_total) VALUES (?,?,?,?,?,?,?,?)');
-    stmt.run([fact.client_id || null, fact.numero_facture, fact.nom_client, fact.nom_entreprise || '', fact.telephone || '', fact.adresse || '', fact.date_facture, fact.montant_total]);
+    const stmt = this.db.prepare('INSERT INTO factures (client_id, numero_facture, nom_client, nom_entreprise, telephone, adresse, date_facture, montant_total, status) VALUES (?,?,?,?,?,?,?,?,?)');
+    stmt.run([fact.client_id || null, fact.numero_facture, fact.nom_client, fact.nom_entreprise || '', fact.telephone || '', fact.adresse || '', fact.date_facture, fact.montant_total, fact.status || 'unpaid']);
     stmt.free();
     const factureId = this.db.exec('SELECT last_insert_rowid() AS id')[0].values[0][0];
     lignes.forEach(l => {
@@ -168,8 +169,8 @@ class SQLiteDatabase {
 
   updateFacture(id, data) {
     const { lignes = [], ...fact } = data;
-    const stmt = this.db.prepare('UPDATE factures SET client_id=?, numero_facture=?, nom_client=?, nom_entreprise=?, telephone=?, adresse=?, date_facture=?, montant_total=?, updated_at=CURRENT_TIMESTAMP WHERE id=?');
-    stmt.run([fact.client_id || null, fact.numero_facture, fact.nom_client, fact.nom_entreprise || '', fact.telephone || '', fact.adresse || '', fact.date_facture, fact.montant_total, id]);
+    const stmt = this.db.prepare('UPDATE factures SET client_id=?, numero_facture=?, nom_client=?, nom_entreprise=?, telephone=?, adresse=?, date_facture=?, montant_total=?, status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?');
+    stmt.run([fact.client_id || null, fact.numero_facture, fact.nom_client, fact.nom_entreprise || '', fact.telephone || '', fact.adresse || '', fact.date_facture, fact.montant_total, fact.status || 'unpaid', id]);
     const changes = this.db.getRowsModified();
     stmt.free();
     this.db.run('DELETE FROM lignes WHERE facture_id=?', [id]);
