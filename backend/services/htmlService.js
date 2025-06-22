@@ -1,6 +1,8 @@
 require('ts-node/register/transpile-only');
 const path = require('path');
-const { generateInvoiceHTML } = require('../invoiceHTML.ts');
+const fs = require('fs');
+const ejs = require('ejs');
+const { computeTotals } = require('../utils/computeTotals.ts');
 
 function mapFactureToInvoiceData(facture) {
   return {
@@ -30,7 +32,11 @@ function mapFactureToInvoiceData(facture) {
 
 function buildFactureHTML(facture) {
   const invoiceData = mapFactureToInvoiceData(facture);
-  return generateInvoiceHTML(invoiceData);
+  const totals = computeTotals(invoiceData.lignes, invoiceData.tvaRate || 20);
+  Object.assign(invoiceData, totals);
+  const templatePath = path.join(__dirname, '..', 'views', 'invoice.ejs');
+  const template = fs.readFileSync(templatePath, 'utf8');
+  return ejs.render(template, invoiceData);
 }
 
 module.exports = buildFactureHTML;

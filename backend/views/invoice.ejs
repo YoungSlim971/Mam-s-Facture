@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Facture <%= numero %></title>
+  <style>
+    @page { size: A4; margin: 20mm 15mm; }
+    body.invoice { font: 14px/1.4 "Helvetica Neue", Arial, sans-serif; color:#333; }
+    header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; }
+    header img{ max-height:60px; }
+    .meta h1{ margin:0; font-size:28px; letter-spacing:2px; }
+    .addresses{ display:flex; justify-content:space-between; margin-bottom:24px; }
+    .addresses h2{ margin:0 0 8px; font-size:16px; }
+    table.lines{ width:100%; border-collapse:collapse; }
+    table.lines thead { background:#f2f6fa; }
+    table.lines th, table.lines td{ padding:8px; border:1px solid #ddd; text-align:left; }
+    table.lines td.price, .totals p{ text-align:right; }
+    .totals{ margin-top:16px; }
+    .totals .grand{ font-size:18px; font-weight:700; }
+    @media print{ table.lines tr{ break-inside:avoid; } }
+  </style>
+</head>
+<body class="invoice">
+<header>
+  <img src="<%= logo_path || '/logo.png' %>" alt="Logo">
+  <section class="meta">
+    <h1>FACTURE</h1>
+    <p>N° <%= numero %></p>
+    <p>Date : <%= date %></p>
+  </section>
+</header>
+<section class="addresses">
+  <div class="from">
+    <h2>Émetteur</h2>
+    <%= nom_entreprise %><br>
+    <% if (adresse) { adresse.forEach(l => { %>
+      <%= l %><br>
+    <% }) } %>
+  </div>
+  <div class="to">
+    <h2>Client</h2>
+    <%= nom_client %><br>
+    <% if (adresse_client) { adresse_client.forEach(l => { %>
+      <%= l %><br>
+    <% }) } %>
+  </div>
+</section>
+<table class="lines">
+  <thead>
+    <tr><th>Description</th><th>Qté</th><th>PU HT</th><th class="price">Total HT</th></tr>
+  </thead>
+  <tbody>
+    <% lignes.forEach(function(l){ %>
+      <tr>
+        <td><%= l.description %></td>
+        <td><%= l.quantite %></td>
+        <td class="price"><%= l.prix_unitaire.toFixed(2) %></td>
+        <td class="price"><%= (l.quantite * l.prix_unitaire).toFixed(2) %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+<section class="totals">
+  <p>Sous-total HT : <%= totalHT.toFixed(2) %></p>
+  <p>TVA <%= tvaRate %> % : <%= totalTVA.toFixed(2) %></p>
+  <p class="grand">TOTAL TTC : <%= totalTTC.toFixed(2) %></p>
+</section>
+<footer>
+  <p>Conditions de paiement : règlement à réception.</p>
+  <p><%= nom_entreprise %></p>
+</footer>
+</body>
+</html>
