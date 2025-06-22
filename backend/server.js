@@ -455,6 +455,27 @@ app.get('/api/factures/:id/html', (req, res) => {
   }
 });
 
+// GET /api/factures/:id/pdf - Génère un PDF depuis le HTML
+app.get('/api/factures/:id/pdf', async (req, res) => {
+  const facture = db.getFactureById(req.params.id);
+  if (!facture) {
+    return res.status(404).json({ error: 'Facture non trouvée' });
+  }
+  try {
+    const html = buildFactureHTML(facture);
+    const puppeteer = require('puppeteer');
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    const pdf = await page.pdf({ format: 'A4' });
+    await browser.close();
+    res.setHeader('Content-Type', 'application/pdf');
+    res.send(pdf);
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur lors de la génération du PDF' });
+  }
+});
+
 
 // Route de santé
 app.get('/api/health', (req, res) => {
