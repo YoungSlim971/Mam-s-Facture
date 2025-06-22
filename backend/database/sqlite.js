@@ -25,9 +25,15 @@ class SQLiteDatabase {
     this.db.run(`CREATE TABLE IF NOT EXISTS clients (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nom_client TEXT NOT NULL,
+      prenom_client TEXT,
       nom_entreprise TEXT,
       telephone TEXT,
-      adresse TEXT,
+      email TEXT,
+      adresse_facturation TEXT,
+      adresse_livraison TEXT,
+      siret TEXT,
+      tva TEXT,
+      logo TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );`);
@@ -73,8 +79,19 @@ class SQLiteDatabase {
   }
 
   createClient(data) {
-    const stmt = this.db.prepare('INSERT INTO clients (nom_client, nom_entreprise, telephone, adresse) VALUES (?,?,?,?)');
-    stmt.run([data.nom_client, data.nom_entreprise || '', data.telephone || '', data.adresse || '']);
+    const stmt = this.db.prepare('INSERT INTO clients (nom_client, prenom_client, nom_entreprise, telephone, email, adresse_facturation, adresse_livraison, siret, tva, logo) VALUES (?,?,?,?,?,?,?,?,?,?)');
+    stmt.run([
+      data.nom_client,
+      data.prenom_client || '',
+      data.nom_entreprise || '',
+      data.telephone || '',
+      data.email || '',
+      data.adresse_facturation || '',
+      data.adresse_livraison || '',
+      data.siret || '',
+      data.tva || '',
+      data.logo || ''
+    ]);
     stmt.free();
     const id = this.db.exec('SELECT last_insert_rowid() AS id')[0].values[0][0];
     this.save();
@@ -82,8 +99,20 @@ class SQLiteDatabase {
   }
 
   updateClient(id, data) {
-    const stmt = this.db.prepare('UPDATE clients SET nom_client=?, nom_entreprise=?, telephone=?, adresse=?, updated_at=CURRENT_TIMESTAMP WHERE id=?');
-    stmt.run([data.nom_client, data.nom_entreprise || '', data.telephone || '', data.adresse || '', id]);
+    const stmt = this.db.prepare('UPDATE clients SET nom_client=?, prenom_client=?, nom_entreprise=?, telephone=?, email=?, adresse_facturation=?, adresse_livraison=?, siret=?, tva=?, logo=?, updated_at=CURRENT_TIMESTAMP WHERE id=?');
+    stmt.run([
+      data.nom_client,
+      data.prenom_client || '',
+      data.nom_entreprise || '',
+      data.telephone || '',
+      data.email || '',
+      data.adresse_facturation || '',
+      data.adresse_livraison || '',
+      data.siret || '',
+      data.tva || '',
+      data.logo || '',
+      id
+    ]);
     const changes = this.db.getRowsModified();
     stmt.free();
     this.save();

@@ -3,9 +3,10 @@ import { API_URL } from '@/lib/api';
 
 interface Props {
   onUploaded: (path: string) => void;
+  uploadUrl?: string;
 }
 
-export default function LogoDropzone({ onUploaded }: Props) {
+export default function LogoDropzone({ onUploaded, uploadUrl }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -29,13 +30,13 @@ export default function LogoDropzone({ onUploaded }: Props) {
     const formData = new FormData();
     formData.append('logo', file);
     try {
-      const res = await fetch(`${API_URL}/upload/logo`, {
+      const res = await fetch(`${API_URL}${uploadUrl || '/upload/logo'}`, {
         method: 'POST',
         body: formData
       });
       if (!res.ok) throw new Error('Upload échoué');
       const data = await res.json();
-      onUploaded(`/uploads/${data.filename}`);
+      onUploaded(data.path || `/uploads/${data.filename}`);
     } catch {
       setError("Erreur lors de l'upload");
     }
