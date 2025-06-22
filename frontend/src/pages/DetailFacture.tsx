@@ -99,18 +99,29 @@ export default function DetailFacture() {
     }
   };
 
-  const telechargerHTML = async () => {
+  const [exportFormat, setExportFormat] = useState<'html' | 'pdf'>('html');
+
+  const telechargerFacture = async () => {
     if (!facture) return;
     try {
-      const response = await fetch(`${API_URL}/factures/${facture.id}/html`);
+      const response = await fetch(
+        `${API_URL}/factures/${facture.id}/${exportFormat}`
+      );
       if (!response.ok) {
         throw new Error('Erreur lors de la génération du fichier');
       }
-      const html = await response.text();
-      const blob = new Blob([html], { type: 'text/html' });
-      saveAs(blob, `facture-${facture.numero_facture}.html`);
+      if (exportFormat === 'pdf') {
+        const pdf = await response.blob();
+        saveAs(pdf, `facture-${facture.numero_facture}.pdf`);
+      } else {
+        const html = await response.text();
+        const blob = new Blob([html], { type: 'text/html' });
+        saveAs(blob, `facture-${facture.numero_facture}.html`);
+      }
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erreur lors du téléchargement');
+      alert(
+        err instanceof Error ? err.message : 'Erreur lors du téléchargement'
+      );
     }
   };
 
@@ -204,9 +215,17 @@ export default function DetailFacture() {
                 <Edit className="h-5 w-5 mr-2" />
                 Modifier
               </Link>
+              <select
+                value={exportFormat}
+                onChange={e => setExportFormat(e.target.value as 'html' | 'pdf')}
+                className="px-2 py-2 border border-gray-300 rounded-lg"
+              >
+                <option value="html">HTML</option>
+                <option value="pdf">PDF</option>
+              </select>
               <Button
                 variant="outline"
-                onClick={telechargerHTML}
+                onClick={telechargerFacture}
                 title="Exporter la facture"
               >
                 <Download className="h-5 w-5 mr-2" />

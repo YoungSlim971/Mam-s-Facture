@@ -43,6 +43,7 @@ export default function ListeFactures() {
   const [statusFilter, setStatusFilter] = useState('');
   const [sortField, setSortField] = useState('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [exportFormat, setExportFormat] = useState<'html' | 'pdf'>('html');
 
   const chargerFactures = useCallback(async () => {
     try {
@@ -111,16 +112,26 @@ export default function ListeFactures() {
     nomEntreprise?: string
   ) => {
     try {
-      const response = await fetch(`${API_URL}/factures/${id}/html`);
+      const response = await fetch(
+        `${API_URL}/factures/${id}/${exportFormat}`
+      );
       if (!response.ok) {
         throw new Error('Erreur lors de la génération du fichier');
       }
-      const html = await response.text();
-      const blob = new Blob([html], { type: 'text/html' });
-      saveAs(
-        blob,
-        `facture-${numeroFacture}-${dateFacture}-${nomEntreprise ? nomEntreprise.replace(/\s+/g, '-') : ''}.html`
-      );
+      if (exportFormat === 'pdf') {
+        const pdf = await response.blob();
+        saveAs(
+          pdf,
+          `facture-${numeroFacture}-${dateFacture}-${nomEntreprise ? nomEntreprise.replace(/\s+/g, '-') : ''}.pdf`
+        );
+      } else {
+        const html = await response.text();
+        const blob = new Blob([html], { type: 'text/html' });
+        saveAs(
+          blob,
+          `facture-${numeroFacture}-${dateFacture}-${nomEntreprise ? nomEntreprise.replace(/\s+/g, '-') : ''}.html`
+        );
+      }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Erreur lors du téléchargement');
     }
@@ -251,6 +262,17 @@ export default function ListeFactures() {
             >
               <option value="asc">Croissant</option>
               <option value="desc">Décroissant</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Format export</label>
+            <select
+              value={exportFormat}
+              onChange={(e) => setExportFormat(e.target.value as 'html' | 'pdf')}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="html">HTML</option>
+              <option value="pdf">PDF</option>
             </select>
           </div>
         </div>
