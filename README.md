@@ -127,18 +127,7 @@ Exemples :
     VITE_API_URL=https://mon-domaine.com/api pnpm run build
     ```
 
-### Génération Mistral (OPENROUTER_API_KEY)
-
-L'endpoint `/api/factures/:id/mistral-html` permet de générer une facture en HTML via le modèle **Mistral**. Pour utiliser cette fonctionnalité, définissez la variable d'environnement `OPENROUTER_API_KEY` côté backend :
-
-```bash
-export OPENROUTER_API_KEY=ma-cle-api
-pnpm start
-```
-
-Si la variable n'est pas présente, l'API renverra une erreur « OPENROUTER_API_KEY env var missing » lors de l'appel à cet endpoint.
-
-### Génération locale (sans Mistral)
+### Génération locale
 
 Un script en ligne de commande permet d'exporter le HTML à partir des données locales :
 
@@ -201,7 +190,6 @@ Mam-s-Facture/
 - `PUT /api/factures/:id` - Modifier une facture
 - `DELETE /api/factures/:id` - Supprimer une facture
 - `GET /api/factures/:id/html` - Exporter la facture en HTML
-- `GET /api/factures/:id/mistral-html` - Exporter la facture en HTML généré par Mistral
 - `GET /api/clients` - Liste des clients
 - `POST /api/clients` - Créer un client
 - `GET /api/clients/:id` - Détails d'un client
