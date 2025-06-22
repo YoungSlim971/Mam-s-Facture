@@ -52,7 +52,7 @@ export default function ClientProfile() {
           {client.nom_entreprise && <div>Entreprise : {client.nom_entreprise}</div>}
           {client.telephone && <div>Téléphone : {client.telephone}</div>}
           {client.adresse && <div>Adresse : {client.adresse}</div>}
-          <div>{client.factures.length} facture(s)</div>
+          <div>{(client.factures || []).length} facture(s)</div>
         </CardContent>
       </Card>
     </div>
