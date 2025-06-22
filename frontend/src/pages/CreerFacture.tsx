@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
 import LogoDropzone from '@/components/LogoDropzone';
 import { API_URL } from '@/lib/api';
 import { computeTotals } from '@/lib/utils';
+import numeral from 'numeral';
 
 interface LigneFacture {
   description: string;

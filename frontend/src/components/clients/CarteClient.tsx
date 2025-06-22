@@ -7,6 +7,11 @@ export interface Client {
   prenom_client?: string
   nom_entreprise?: string
   telephone?: string
+  email?: string
+  adresse_facturation?: string
+  adresse_livraison?: string
+  siret?: string
+  tva?: string
   logo?: string
   factures: number[]
 }

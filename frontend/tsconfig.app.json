@@ -22,6 +22,7 @@
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
+    "esModuleInterop": true,
     "noEmit": true,
     "jsx": "react-jsx",
     /* Linting */
