@@ -1,10 +1,11 @@
 import React, { useState, useEffect, createContext, useContext } from 'react'
 
-// The application supports three modes:
+// The application supports four modes:
 //  - "sunset"  : a custom colorful theme
 //  - "dark"    : a dark theme
 //  - "system"  : follows the OS preference (light or dark)
-export type Theme = 'sunset' | 'dark' | 'system'
+//  - "mobile"  : optimized styling for small screens
+export type Theme = 'sunset' | 'dark' | 'system' | 'mobile'
 
 interface ThemeContextValue {
   theme: Theme
@@ -26,14 +27,16 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const root = document.documentElement
     const applyTheme = () => {
-      root.classList.remove('light', 'dark', 'sunset', 'system')
+      root.classList.remove('light', 'dark', 'sunset', 'system', 'mobile')
 
       if (theme === 'sunset') {
         root.classList.add('sunset')
         return
       }
 
-      if (theme === 'dark') {
+      if (theme === 'mobile') {
+        root.classList.add('mobile')
+      } else if (theme === 'dark') {
         root.classList.add('dark')
       } else if (theme === 'system') {
         root.classList.add('system')
@@ -49,7 +52,15 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, [theme])
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === 'sunset' ? 'dark' : prev === 'dark' ? 'system' : 'sunset'))
+    setTheme((prev) =>
+      prev === 'mobile'
+        ? 'sunset'
+        : prev === 'sunset'
+          ? 'dark'
+          : prev === 'dark'
+            ? 'system'
+            : 'mobile'
+    )
   }
 
   return (

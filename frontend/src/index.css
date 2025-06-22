@@ -44,6 +44,12 @@
   html.sunset {
     --background: var(--gradient-start);
   }
+
+  html.mobile {
+    --background: #111111;
+    --gradient-start: #ff6a85;
+    --gradient-end: #ffb26b;
+  }
 }
 
 html,
@@ -78,6 +84,11 @@ html.dark body {
   background-size: cover;
   background-position: center;
   background-color: #1f2937;
+  color: var(--foreground);
+}
+
+html.mobile body {
+  background-color: #111111;
   color: var(--foreground);
 }
 
