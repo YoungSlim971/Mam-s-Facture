@@ -6,18 +6,27 @@ const { computeTotals } = require('../utils/computeTotals.ts');
 
 function mapFactureToInvoiceData(facture) {
   return {
-    nom_entreprise: facture.nom_entreprise || '',
+    // Informations de l'entreprise
+    companyName: facture.nom_entreprise || '',
     siren: facture.siren || '',
-    adresse: undefined,
-    logo_path: facture.logo_path
+    companyAddress: '',
+    companyPostal: '',
+    logoUrl: facture.logo_path
       ? path.isAbsolute(facture.logo_path)
         ? facture.logo_path
         : path.join(__dirname, '..', facture.logo_path)
       : undefined,
-    nom_client: facture.nom_client,
-    adresse_client: facture.adresse ? facture.adresse.split('\n') : undefined,
-    numero: facture.numero_facture || facture.numero,
-    date: facture.date_facture,
+
+    // Informations du client
+    clientName: facture.nom_client,
+    clientCompany: '',
+    clientAddress: facture.adresse ? facture.adresse.replace(/\n/g, '<br>') : '',
+    clientPostal: '',
+    clientId: facture.client_id || '',
+
+    // Informations de la facture
+    invoiceNumber: facture.numero_facture || facture.numero,
+    invoiceDate: facture.date_facture,
     lignes: (facture.lignes || []).map(l => ({
       description: l.description,
       quantite: Number(l.quantite),
@@ -27,16 +36,51 @@ function mapFactureToInvoiceData(facture) {
     date_reglement: facture.date_reglement || facture.date_facture,
     date_vente: facture.date_vente || facture.date_facture,
     penalites: facture.penalites || '',
+
+    // Pied de page et mentions
+    paymentConditions: '',
+    paymentMethod: '',
+    closingMessage: '',
+    companyFooter: '',
+    companyContact: '',
+    bankDetails: '',
+    legalInfo: '',
+    pageLabel: '1',
   };
 }
 
 function buildFactureHTML(facture) {
   const invoiceData = mapFactureToInvoiceData(facture);
   const totals = computeTotals(invoiceData.lignes, invoiceData.tvaRate || 20);
-  Object.assign(invoiceData, totals);
+
+  // Préparation des lignes pour la nouvelle maquette
+  const items = invoiceData.lignes.map(l => ({
+    description: l.description,
+    quantity: l.quantite,
+    unit: '',
+    unitPrice: l.prix_unitaire.toFixed(2),
+    totalHt: (l.quantite * l.prix_unitaire).toFixed(2),
+    tva: invoiceData.tvaRate || 20,
+  }));
+
+  const tvaLines = [
+    {
+      rate: invoiceData.tvaRate || 20,
+      tvaAmount: totals.totalTVA.toFixed(2),
+      baseHt: totals.totalHT.toFixed(2),
+    },
+  ];
+
+  const templateData = {
+    ...invoiceData,
+    items,
+    tvaLines,
+    totalTtc: totals.totalTTC.toFixed(2),
+  };
+
   const templatePath = path.join(__dirname, '..', 'views', 'invoice.ejs');
   const template = fs.readFileSync(templatePath, 'utf8');
-  return ejs.render(template, invoiceData);
+  return ejs.render(template, templateData);
 }
 
 module.exports = buildFactureHTML;
