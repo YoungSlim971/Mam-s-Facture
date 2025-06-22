@@ -488,3 +488,180 @@ export default function ListeFactures() {
     </div>
   );
 }
+diff --git a/frontend/src/pages/ListeFactures.tsx b/frontend/src/pages/ListeFactures.tsx
+index ea97ce46436b4323ba2d57cd818920a269084b19..99a02d08bf065ac93db6de059c3c1f66c39f370b 100644
+--- a/frontend/src/pages/ListeFactures.tsx
++++ b/frontend/src/pages/ListeFactures.tsx
+@@ -1,28 +1,28 @@
+ import { useState, useEffect, useCallback } from 'react';
+ import { Link, useLocation } from 'react-router-dom';
+-import { Search, Filter, FileText, Plus, Eye, Edit, Trash2, Download, ArrowLeft, Calendar } from 'lucide-react';
++import { Search, Filter, FileText, Plus, Eye, Edit, Trash2, Download, Check, ArrowLeft, Calendar } from 'lucide-react';
+ import { API_URL } from '@/lib/api';
+ import { saveAs } from 'file-saver';
+ 
+ interface Facture {
+   id: number;
+   numero_facture: string;
+   nom_client: string;
+   nom_entreprise?: string;
+   status?: 'paid' | 'unpaid';
+   date_facture: string;
+   date_facture_fr: string;
+   montant_total: number;
+   montant_total_fr: string;
+   nombre_lignes: number;
+ }
+ 
+ interface PaginationInfo {
+   page: number;
+   limit: number;
+   total: number;
+   totalPages: number;
+ }
+ 
+ export default function ListeFactures() {
+   const location = useLocation();
+diff --git a/frontend/src/pages/ListeFactures.tsx b/frontend/src/pages/ListeFactures.tsx
+index ea97ce46436b4323ba2d57cd818920a269084b19..99a02d08bf065ac93db6de059c3c1f66c39f370b 100644
+--- a/frontend/src/pages/ListeFactures.tsx
++++ b/frontend/src/pages/ListeFactures.tsx
+@@ -115,50 +115,73 @@ export default function ListeFactures() {
+       const response = await fetch(
+         `${API_URL}/factures/${id}/${exportFormat}`
+       );
+       if (!response.ok) {
+         throw new Error('Erreur lors de la génération du fichier');
+       }
+       if (exportFormat === 'pdf') {
+         const pdf = await response.blob();
+         saveAs(
+           pdf,
+           `facture-${numeroFacture}-${dateFacture}-${nomEntreprise ? nomEntreprise.replace(/\s+/g, '-') : ''}.pdf`
+         );
+       } else {
+         const html = await response.text();
+         const blob = new Blob([html], { type: 'text/html' });
+         saveAs(
+           blob,
+           `facture-${numeroFacture}-${dateFacture}-${nomEntreprise ? nomEntreprise.replace(/\s+/g, '-') : ''}.html`
+         );
+       }
+     } catch (err) {
+       alert(err instanceof Error ? err.message : 'Erreur lors du téléchargement');
+     }
+   };
+ 
++  const marquerPayee = async (id: number) => {
++    try {
++      const response = await fetch(`${API_URL}/factures/${id}/status`, {
++        method: 'PATCH',
++        headers: { 'Content-Type': 'application/json' },
++        body: JSON.stringify({ status: 'paid' })
++      });
++      if (!response.ok) {
++        throw new Error('Erreur lors du changement de statut');
++      }
++      setFactures(prev => {
++        const updated = prev.map(f =>
++          f.id === id ? { ...f, status: 'paid' } : f
++        );
++        return statusFilter === 'unpaid'
++          ? updated.filter(f => f.id !== id)
++          : updated;
++      });
++    } catch (err) {
++      alert(err instanceof Error ? err.message : 'Erreur inattendue');
++    }
++  };
++
+   const changerPage = (nouvellePage: number) => {
+     setPagination(prev => ({ ...prev, page: nouvellePage }));
+   };
+ 
+   if (loading && factures.length === 0) {
+     return (
+       <div className="min-h-screen flex items-center justify-center">
+         <div className="text-center">
+           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+           <p className="mt-4 text-gray-600">Chargement des factures...</p>
+         </div>
+       </div>
+     );
+   }
+ 
+   return (
+     <div className="min-h-screen">
+       {/* Header */}
+       <header
+         className="bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-mid)] to-[var(--gradient-end)] text-white shadow-sm border-b border-gray-200"
+       >
+         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div className="flex justify-between items-center h-16">
+             <div className="flex items-center">
+               <Link to="/" className="flex items-center text-gray-600 hover:text-gray-900 mr-4">
+diff --git a/frontend/src/pages/ListeFactures.tsx b/frontend/src/pages/ListeFactures.tsx
+index ea97ce46436b4323ba2d57cd818920a269084b19..99a02d08bf065ac93db6de059c3c1f66c39f370b 100644
+--- a/frontend/src/pages/ListeFactures.tsx
++++ b/frontend/src/pages/ListeFactures.tsx
+@@ -378,50 +401,59 @@ export default function ListeFactures() {
+                               title="Voir les détails"
+                             >
+                               <Eye className="h-4 w-4" />
+                             </Link>
+                             <Link
+                               to={`/factures/${facture.id}/modifier`}
+                               className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                               title="Modifier"
+                             >
+                               <Edit className="h-4 w-4" />
+                             </Link>
+                             <button
+                               onClick={() =>
+                                 telechargerFacture(
+                                   facture.id,
+                                   facture.numero_facture,
+                                   facture.date_facture,
+                                   facture.nom_entreprise
+                                 )
+                               }
+                               className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                               title="Exporter"
+                             >
+                               <Download className="h-4 w-4" />
+                             </button>
++                            {facture.status !== 'paid' && (
++                              <button
++                                onClick={() => marquerPayee(facture.id)}
++                                className="p-2 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
++                                title="Marquer comme payée"
++                              >
++                                <Check className="h-4 w-4" />
++                              </button>
++                            )}
+                             <button
+                               onClick={() => supprimerFacture(facture.id, facture.numero_facture)}
+                               className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                               title="Supprimer"
+                             >
+                               <Trash2 className="h-4 w-4" />
+                             </button>
+                           </div>
+                         </td>
+                       </tr>
+                     ))}
+                   </tbody>
+                 </table>
+               </div>
+ 
+               {/* Pagination */}
+               {pagination.totalPages > 1 && (
+                 <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                   <div className="flex items-center justify-between">
+                     <div className="text-sm text-gray-700">
+                       Affichage de {((pagination.page - 1) * pagination.limit) + 1} à{' '}
+                       {Math.min(pagination.page * pagination.limit, pagination.total)} sur{' '}
+                       {pagination.total} résultats
+                     </div>
+                     <div className="flex items-center space-x-2">
+
