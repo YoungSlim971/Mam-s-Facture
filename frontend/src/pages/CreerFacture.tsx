@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
 import { API_URL } from '@/lib/api';
+import { computeTotals } from '@/lib/utils';
 import numeral from 'numeral';
 
 interface LigneFacture {
@@ -30,7 +31,6 @@ export default function CreerFacture() {
   const [siret, setSiret] = useState('');
   const [legalForm, setLegalForm] = useState('');
   const [vatNumber, setVatNumber] = useState('');
-  const [montantHTSaisi, setMontantHTSaisi] = useState(0);
   const [rcsNumber, setRcsNumber] = useState('');
   const [clients, setClients] = useState<Array<{id:number; nom_client:string; nom_entreprise?:string; telephone?:string; adresse?:string}>>([])
   const [clientId, setClientId] = useState<number | ''>('')
@@ -69,8 +69,10 @@ export default function CreerFacture() {
   }
 
   const TVA_RATE = 20;
-  const montantHT = montantHTSaisi;
-  const montantTotal = montantHTSaisi * (1 + TVA_RATE / 100);
+  const { totalHT: montantHT, totalTTC: montantTotal } = computeTotals(
+    lignes,
+    TVA_RATE
+  );
 
   // Formatage des devises en français
   const formatEuro = (amount: number) => {
@@ -169,7 +171,6 @@ export default function CreerFacture() {
           siret: siret.trim(),
           legal_form: legalForm.trim(),
           vat_number: vatNumber.trim(),
-          montant_total: montantHTSaisi,
           rcs_number: rcsNumber.trim(),
           lignes: lignesValides
         }),
@@ -466,8 +467,8 @@ export default function CreerFacture() {
                     )}
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Prix unitaire (€)
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Prix unitaire TTC (€)
                     </label>
                     <input
                       type="number"
@@ -479,6 +480,12 @@ export default function CreerFacture() {
                         erreurs[`prix_${index}`] ? 'border-red-300' : 'border-gray-300'
                       }`}
                     />
+                    <p className="mt-1 text-xs text-gray-500">
+                      (TVA :{' '}
+                      {formatEuro(
+                        ligne.prix_unitaire - ligne.prix_unitaire / (1 + TVA_RATE / 100)
+                      )})
+                    </p>
                     {erreurs[`prix_${index}`] && (
                       <p className="mt-1 text-xs text-red-600">{erreurs[`prix_${index}`]}</p>
                     )}
@@ -504,20 +511,6 @@ export default function CreerFacture() {
                   </div>
                 </div>
             ))}
-          </div>
-
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Montant HT
-            </label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={montantHTSaisi}
-              onChange={(e) => setMontantHTSaisi(parseFloat(e.target.value) || 0)}
-              className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
           </div>
 
             {/* Récapitulatif */}

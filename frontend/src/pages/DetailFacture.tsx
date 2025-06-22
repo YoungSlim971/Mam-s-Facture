@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Download, Trash2, FileText, User, Calendar, Euro } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { API_URL } from '@/lib/api';
+import { computeTotals } from '@/lib/utils';
 import { saveAs } from 'file-saver';
 import numeral from 'numeral';
 import { format } from 'date-fns';
@@ -161,10 +162,11 @@ export default function DetailFacture() {
     );
   }
 
-  const totalHT = facture.montant_total;
-  const tauxTVA = facture.vat_rate ?? 0;
-  const montantTVA = totalHT * (tauxTVA / 100);
-  const totalTTC = totalHT + montantTVA;
+  const tauxTVA = facture.vat_rate ?? 20;
+  const { totalHT, totalTVA: montantTVA, totalTTC } = computeTotals(
+    facture.lignes.map(l => ({ quantite: l.quantite, prix_unitaire: l.prix_unitaire })),
+    tauxTVA
+  );
 
   return (
     <div className="min-h-screen">

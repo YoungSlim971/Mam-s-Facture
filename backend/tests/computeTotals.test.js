@@ -7,16 +7,16 @@ describe('computeTotals', () => {
       { quantite: 1, prix_unitaire: 20 }
     ];
     const { totalHT, totalTVA, totalTTC } = computeTotals(lignes);
-    expect(totalHT).toBe(40);
-    expect(totalTVA).toBe(8);
-    expect(totalTTC).toBe(48);
+    expect(totalHT).toBe(33.33);
+    expect(totalTVA).toBe(6.67);
+    expect(totalTTC).toBe(40);
   });
 
   test('calculates totals correctly with custom VAT', () => {
     const lignes = [{ quantite: 3, prix_unitaire: 15 }];
     const { totalHT, totalTVA, totalTTC } = computeTotals(lignes, 10);
-    expect(totalHT).toBe(45);
-    expect(totalTVA).toBe(4.5);
-    expect(totalTTC).toBe(49.5);
+    expect(totalHT).toBe(40.91);
+    expect(totalTVA).toBe(4.09);
+    expect(totalTTC).toBe(45);
   });
 });
