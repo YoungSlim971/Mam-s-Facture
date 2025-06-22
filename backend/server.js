@@ -77,7 +77,8 @@ app.post('/api/clients', (req, res) => {
       telephone: telephone.trim(),
       adresse: adresse.trim()
     });
-    res.status(201).json({ id });
+    const client = db.getClientById(id);
+    res.status(201).json(client);
   } catch (err) {
     res.status(500).json({
       error: 'Erreur lors de la création du client',
