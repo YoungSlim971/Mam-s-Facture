@@ -7,6 +7,7 @@ import ModifierFacture from './pages/ModifierFacture'
 import DetailFacture from './pages/DetailFacture'
 import Clients from './pages/Clients'
 import ClientProfile from './pages/profiles/ClientProfile'
+import NotFound from './pages/Error/NotFound'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import Sidebar from './components/Sidebar'
 import { ThemeProvider } from './context/ThemeContext'
@@ -27,6 +28,7 @@ function App() {
                 <Route path="/factures/:id/modifier" element={<ModifierFacture />} />
                 <Route path="/clients" element={<Clients />} />
                 <Route path="/clients/:id" element={<ClientProfile />} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
           </div>

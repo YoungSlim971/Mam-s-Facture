@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Download, Trash2, FileText, User, Calendar, Euro } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { API_URL } from '@/lib/api';
@@ -150,13 +150,14 @@ export default function DetailFacture() {
           <p className="text-gray-600 mb-6">
             La facture demandée n'existe pas ou a été supprimée.
           </p>
-          <Link
-            to="/factures"
+          <button
+            type="button"
+            onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
             className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
           >
             <ArrowLeft className="h-5 w-5 mr-2" />
-            Retour à la liste
-          </Link>
+            Retour
+          </button>
         </div>
       </div>
     );
@@ -177,10 +178,14 @@ export default function DetailFacture() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <Link to="/factures" className="flex items-center text-gray-600 hover:text-gray-900 mr-4">
+              <button
+                type="button"
+                onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+                className="flex items-center text-gray-600 hover:text-gray-900 mr-4"
+              >
                 <ArrowLeft className="h-5 w-5 mr-2" />
-                Retour à la liste
-              </Link>
+                Retour
+              </button>
               <FileText className="h-8 w-8 text-indigo-600 mr-3" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">

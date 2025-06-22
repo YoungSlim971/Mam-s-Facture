@@ -1,6 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react'
-import { Plus, X, Edit, Save } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Plus, X, Edit, Save, ArrowLeft } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 import { API_URL } from '@/lib/api'
 import {
   Card,
@@ -23,6 +23,7 @@ interface Client {
 
 export default function Clients() {
   const [clients, setClients] = useState<Client[]>([])
+  const navigate = useNavigate()
   const [nom, setNom] = useState('')
   const [entreprise, setEntreprise] = useState('')
   const [telephone, setTelephone] = useState('')
@@ -98,6 +99,13 @@ export default function Clients() {
 
   return (
     <div className="p-6 space-y-6">
+      <button
+        type="button"
+        onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+        className="text-blue-600 hover:underline flex items-center"
+      >
+        <ArrowLeft className="h-4 w-4 mr-1" /> Retour
+      </button>
       <h2 className="text-2xl font-bold mb-4">Gestion des clients</h2>
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="flex flex-col justify-center items-center p-6">
