@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
 import LogoDropzone from '@/components/LogoDropzone';
 import { API_URL } from '@/lib/api';
@@ -14,6 +14,7 @@ interface LigneFacture {
 
 export default function CreerFacture() {
   const navigate = useNavigate();
+  const goBack = () => (window.history.length > 1 ? navigate(-1) : navigate('/'));
   
   // État du formulaire
   const [nomClient, setNomClient] = useState('');
@@ -201,10 +202,14 @@ export default function CreerFacture() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <Link to="/factures" className="flex items-center text-gray-600 hover:text-gray-900 mr-4">
+              <button
+                type="button"
+                onClick={goBack}
+                className="flex items-center text-gray-600 hover:text-gray-900 mr-4"
+              >
                 <ArrowLeft className="h-5 w-5 mr-2" />
-                Retour à la liste
-              </Link>
+                Retour
+              </button>
               <h1 className="text-2xl font-bold text-gray-900">
                 Créer une nouvelle facture
               </h1>

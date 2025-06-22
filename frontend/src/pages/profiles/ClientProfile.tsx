@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { API_URL } from '@/lib/api'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
@@ -15,6 +15,7 @@ interface Client {
 
 export default function ClientProfile() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [client, setClient] = useState<Client | null>(null)
 
   useEffect(() => {
@@ -31,9 +32,13 @@ export default function ClientProfile() {
   if (!client) {
     return (
       <div className="p-6">
-        <Link to="/clients" className="text-blue-600 hover:underline flex items-center mb-4">
+        <button
+          type="button"
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+          className="text-blue-600 hover:underline flex items-center mb-4"
+        >
           <ArrowLeft className="h-4 w-4 mr-1" /> Retour
-        </Link>
+        </button>
         <p>Client introuvable.</p>
       </div>
     )
@@ -41,9 +46,13 @@ export default function ClientProfile() {
 
   return (
     <div className="p-6 space-y-6">
-      <Link to="/clients" className="text-blue-600 hover:underline flex items-center">
+      <button
+        type="button"
+        onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+        className="text-blue-600 hover:underline flex items-center"
+      >
         <ArrowLeft className="h-4 w-4 mr-1" /> Retour
-      </Link>
+      </button>
       <Card>
         <CardHeader>
           <CardTitle>{client.nom_client}</CardTitle>
