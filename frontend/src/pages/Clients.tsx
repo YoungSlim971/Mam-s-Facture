@@ -212,7 +212,7 @@ export default function Clients() {
                 {c.telephone && <div>{c.telephone}</div>}
                 {c.adresse && <div>{c.adresse}</div>}
                 <div className="text-xs text-zinc-500">
-                  {c.factures.length} facture(s)
+                  {(c.factures || []).length} facture(s)
                 </div>
                 <div>
                   <Link
