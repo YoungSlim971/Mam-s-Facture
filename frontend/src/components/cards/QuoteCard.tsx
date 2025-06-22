@@ -27,14 +27,8 @@ export function QuoteCard() {
 
     async function load() {
       try {
-        const [{ q, a }] = await fetch('https://zenquotes.io/api/random').then(r => r.json());
-        const body = { q, source: 'en', target: 'fr', format: 'text' };
-        const { translatedText } = await fetch('https://libretranslate.de/translate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        }).then(r => r.json());
-        const data = { text: translatedText, author: a };
+        const { text, author } = await fetch('/api/quote').then(r => r.json());
+        const data = { text, author };
         setQuote(data);
         localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
       } catch {
