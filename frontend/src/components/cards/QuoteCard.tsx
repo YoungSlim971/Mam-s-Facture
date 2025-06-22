@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { API_URL } from '@/lib/api';
@@ -46,10 +47,28 @@ export function QuoteCard() {
       </CardHeader>
       <CardContent>
         {quote ? (
-          <blockquote>
-            “{quote.text}”<br />
-            <span className="text-sm">— {quote.author}</span>
-          </blockquote>
+          <motion.blockquote
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center"
+            style={{
+              fontFamily: '"Playfair Display", "Poppins", serif'
+            }}
+          >
+            <p
+              className={
+                quote.text.length > 180
+                  ? 'text-sm'
+                  : quote.text.length > 100
+                  ? 'text-base'
+                  : 'text-lg'
+              }
+            >
+              “{quote.text}”
+            </p>
+            <span className="mt-2 block text-sm">— {quote.author}</span>
+          </motion.blockquote>
         ) : (
           <Skeleton className="h-20 w-full" />
         )}
