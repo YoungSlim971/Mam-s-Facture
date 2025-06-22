@@ -1,6 +1,6 @@
 # Application de Facturation Complète
 
-Une application web moderne et complète pour la gestion de factures, développée avec React, Node.js, et stockage JSON. Interface entièrement en français avec export HTML imprimable.
+Une application web moderne et complète pour la gestion de factures, développée avec React, Node.js, et stockage SQLite (sql.js). Interface entièrement en français avec export HTML imprimable.
 
 Pour une installation simplifiée, lancez `./install.sh` à la racine du projet. Ce script installe toutes les dépendances et construit automatiquement le frontend.
 
@@ -23,7 +23,7 @@ Pour une installation simplifiée, lancez `./install.sh` à la racine du projet.
 ### ✅ Fonctionnalités avancées
 - **Export HTML** prêt pour impression
 - **Formatage français** des dates (DD/MM/YYYY) et devises (€)
-- **Stockage persistant** avec fichiers JSON
+- **Stockage persistant** via SQLite (sql.js)
 - **API RESTful** complète avec gestion d'erreurs
 - **Interface entièrement en français**
 
@@ -160,11 +160,9 @@ Ce script renseigne également le champ `vat_rate` (taux de TVA) à `0` pour les
 ```
 Mam-s-Facture/
 ├── backend/                    # API Node.js/Express
-│   ├── database/              # Système de stockage JSON
-│   │   ├── storage.js         # Gestionnaire de base de données JSON
-│   │   └── data/              # Fichiers de données (auto-créés)
-│   │       ├── factures.json  # Données des factures
-│   │       └── lignes.json    # Lignes de facturation
+│   ├── database/              # Stockage SQLite (sql.js)
+│   │   ├── sqlite.js          # Gestionnaire de base de données SQLite
+│   │   └── facturation.sqlite # Fichier de base de données
 │   ├── server.js              # Serveur Express principal
 │   └── package.json           # Dépendances backend
 ├── frontend/                   # Application React
@@ -274,16 +272,16 @@ L'application inclut des données d'exemple pour la démonstration :
 3. **Configuration** : Ajuster les URLs dans le frontend pour pointer vers votre API
 
 ### Sauvegardes
-- Les données sont stockées dans `backend/database/data/`
-- Sauvegarder ces fichiers JSON pour préserver les données
-- Simple restauration par copie des fichiers
+- Les données sont stockées dans `backend/database/facturation.sqlite`
+- Sauvegarder ce fichier pour préserver les données
+- Simple restauration par copie du fichier
 
 ## 🆘 Support
 
 ### Résolution de problèmes
 - **Port déjà utilisé** : Modifier le PORT dans server.js
 - **CORS errors** : Vérifier que le backend est démarré
-- **Données perdues** : Vérifier les fichiers JSON dans database/data/
+- **Données perdues** : Vérifier le fichier `facturation.sqlite` dans `backend/database`
 
 ### Logs et debugging
 - Logs serveur affichés dans la console backend

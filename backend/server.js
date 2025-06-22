@@ -4,7 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const buildFactureHTML = require('./services/htmlService');
-const JSONDatabase = require('./database/storage');
+const SQLiteDatabase = require('./database/sqlite');
 const { computeTotals } = require('./utils/computeTotals.ts');
 
 const app = express();
@@ -15,8 +15,10 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Base de données JSON
-const db = new JSONDatabase();
+let db;
+const dbReady = (async () => {
+  db = await SQLiteDatabase.create();
+})();
 
 // Formatters réutilisables pour éviter de recréer les objets à chaque appel
 const numeral = require('numeral');
@@ -483,7 +485,7 @@ app.get('/api/health', (req, res) => {
     status: 'OK',
     message: 'API de facturation opérationnelle',
     timestamp: new Date().toISOString(),
-    storage: 'JSON Files'
+    storage: 'SQLite (sql.js)'
   });
 });
 
@@ -531,19 +533,21 @@ app.get('/api/stats', (req, res) => {
 
 // Démarrage du serveur
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`🚀 Serveur de facturation démarré sur le port ${PORT}`);
-    console.log(`📊 API disponible sur http://localhost:${PORT}/api`);
-    console.log(`💾 Stockage: Fichiers JSON`);
-    console.log(`📂 Dossier données: ${path.join(__dirname, 'database', 'data')}`);
+  dbReady.then(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 Serveur de facturation démarré sur le port ${PORT}`);
+      console.log(`📊 API disponible sur http://localhost:${PORT}/api`);
+      console.log(`💾 Stockage: SQLite (sql.js)`);
+      console.log(`📂 Fichier base: ${path.join(__dirname, 'database', 'facturation.sqlite')}`);
+    });
   });
 }
 
-module.exports = app;
+module.exports = dbReady.then(() => app);
 
 // Gestion propre de l'arrêt
 process.on('SIGINT', () => {
   console.log('\n🛑 Arrêt du serveur...');
-  console.log('💾 Données sauvegardées dans les fichiers JSON.');
+  console.log('💾 Données sauvegardées dans la base SQLite.');
   process.exit(0);
 });

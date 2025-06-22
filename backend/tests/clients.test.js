@@ -1,5 +1,8 @@
 const request = require('supertest');
-const app = require('../server');
+let app;
+beforeAll(async () => {
+  app = await require('../server');
+});
 
 describe('Client endpoints', () => {
   test('POST /api/clients creates a client', async () => {

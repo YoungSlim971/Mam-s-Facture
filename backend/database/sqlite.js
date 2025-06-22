@@ -3,8 +3,13 @@ const path = require('path');
 const initSqlJs = require('sql.js/dist/sql-asm.js');
 
 class SQLiteDatabase {
-  constructor() {
-    this.SQL = initSqlJs;
+  static async create() {
+    const SQL = await initSqlJs();
+    return new SQLiteDatabase(SQL);
+  }
+
+  constructor(SQL) {
+    this.SQL = SQL;
     this.dbPath = path.join(__dirname, 'facturation.sqlite');
     const fileExists = fs.existsSync(this.dbPath);
     this.db = new this.SQL.Database(fileExists ? fs.readFileSync(this.dbPath) : undefined);

@@ -1,5 +1,8 @@
 const request = require('supertest');
-const app = require('../server');
+let app;
+beforeAll(async () => {
+  app = await require('../server');
+});
 
 describe('Validation of lignes', () => {
   test('POST rejects non positive quantity', async () => {
