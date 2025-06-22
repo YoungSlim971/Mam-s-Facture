@@ -554,4 +554,327 @@ index abedc69ebe2d0374816889f2b1339790652c92c7..f079fd600153d55371b0133e5c40647d
  }
  
  module.exports = SQLiteDatabase;
+diff --git a/backend/database/storage.js b/backend/database/storage.js
+index 38a5357a2971aec7976404be9338a0b3d2136809..9712101fc16322a8374572cfc103bf62088dc1b7 100644
+--- a/backend/database/storage.js
++++ b/backend/database/storage.js
+@@ -98,70 +98,85 @@ class JSONDatabase {
+         // Facture 1
+         { id: 1, facture_id: 1, description: 'Développement site web', quantite: 40, prix_unitaire: 25.00, sous_total: 1000.00 },
+         { id: 2, facture_id: 1, description: 'Formation utilisateurs', quantite: 4, prix_unitaire: 50.00, sous_total: 200.00 },
+         
+         // Facture 2
+         { id: 3, facture_id: 2, description: 'Audit sécurité informatique', quantite: 1, prix_unitaire: 1500.00, sous_total: 1500.00 },
+         { id: 4, facture_id: 2, description: 'Rapport détaillé', quantite: 1, prix_unitaire: 500.00, sous_total: 500.00 },
+         { id: 5, facture_id: 2, description: 'Présentation résultats', quantite: 1, prix_unitaire: 500.50, sous_total: 500.50 },
+         
+         // Facture 3
+         { id: 6, facture_id: 3, description: 'Consultation stratégique', quantite: 5, prix_unitaire: 120.00, sous_total: 600.00 },
+         { id: 7, facture_id: 3, description: 'Document de recommandations', quantite: 1, prix_unitaire: 250.75, sous_total: 250.75 }
+       ];
+       this.writeData(this.lignesFile, sampleLignes);
+     }
+ 
+     if (!fs.existsSync(this.clientsFile)) {
+       const sampleClients = [
+         {
+           id: 1,
+           nom_client: 'Martin Dupont',
+           nom_entreprise: 'Dupont SARL',
+           telephone: '01 23 45 67 89',
+           adresse: '123 Rue de la République, 75001 Paris',
+           factures: [1],
++          nombre_de_factures: 1,
++          factures_payees: 1,
++          factures_impayees: 0,
++          total_facture: 1200.0,
++          total_paye: 1200.0,
+           created_at: new Date().toISOString(),
+           updated_at: new Date().toISOString()
+         },
+         {
+           id: 2,
+           nom_client: 'Sophie Bernard',
+           nom_entreprise: 'Bernard & Associés',
+           telephone: '01 98 76 54 32',
+           adresse: '456 Avenue des Champs, 69000 Lyon',
+           factures: [2],
++          nombre_de_factures: 1,
++          factures_payees: 0,
++          factures_impayees: 1,
++          total_facture: 2500.5,
++          total_paye: 0,
+           created_at: new Date().toISOString(),
+           updated_at: new Date().toISOString()
+         },
+         {
+           id: 3,
+           nom_client: 'Pierre Lambert',
+           nom_entreprise: 'Lambert Consulting',
+           telephone: '04 56 78 90 12',
+           adresse: '789 Boulevard Saint-Michel, 13000 Marseille',
+           factures: [3],
++          nombre_de_factures: 1,
++          factures_payees: 0,
++          factures_impayees: 1,
++          total_facture: 850.75,
++          total_paye: 0,
+           created_at: new Date().toISOString(),
+           updated_at: new Date().toISOString()
+         }
+       ];
+       this.writeData(this.clientsFile, sampleClients);
+     }
+ 
+     // Charger les données en mémoire
+     this.factures = this.readData(this.facturesFile);
+     this.lignes = this.readData(this.lignesFile);
+     this.clients = this.readData(this.clientsFile);
+   }
+ 
+   readData(file) {
+     try {
+       const data = fs.readFileSync(file, 'utf8');
+       return JSON.parse(data);
+     } catch (err) {
+       console.error('Erreur lecture fichier:', err);
+       return [];
+     }
+   }
+ 
+   writeData(file, data) {
+     try {
+diff --git a/backend/database/storage.js b/backend/database/storage.js
+index 38a5357a2971aec7976404be9338a0b3d2136809..9712101fc16322a8374572cfc103bf62088dc1b7 100644
+--- a/backend/database/storage.js
++++ b/backend/database/storage.js
+@@ -257,165 +272,224 @@ class JSONDatabase {
+       created_at: now,
+       updated_at: now
+     };
+ 
+     factures.push(nouvelleFacture);
+ 
+     // Ajouter les lignes
+     const nouvelleLignes = lignesData.map((ligne, index) => ({
+       id: lignes.length > 0 ? Math.max(...lignes.map(l => l.id)) + 1 + index : 1 + index,
+       facture_id: newId,
+       description: ligne.description,
+       quantite: parseFloat(ligne.quantite),
+       prix_unitaire: parseFloat(ligne.prix_unitaire),
+       sous_total: parseFloat(ligne.quantite) * parseFloat(ligne.prix_unitaire)
+     }));
+ 
+     lignes.push(...nouvelleLignes);
+ 
+     // Sauvegarder
+     this.writeData(this.facturesFile, factures);
+     this.writeData(this.lignesFile, lignes);
+ 
+     // Mettre à jour les caches
+     this.factures = factures;
+     this.lignes = lignes;
+-
++    this.synchroniserFacturesParClient();
+     return newId;
+   }
+ 
+   updateFacture(id, data) {
+     const factures = this.factures;
+     const lignes = this.lignes;
+     
+     const index = factures.findIndex(f => f.id === parseInt(id));
+     if (index === -1) return false;
+ 
+     // Mettre à jour la facture
+     const { lignes: lignesData = [], ...factureSansLignes } = data;
+ 
+     factures[index] = {
+       ...factures[index],
+       ...factureSansLignes,
+       id: parseInt(id),
+       client_id:
+         factureSansLignes.client_id !== undefined
+           ? parseInt(factureSansLignes.client_id)
+           : factures[index].client_id || null,
+       updated_at: new Date().toISOString()
+     };
+ 
+     // Supprimer les anciennes lignes
+     const lignesFiltered = lignes.filter(l => l.facture_id !== parseInt(id));
+     
+     // Ajouter les nouvelles lignes
+     const nouvelleLignes = lignesData.map((ligne, ligneIndex) => ({
+       id: lignes.length > 0 ? Math.max(...lignes.map(l => l.id)) + 1 + ligneIndex : 1 + ligneIndex,
+       facture_id: parseInt(id),
+       description: ligne.description,
+       quantite: parseFloat(ligne.quantite),
+       prix_unitaire: parseFloat(ligne.prix_unitaire),
+       sous_total: parseFloat(ligne.quantite) * parseFloat(ligne.prix_unitaire)
+     }));
+ 
+     lignesFiltered.push(...nouvelleLignes);
+ 
+     // Sauvegarder
+     this.writeData(this.facturesFile, factures);
+     this.writeData(this.lignesFile, lignesFiltered);
+ 
+     this.factures = factures;
+     this.lignes = lignesFiltered;
+-
++    this.synchroniserFacturesParClient();
+     return true;
+   }
+ 
+   deleteFacture(id) {
+     const factures = this.factures;
+     const lignes = this.lignes;
+     
+     const index = factures.findIndex(f => f.id === parseInt(id));
+     if (index === -1) return false;
+ 
+     const facture = factures.splice(index, 1)[0];
+ 
+     // Retirer la facture du client associé si besoin
+     if (facture && facture.client_id) {
+       const client = this.clients.find(c => c.id === facture.client_id);
+       if (client) {
+         client.factures = client.factures.filter(fid => fid !== facture.id);
+         client.updated_at = new Date().toISOString();
+         this.writeData(this.clientsFile, this.clients);
+       }
+     }
+     // Supprimer les lignes associées
+     const lignesFiltered = lignes.filter(l => l.facture_id !== parseInt(id));
+ 
+     // Sauvegarder
+     this.writeData(this.facturesFile, factures);
+     this.writeData(this.lignesFile, lignesFiltered);
+ 
+     this.factures = factures;
+     this.lignes = lignesFiltered;
+-
++    this.synchroniserFacturesParClient();
+     return true;
+   }
+ 
+   getTotalCount(filters = {}) {
+     return this.getFactures(filters).length;
+   }
+ 
+   // CLIENTS
+   getClients() {
+     return [...this.clients];
+   }
+ 
+   getClientById(id) {
+     return this.clients.find(c => c.id === parseInt(id)) || null;
+   }
+ 
+   createClient(data) {
+     const clients = this.clients;
+     const newId = clients.length > 0 ? Math.max(...clients.map(c => c.id)) + 1 : 1;
+     const now = new Date().toISOString();
+     const client = {
+       id: newId,
+       nom_client: data.nom_client,
+       nom_entreprise: data.nom_entreprise || '',
+       telephone: data.telephone || '',
+       adresse: data.adresse || '',
+       factures: [],
++      nombre_de_factures: 0,
++      factures_payees: 0,
++      factures_impayees: 0,
++      total_facture: 0,
++      total_paye: 0,
+       created_at: now,
+       updated_at: now
+     };
+     clients.push(client);
+     this.writeData(this.clientsFile, clients);
+     this.clients = clients;
++    this.synchroniserFacturesParClient();
+     return newId;
+   }
+ 
+   updateClient(id, data) {
+     const index = this.clients.findIndex(c => c.id === parseInt(id));
+     if (index === -1) return false;
+     this.clients[index] = {
+       ...this.clients[index],
+       ...data,
+       id: parseInt(id),
+       updated_at: new Date().toISOString()
+     };
+     this.writeData(this.clientsFile, this.clients);
++    this.synchroniserFacturesParClient();
+     return true;
+   }
+ 
+   addFactureToClient(clientId, factureId) {
+     const client = this.clients.find(c => c.id === parseInt(clientId));
+     if (!client) return false;
+     if (!client.factures.includes(factureId)) {
+       client.factures.push(factureId);
+       client.updated_at = new Date().toISOString();
+       this.writeData(this.clientsFile, this.clients);
+     }
++    this.synchroniserFacturesParClient();
+     return true;
+   }
++
++  synchroniserFacturesParClient() {
++    const statsMap = new Map();
++    this.clients.forEach(c => {
++      statsMap.set(c.id, {
++        factures: [],
++        nombre: 0,
++        payees: 0,
++        impayees: 0,
++        total: 0,
++        paye: 0
++      });
++    });
++
++    this.factures.forEach(f => {
++      if (f.client_id && statsMap.has(f.client_id)) {
++        const s = statsMap.get(f.client_id);
++        if (!s.factures.includes(f.id)) s.factures.push(f.id);
++        s.nombre += 1;
++        s.total += f.montant_total;
++        if (f.status === 'paid') {
++          s.payees += 1;
++          s.paye += f.montant_total;
++        } else {
++          s.impayees += 1;
++        }
++      }
++    });
++
++    this.clients = this.clients.map(c => {
++      const st = statsMap.get(c.id) || {
++        factures: [],
++        nombre: 0,
++        payees: 0,
++        impayees: 0,
++        total: 0,
++        paye: 0
++      };
++      return {
++        ...c,
++        factures: st.factures,
++        nombre_de_factures: st.nombre,
++        factures_payees: st.payees,
++        factures_impayees: st.impayees,
++        total_facture: st.total,
++        total_paye: st.paye,
++        updated_at: new Date().toISOString()
++      };
++    });
++    this.writeData(this.clientsFile, this.clients);
++  }
+ }
+ 
+ module.exports = JSONDatabase;
+
 
