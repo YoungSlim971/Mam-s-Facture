@@ -50,7 +50,8 @@ Exécutez le script `install.sh` à la racine du projet. Il vérifie la version 
 
 ### Installation macOS (Apple Silicon)
 
-Un script spécifique `install_macos.sh` simplifie l'installation sur macOS avec processeur Apple Silicon. Il vérifie que Homebrew, Node.js et pnpm sont présents puis appelle `install.sh`. Les mêmes options peuvent lui être passées :
+Le script `install_macos.sh` s'assure que Homebrew, Node.js (>=18) et pnpm sont installés puis exécute `install.sh` pour récupérer toutes les dépendances du projet.
+Il prépare ainsi la gestion des profils clients et la génération HTML des factures. Les mêmes options peuvent lui être passées :
 
 ```bash
 ./install_macos.sh --skip-build
@@ -151,7 +152,7 @@ L'endpoint `/api/factures/:id/html` renvoie également ce même HTML sans dépen
 
 #### Lancement rapide sur macOS
 
-Le script `launch_safari.sh` démarre le backend et le frontend puis ouvre par défaut Safari sur l'URL de l'application. Vous pouvez choisir un autre navigateur avec `--browser=Chrome` ou ne pas en ouvrir avec `--no-browser` :
+Le script `launch_safari.sh` vérifie que les dépendances sont présentes (au besoin il exécute `install_macos.sh`) puis démarre le backend et le frontend. Il ouvre par défaut Safari sur l'URL de l'application. Vous pouvez choisir un autre navigateur avec `--browser=Chrome` ou ne pas en ouvrir avec `--no-browser` :
 
 ```bash
 ./launch_safari.sh --browser=Firefox

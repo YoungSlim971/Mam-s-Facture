@@ -2,6 +2,8 @@
 set -e
 
 # Installation script for macOS Apple Silicon
+# This helper installs Node.js, pnpm and all project dependencies
+# required to manage client profiles and generate invoice HTML
 if [[ "$(uname)" != "Darwin" ]]; then
   echo "Ce script est destiné à macOS." >&2
   exit 1

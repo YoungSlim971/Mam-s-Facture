@@ -22,6 +22,12 @@ done
 
 cd "$(dirname "$0")"
 
+# Assure l'installation des dépendances si nécessaire
+if [[ ! -d backend/node_modules || ! -d frontend/node_modules ]]; then
+  echo "[launcher] Installation des dépendances manquantes..."
+  ./install_macos.sh --skip-build
+fi
+
 PM=pnpm
 if ! command -v pnpm >/dev/null 2>&1; then
   PM=npm
