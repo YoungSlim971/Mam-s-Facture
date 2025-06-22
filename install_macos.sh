@@ -24,8 +24,8 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 
 if ! command -v pnpm >/dev/null 2>&1; then
-  echo "[installer] Installation de pnpm..."
-  npm install -g pnpm
+  echo "[installer] Installation de pnpm via Homebrew..."
+  brew install pnpm
 fi
 
 # Détermine si la version de Node est suffisante
