@@ -124,8 +124,30 @@ Exemples :
 
 - **Production** : définir la variable lors du build ou sur votre hébergeur
   ```bash
-  VITE_API_URL=https://mon-domaine.com/api pnpm run build
-  ```
+    VITE_API_URL=https://mon-domaine.com/api pnpm run build
+    ```
+
+### Génération Mistral (OPENROUTER_API_KEY)
+
+L'endpoint `/api/factures/:id/mistral-html` permet de générer une facture en HTML via le modèle **Mistral**. Pour utiliser cette fonctionnalité, définissez la variable d'environnement `OPENROUTER_API_KEY` côté backend :
+
+```bash
+export OPENROUTER_API_KEY=ma-cle-api
+pnpm start
+```
+
+Si la variable n'est pas présente, l'API renverra une erreur « OPENROUTER_API_KEY env var missing » lors de l'appel à cet endpoint.
+
+### Génération locale (sans Mistral)
+
+Un script en ligne de commande permet d'exporter le HTML à partir des données locales :
+
+```bash
+cd backend
+pnpm run export-html <id_facture> [chemin_sortie]
+```
+
+L'endpoint `/api/factures/:id/html` renvoie également ce même HTML sans dépendre d'un service tiers.
 
 #### Lancement rapide sur macOS
 
