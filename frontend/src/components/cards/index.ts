@@ -4,3 +4,4 @@ export * from './InvoicePieChart';
 export * from './ApiInfoCard';
 export * from './QuoteCard';
 export * from './SunsetImageCard';
+export * from './StatsCarousel';

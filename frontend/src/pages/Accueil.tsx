@@ -4,7 +4,7 @@ import { FileText, Plus, BarChart3, Users } from 'lucide-react';
 import {
   QuoteCard,
   SunsetImageCard,
-  InvoicePieChart,
+  StatsCarousel,
 } from '@/components/cards';
 
 export default function Accueil() {
@@ -51,7 +51,7 @@ export default function Accueil() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-12">
         <QuoteCard />
         <SunsetImageCard />
-        <InvoicePieChart />
+        <StatsCarousel />
       </div>
 
         {/* Action Cards */}
