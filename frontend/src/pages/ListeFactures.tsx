@@ -115,12 +115,16 @@ export default function ListeFactures() {
       if (!response.ok) {
         throw new Error('Erreur lors de la génération du fichier');
       }
-      const html = await response.text();
-      const blob = new Blob([html], { type: 'text/html' });
-      saveAs(
-        blob,
-        `facture-${numeroFacture}-${dateFacture}-${nomEntreprise ? nomEntreprise.replace(/\s+/g, '-') : ''}.html`
-      );
+      const blob = await response.blob();
+      let filename = `facture-${numeroFacture}-${dateFacture}-${nomEntreprise ? nomEntreprise.replace(/\s+/g, '-') : ''}.html`;
+      const dispo = response.headers.get('content-disposition');
+      if (dispo) {
+        const match = dispo.match(/filename="?([^";]+)"?/);
+        if (match) {
+          filename = match[1];
+        }
+      }
+      saveAs(blob, filename);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Erreur lors du téléchargement');
     }

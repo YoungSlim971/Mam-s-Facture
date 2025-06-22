@@ -12,10 +12,12 @@ describe('GET /api/factures/:id/html', () => {
       });
     expect(createRes.status).toBe(201);
     const id = createRes.body.id;
+    const numero = createRes.body.numero_facture;
 
     const res = await request(app).get(`/api/factures/${id}/html`);
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toMatch(/text\/html/);
+    expect(res.headers['content-disposition']).toContain(`facture-${numero}.html`);
     expect(res.text).toMatch(/<html/);
     expect(res.text).toMatch(/FACTURE/);
   });

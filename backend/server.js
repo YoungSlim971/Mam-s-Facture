@@ -440,6 +440,8 @@ app.get('/api/factures/:id/html', (req, res) => {
   try {
     const html = buildFactureHTML(facture);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    const safeName = `facture-${(facture.numero_facture || facture.numero || facture.id).toString().replace(/[^a-z0-9._-]/gi, '_')}.html`;
+    res.setHeader('Content-Disposition', `attachment; filename="${safeName}"`);
     res.send(html);
   } catch (err) {
     res.status(500).json({ error: 'Erreur lors de la génération du HTML' });
@@ -455,6 +457,8 @@ app.get('/api/factures/:id/mistral-html', async (req, res) => {
   try {
     const html = await generateMistralHTML(facture);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    const safeName = `facture-${(facture.numero_facture || facture.numero || facture.id).toString().replace(/[^a-z0-9._-]/gi, '_')}.html`;
+    res.setHeader('Content-Disposition', `attachment; filename="${safeName}"`);
     res.send(html);
   } catch (err) {
     res.status(500).json({
