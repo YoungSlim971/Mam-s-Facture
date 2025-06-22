@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
 import { API_URL } from '@/lib/api';
-import { computeTotals } from '@/lib/utils';
 import numeral from 'numeral';
 
 interface LigneFacture {
@@ -57,7 +56,7 @@ export default function ModifierFacture() {
   const [siret, setSiret] = useState('');
   const [legalForm, setLegalForm] = useState('');
   const [vatNumber, setVatNumber] = useState('');
-  const [vatRate, setVatRate] = useState(20);
+  const [montantHTSaisi, setMontantHTSaisi] = useState(0);
   const [rcsNumber, setRcsNumber] = useState('');
   const [clients, setClients] = useState<Array<{id:number; nom_client:string; nom_entreprise?:string; telephone?:string; adresse?:string}>>([])
   const [clientId, setClientId] = useState<number | ''>('')
@@ -124,7 +123,7 @@ export default function ModifierFacture() {
       setSiret(facture.siret || '');
       setLegalForm(facture.legal_form || '');
       setVatNumber(facture.vat_number || '');
-      setVatRate(facture.vat_rate ?? 20);
+      setMontantHTSaisi(facture.montant_total);
       setRcsNumber(facture.rcs_number || '');
       setClientId(facture.client_id ?? '')
       
@@ -150,10 +149,9 @@ export default function ModifierFacture() {
     }
   }, [id, chargerFacture]);
 
-  const { totalHT: montantHT, totalTTC: montantTotal } = computeTotals(
-    lignes,
-    vatRate
-  );
+  const TVA_RATE = 20;
+  const montantHT = montantHTSaisi;
+  const montantTotal = montantHTSaisi * (1 + TVA_RATE / 100);
 
   // Formatage des devises en français
   const formatEuro = (amount: number) => {
@@ -247,7 +245,7 @@ export default function ModifierFacture() {
           siret: siret.trim(),
           legal_form: legalForm.trim(),
           vat_number: vatNumber.trim(),
-          vat_rate: vatRate,
+          montant_total: montantHTSaisi,
           rcs_number: rcsNumber.trim(),
           lignes: lignesValides
         }),
@@ -481,13 +479,15 @@ export default function ModifierFacture() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Taux de TVA (%)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Montant HT</label>
               <input
                 type="number"
                 min="0"
                 step="0.01"
-                value={vatRate}
-                onChange={(e) => setVatRate(parseFloat(e.target.value) || 0)}
+                value={montantHTSaisi}
+                onChange={(e) =>
+                  setMontantHTSaisi(parseFloat(e.target.value) || 0)
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
