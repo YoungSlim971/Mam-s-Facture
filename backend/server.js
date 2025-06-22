@@ -6,6 +6,7 @@ const path = require('path');
 const buildFactureHTML = require('./services/htmlService');
 const SQLiteDatabase = require('./database/sqlite');
 const { computeTotals } = require('./utils/computeTotals.ts');
+const { getRandomQuote } = require('./services/quoteService');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -487,6 +488,15 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     storage: 'SQLite (sql.js)'
   });
+});
+
+app.get('/api/quote', (req, res) => {
+  try {
+    const quote = getRandomQuote();
+    res.json(quote);
+  } catch {
+    res.status(500).json({ error: 'Erreur lors de la récupération de la citation' });
+  }
 });
 
 // Route pour le camembert factures payées vs impayées du mois courant
