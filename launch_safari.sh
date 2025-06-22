@@ -22,14 +22,17 @@ done
 
 cd "$(dirname "$0")"
 
+# Installe automatiquement les dépendances si nécessaire
+if ! command -v node >/dev/null 2>&1 \
+  || ! command -v pnpm >/dev/null 2>&1 \
+  || [ ! -d backend/node_modules ] || [ ! -d frontend/node_modules ]; then
+  echo "[launcher] Préparation de l'environnement (installation)..."
+  ./install_macos.sh --skip-build
+fi
+
 PM=pnpm
 if ! command -v pnpm >/dev/null 2>&1; then
   PM=npm
-fi
-
-if ! command -v node >/dev/null 2>&1; then
-  echo "[launcher] Node.js est requis. Installez-le avant de poursuivre." >&2
-  exit 1
 fi
 
 echo "[launcher] Démarrage du backend..."
