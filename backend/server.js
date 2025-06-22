@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const buildFactureHTML = require('./services/htmlService');
 const SQLiteDatabase = require('./database/sqlite');
 const { computeTotals } = require('./utils/computeTotals.ts');
@@ -15,6 +17,31 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Gestion du stockage des logos
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+const storage = multer.diskStorage({
+  destination: uploadDir,
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const name = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    cb(null, name);
+  }
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Invalid file type'));
+    }
+    cb(null, true);
+  }
+});
+app.use('/uploads', express.static(uploadDir));
 
 let db;
 const dbReady = (async () => {
@@ -54,6 +81,14 @@ const generateInvoiceNumber = () => {
 };
 
 // Routes API
+
+// Upload du logo
+app.post('/api/upload/logo', upload.single('logo'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Aucun fichier fourni' });
+  }
+  res.json({ filename: req.file.filename });
+});
 
 // Gestion des clients
 app.get('/api/clients', (req, res) => {
