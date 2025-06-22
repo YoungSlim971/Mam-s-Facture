@@ -93,3 +93,15 @@ body.app-fade {
     opacity: 1;
   }
 }
+
+@layer components {
+  /* Force black text for form fields on white background in dark theme */
+  .dark .bg-white input,
+  .dark .bg-white textarea,
+  .dark .bg-white select {
+    @apply text-black;
+  }
+  .input-theme-fix {
+    @apply text-black dark:text-black;
+  }
+}
