@@ -72,14 +72,15 @@ const dbReady = (async () => {
 })();
 
 // Formatters réutilisables pour éviter de recréer les objets à chaque appel
-const numeral = require('numeral');
-require('numeral/locales/fr');
-numeral.locale('fr');
+const euroFormatter = new Intl.NumberFormat('fr-FR', {
+  style: 'currency',
+  currency: 'EUR'
+});
 const { format } = require('date-fns');
 const { fr } = require('date-fns/locale');
 
 // Utilitaire pour formater les montants en euros
-const formatEuro = (amount) => numeral(amount).format('0,0.00 $');
+const formatEuro = (amount) => euroFormatter.format(amount);
 
 // Utilitaire pour formater les dates en français
 const formatDateFR = (dateString) => {

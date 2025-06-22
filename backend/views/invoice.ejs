@@ -102,8 +102,8 @@
         <td><%= item.description %></td>
         <td><%= item.quantity %></td>
         <td><%= item.unit %></td>
-        <td><%= item.unitPrice %> €</td>
-        <td><%= item.totalHt %> €</td>
+        <td><%= item.unitPrice %></td>
+        <td><%= item.totalHt %></td>
         <td><%= item.tva %>%</td>
       </tr>
       <% }); %>
@@ -115,13 +115,13 @@
       <% tvaLines.forEach(function(line){ %>
       <tr>
         <td>TVA <%= line.rate %> %</td>
-        <td><%= line.tvaAmount %> €</td>
-        <td><%= line.baseHt %> €</td>
+        <td><%= line.tvaAmount %></td>
+        <td><%= line.baseHt %></td>
       </tr>
       <% }); %>
       <tr>
         <td class="bold">Total TTC</td>
-        <td colspan="2" class="bold"><%= totalTtc %> €</td>
+        <td colspan="2" class="bold"><%= totalTtc %></td>
       </tr>
     </table>
   </div>

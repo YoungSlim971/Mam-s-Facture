@@ -4,10 +4,10 @@ import Decimal from 'decimal.js';
 const { computeTotals } = require('./utils/computeTotals.ts');
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import numeral from 'numeral';
-import 'numeral/locales/fr';
-
-numeral.locale('fr');
+const euroFormatter = new Intl.NumberFormat('fr-FR', {
+  style: 'currency',
+  currency: 'EUR'
+});
 
 export interface InvoiceData {
   nom_entreprise: string;
@@ -53,7 +53,7 @@ const invoiceSchema = z.object({
 export function generateInvoiceHTML(data: InvoiceData): string {
   const parsed = invoiceSchema.parse(data);
   const totals = computeTotals(parsed.lignes, parsed.tvaRate);
-  const formatEuro = (v: number) => numeral(v).format('0,0.00 $');
+  const formatEuro = (v: number) => euroFormatter.format(v);
   const dateStr = format(new Date(parsed.date), 'dd/MM/yyyy', { locale: fr });
   const lignesHtml = parsed.lignes
     .map(l => {
