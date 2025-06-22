@@ -100,16 +100,18 @@ export default function DetailFacture() {
 
   const [exportFormat, setExportFormat] = useState<'html' | 'pdf'>('html');
 
-  const telechargerFacture = async () => {
+  const telechargerFacture = async (
+    format: 'html' | 'pdf' = exportFormat
+  ): Promise<void> => {
     if (!facture) return;
     try {
       const response = await fetch(
-        `${API_URL}/factures/${facture.id}/${exportFormat}`
+        `${API_URL}/factures/${facture.id}/${format}`
       );
       if (!response.ok) {
         throw new Error('Erreur lors de la génération du fichier');
       }
-      if (exportFormat === 'pdf') {
+      if (format === 'pdf') {
         const pdf = await response.blob();
         saveAs(pdf, `facture-${facture.numero_facture}.pdf`);
       } else {
@@ -118,9 +120,20 @@ export default function DetailFacture() {
         saveAs(blob, `facture-${facture.numero_facture}.html`);
       }
     } catch (err) {
-      alert(
-        err instanceof Error ? err.message : 'Erreur lors du téléchargement'
-      );
+      if (format === 'pdf') {
+        try {
+          await telechargerFacture('html');
+          alert('Export PDF impossible, fichier HTML généré.');
+        } catch (e) {
+          alert(
+            e instanceof Error ? e.message : 'Erreur lors du téléchargement'
+          );
+        }
+      } else {
+        alert(
+          err instanceof Error ? err.message : 'Erreur lors du téléchargement'
+        );
+      }
     }
   };
 
@@ -226,7 +239,7 @@ export default function DetailFacture() {
               </select>
               <Button
                 variant="outline"
-                onClick={telechargerFacture}
+                onClick={() => telechargerFacture()}
                 title="Exporter la facture"
               >
                 <Download className="h-5 w-5 mr-2" />

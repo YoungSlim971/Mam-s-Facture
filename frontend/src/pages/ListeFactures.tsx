@@ -1,6 +1,25 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Filter, FileText, Plus, Eye, Edit, Trash2, Download, Check, ArrowLeft, Calendar } from 'lucide-react';
+import {
+  Search,
+  Filter,
+  FileText,
+  Plus,
+  Eye,
+  Edit,
+  Trash2,
+  Download,
+  Check,
+  ArrowLeft,
+  Calendar,
+  Globe
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 import { API_URL } from '@/lib/api';
 import { saveAs } from 'file-saver';
 
@@ -109,16 +128,15 @@ export default function ListeFactures() {
     id: number,
     numeroFacture: string,
     dateFacture: string,
-    nomEntreprise?: string
-  ) => {
+    nomEntreprise?: string,
+    format: 'html' | 'pdf' = exportFormat
+  ): Promise<void> => {
     try {
-      const response = await fetch(
-        `${API_URL}/factures/${id}/${exportFormat}`
-      );
+      const response = await fetch(`${API_URL}/factures/${id}/${format}`);
       if (!response.ok) {
         throw new Error('Erreur lors de la génération du fichier');
       }
-      if (exportFormat === 'pdf') {
+      if (format === 'pdf') {
         const pdf = await response.blob();
         saveAs(
           pdf,
@@ -133,7 +151,26 @@ export default function ListeFactures() {
         );
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Erreur lors du téléchargement');
+      if (format === 'pdf') {
+        try {
+          await telechargerFacture(
+            id,
+            numeroFacture,
+            dateFacture,
+            nomEntreprise,
+            'html'
+          );
+          alert('Export PDF impossible, fichier HTML généré.');
+        } catch (e) {
+          alert(
+            e instanceof Error ? e.message : 'Erreur lors du téléchargement'
+          );
+        }
+      } else {
+        alert(
+          err instanceof Error ? err.message : 'Erreur lors du téléchargement'
+        );
+      }
     }
   };
 
@@ -149,7 +186,7 @@ export default function ListeFactures() {
       }
       setFactures(prev => {
         const updated = prev.map(f =>
-          f.id === id ? { ...f, status: "paid" } : f
+          f.id === id ? { ...f, status: 'paid' as const } : f
         );
         return statusFilter === "unpaid"
           ? updated.filter(f => f.id !== id)
@@ -409,20 +446,44 @@ export default function ListeFactures() {
                             >
                               <Edit className="h-4 w-4" />
                             </Link>
-                            <button
-                              onClick={() =>
-                                telechargerFacture(
-                                  facture.id,
-                                  facture.numero_facture,
-                                  facture.date_facture,
-                                  facture.nom_entreprise
-                                )
-                              }
-                              className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                              title="Exporter"
-                            >
-                              <Download className="h-4 w-4" />
-                            </button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button
+                                  className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                  title="Exporter"
+                                >
+                                  <Download className="h-4 w-4" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                  onSelect={() =>
+                                    telechargerFacture(
+                                      facture.id,
+                                      facture.numero_facture,
+                                      facture.date_facture,
+                                      facture.nom_entreprise,
+                                      'pdf'
+                                    )
+                                  }
+                                >
+                                  <FileText className="mr-2 h-4 w-4" /> PDF
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onSelect={() =>
+                                    telechargerFacture(
+                                      facture.id,
+                                      facture.numero_facture,
+                                      facture.date_facture,
+                                      facture.nom_entreprise,
+                                      'html'
+                                    )
+                                  }
+                                >
+                                  <Globe className="mr-2 h-4 w-4" /> HTML
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                             {facture.status !== 'paid' && (
                               <button
                                 onClick={() => marquerPayee(facture.id)}
