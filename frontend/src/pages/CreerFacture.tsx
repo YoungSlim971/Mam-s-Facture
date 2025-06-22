@@ -4,7 +4,6 @@ import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
 import LogoDropzone from '@/components/LogoDropzone';
 import { API_URL } from '@/lib/api';
 import { computeTotals } from '@/lib/utils';
-import numeral from 'numeral';
 
 interface LigneFacture {
   description: string;
@@ -77,9 +76,11 @@ export default function CreerFacture() {
   );
 
   // Formatage des devises en français
-  const formatEuro = (amount: number) => {
-    return numeral(amount).format('0,0.00 $');
-  };
+  const euroFormatter = new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR'
+  });
+  const formatEuro = (amount: number) => euroFormatter.format(amount);
 
   // Formatage des nombres français
   const formatNombre = (number: number) => {

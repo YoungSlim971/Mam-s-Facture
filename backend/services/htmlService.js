@@ -3,6 +3,10 @@ const path = require('path');
 const fs = require('fs');
 const ejs = require('ejs');
 const { computeTotals } = require('../utils/computeTotals.ts');
+const euroFormatter = new Intl.NumberFormat('fr-FR', {
+  style: 'currency',
+  currency: 'EUR'
+});
 
 function mapFactureToInvoiceData(facture) {
   return {
@@ -52,22 +56,23 @@ function mapFactureToInvoiceData(facture) {
 function buildFactureHTML(facture) {
   const invoiceData = mapFactureToInvoiceData(facture);
   const totals = computeTotals(invoiceData.lignes, invoiceData.tvaRate || 20);
+  const formatEuro = (amount) => euroFormatter.format(amount);
 
   // Préparation des lignes pour la nouvelle maquette
   const items = invoiceData.lignes.map(l => ({
     description: l.description,
     quantity: l.quantite,
     unit: '',
-    unitPrice: l.prix_unitaire.toFixed(2),
-    totalHt: (l.quantite * l.prix_unitaire).toFixed(2),
+    unitPrice: formatEuro(l.prix_unitaire),
+    totalHt: formatEuro(l.quantite * l.prix_unitaire),
     tva: invoiceData.tvaRate || 20,
   }));
 
   const tvaLines = [
     {
       rate: invoiceData.tvaRate || 20,
-      tvaAmount: totals.totalTVA.toFixed(2),
-      baseHt: totals.totalHT.toFixed(2),
+      tvaAmount: formatEuro(totals.totalTVA),
+      baseHt: formatEuro(totals.totalHT),
     },
   ];
 
@@ -75,7 +80,7 @@ function buildFactureHTML(facture) {
     ...invoiceData,
     items,
     tvaLines,
-    totalTtc: totals.totalTTC.toFixed(2),
+    totalTtc: formatEuro(totals.totalTTC),
   };
 
   const templatePath = path.join(__dirname, '..', 'views', 'invoice.ejs');

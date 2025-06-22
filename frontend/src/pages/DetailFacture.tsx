@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { API_URL } from '@/lib/api';
 import { computeTotals } from '@/lib/utils';
 import { saveAs } from 'file-saver';
-import numeral from 'numeral';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -125,9 +124,11 @@ export default function DetailFacture() {
     }
   };
 
-  const formatEuro = (amount: number) => {
-    return numeral(amount).format('0,0.00 $');
-  };
+  const euroFormatter = new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR'
+  });
+  const formatEuro = (amount: number) => euroFormatter.format(amount);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
