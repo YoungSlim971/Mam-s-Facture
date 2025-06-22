@@ -147,7 +147,14 @@ export default function ListeFactures() {
       if (!response.ok) {
         throw new Error('Erreur lors du changement de statut');
       }
-      chargerFactures();
+      setFactures(prev => {
+        const updated = prev.map(f =>
+          f.id === id ? { ...f, status: 'paid' } : f
+        );
+        return statusFilter === 'unpaid'
+          ? updated.filter(f => f.id !== id)
+          : updated;
+      });
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Erreur inattendue');
     }

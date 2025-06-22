@@ -51,6 +51,13 @@ class SQLiteDatabase {
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );`);
+
+    // Ajout de la colonne status si elle n'existait pas dans une base existante
+    const info = this.db.exec("PRAGMA table_info(factures)");
+    const hasStatus = info[0].values.some(row => row[1] === 'status');
+    if (!hasStatus) {
+      this.db.run("ALTER TABLE factures ADD COLUMN status TEXT DEFAULT 'unpaid'");
+    }
     this.db.run(`CREATE TABLE IF NOT EXISTS lignes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       facture_id INTEGER NOT NULL,
@@ -121,8 +128,38 @@ class SQLiteDatabase {
   }
 
   // Factures
-  getFactures() {
-    const stmt = this.db.prepare('SELECT * FROM factures ORDER BY date_facture DESC');
+  getFactures(filters = {}) {
+    let query = 'SELECT * FROM factures';
+    const clauses = [];
+    const params = [];
+
+    if (filters.search) {
+      clauses.push(
+        '(LOWER(nom_client) LIKE ? OR LOWER(nom_entreprise) LIKE ? OR numero_facture LIKE ?)'
+      );
+      const term = `%${filters.search.toLowerCase()}%`;
+      params.push(term, term, term);
+    }
+    if (filters.dateDebut) {
+      clauses.push('date_facture >= ?');
+      params.push(filters.dateDebut);
+    }
+    if (filters.dateFin) {
+      clauses.push('date_facture <= ?');
+      params.push(filters.dateFin);
+    }
+    if (filters.status) {
+      clauses.push('status = ?');
+      params.push(filters.status);
+    }
+
+    if (clauses.length) {
+      query += ' WHERE ' + clauses.join(' AND ');
+    }
+    query += ' ORDER BY date_facture DESC';
+
+    const stmt = this.db.prepare(query);
+    stmt.bind(params);
     const result = [];
     while (stmt.step()) {
       const row = stmt.getAsObject();
@@ -179,6 +216,17 @@ class SQLiteDatabase {
       lstmt.run([id, l.description, l.quantite, l.prix_unitaire, l.quantite * l.prix_unitaire]);
       lstmt.free();
     });
+    this.save();
+    return changes > 0;
+  }
+
+  updateFactureStatus(id, status) {
+    const stmt = this.db.prepare(
+      'UPDATE factures SET status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?'
+    );
+    stmt.run([status, id]);
+    const changes = this.db.getRowsModified();
+    stmt.free();
     this.save();
     return changes > 0;
   }

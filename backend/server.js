@@ -536,7 +536,10 @@ app.patch('/api/factures/:id/status', (req, res) => {
     if (!facture) {
       return res.status(404).json({ error: 'Facture non trouvée' });
     }
-    const success = db.updateFacture(id, { ...facture, status });
+    if (facture.status === status) {
+      return res.json({ message: 'Aucun changement' });
+    }
+    const success = db.updateFactureStatus(id, status);
     if (!success) {
       return res.status(404).json({ error: 'Facture non trouvée' });
     }
