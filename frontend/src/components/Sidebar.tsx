@@ -1,8 +1,9 @@
 import { NavLink } from 'react-router-dom'
-import { Home, FileText, PlusCircle, CircleAlert, Sun, Users, Menu, X } from 'lucide-react'
+import { Home, FileText, PlusCircle, CircleAlert, Sun, Users, Menu, X, LogOut } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { useIsMobile } from '../hooks/use-mobile'
 import { useState, useEffect } from 'react'
+import { handleQuitApp } from '../utils/system'
 
 export default function Sidebar() {
   const { theme, toggleTheme } = useTheme()
@@ -15,7 +16,7 @@ export default function Sidebar() {
 
   const sidebar = (
     <aside
-      className={`fixed left-0 top-0 z-50 h-full w-64 bg-sidebar p-6 text-sidebar-foreground shadow-lg transform transition-transform md:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
+      className={`fixed left-0 top-0 z-50 h-full w-64 bg-sidebar p-6 text-sidebar-foreground shadow-lg transform transition-transform md:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'} relative`}
     >
       {isMobile && (
         <button onClick={() => setOpen(false)} className="absolute top-2 right-2 p-1">
@@ -48,10 +49,18 @@ export default function Sidebar() {
           <span>Clients</span>
         </NavLink>
       </nav>
-      <div className="mt-8">
+      <div className="absolute bottom-6 left-6 space-y-3">
         <button onClick={toggleTheme} className="flex items-center space-x-2 hover:text-primary">
           <Sun className="h-5 w-5" />
           <span>Changer le thème ({theme})</span>
+        </button>
+        <button
+          onClick={() => handleQuitApp()}
+          aria-label="Déconnexion"
+          className="flex items-center space-x-2 hover:text-red-400"
+        >
+          <LogOut className="h-5 w-5" />
+          <span>Déconnexion</span>
         </button>
       </div>
     </aside>
