@@ -31,10 +31,6 @@ export default function Sidebar() {
           <FileText className="h-5 w-5" />
           <span>Toutes les factures</span>
         </NavLink>
-        <NavLink to="/factures/nouvelle" className="flex items-center space-x-2 hover:text-primary">
-          <PlusCircle className="h-5 w-5" />
-          <span>Créer une facture</span>
-        </NavLink>
         <NavLink to="/factures?status=unpaid" className="flex items-center space-x-2 hover:text-primary">
           <CircleAlert className="h-5 w-5" />
           <span>Factures non payées</span>
@@ -43,15 +39,21 @@ export default function Sidebar() {
           <CircleAlert className="h-5 w-5" />
           <span>Factures payées</span>
         </NavLink>
+        <NavLink to="/factures/nouvelle" className="flex items-center space-x-2 hover:text-primary">
+          <PlusCircle className="h-5 w-5" />
+          <span>Créer une facture</span>
+        </NavLink>
         <NavLink to="/clients" className="flex items-center space-x-2 hover:text-primary">
           <Users className="h-5 w-5" />
           <span>Clients</span>
         </NavLink>
+      </nav>
+      <div className="mt-8">
         <button onClick={toggleTheme} className="flex items-center space-x-2 hover:text-primary">
           <Sun className="h-5 w-5" />
           <span>Changer le thème ({theme})</span>
         </button>
-      </nav>
+      </div>
     </aside>
   )
 

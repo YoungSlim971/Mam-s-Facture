@@ -46,7 +46,10 @@
   }
 
   html.mobile {
-    --background: #111111;
+    --background: #121212;
+    --foreground: #FFD369;
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 45 96% 65%;
     --gradient-start: #ff6a85;
     --gradient-end: #ffb26b;
   }
@@ -88,7 +91,7 @@ html.dark body {
 }
 
 html.mobile body {
-  background-color: #111111;
+  background-color: #121212;
   color: var(--foreground);
 }
 
@@ -118,5 +121,20 @@ body.app-fade {
 
   .hover-glow:hover {
     box-shadow: 0 0 15px rgba(255, 173, 128, 0.6);
+  }
+
+  input::placeholder,
+  textarea::placeholder,
+  select::placeholder {
+    color: #555;
+  }
+
+  html.mobile button {
+    border-color: #FFD369;
+  }
+
+  html.mobile button:hover,
+  html.mobile button:active {
+    box-shadow: 0 0 10px rgba(255, 211, 105, 0.6);
   }
 }
