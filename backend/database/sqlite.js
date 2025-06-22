@@ -34,6 +34,11 @@ class SQLiteDatabase {
       siret TEXT,
       tva TEXT,
       logo TEXT,
+      nombre_de_factures INTEGER DEFAULT 0,
+      factures_payees INTEGER DEFAULT 0,
+      factures_impayees INTEGER DEFAULT 0,
+      total_facture REAL DEFAULT 0,
+      total_paye REAL DEFAULT 0,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );`);
@@ -59,6 +64,13 @@ class SQLiteDatabase {
       prix_unitaire REAL NOT NULL,
       sous_total REAL NOT NULL
     );`);
+
+    const cols = this.db.exec('PRAGMA table_info(clients)')[0].values.map(r => r[1]);
+    if (!cols.includes('nombre_de_factures')) this.db.run('ALTER TABLE clients ADD COLUMN nombre_de_factures INTEGER DEFAULT 0');
+    if (!cols.includes('factures_payees')) this.db.run('ALTER TABLE clients ADD COLUMN factures_payees INTEGER DEFAULT 0');
+    if (!cols.includes('factures_impayees')) this.db.run('ALTER TABLE clients ADD COLUMN factures_impayees INTEGER DEFAULT 0');
+    if (!cols.includes('total_facture')) this.db.run('ALTER TABLE clients ADD COLUMN total_facture REAL DEFAULT 0');
+    if (!cols.includes('total_paye')) this.db.run('ALTER TABLE clients ADD COLUMN total_paye REAL DEFAULT 0');
     this.save();
   }
 
@@ -66,7 +78,14 @@ class SQLiteDatabase {
   getClients() {
     const stmt = this.db.prepare('SELECT * FROM clients');
     const res = [];
-    while (stmt.step()) res.push(stmt.getAsObject());
+    const factures = this.getFactures();
+    while (stmt.step()) {
+      const row = stmt.getAsObject();
+      row.factures = factures
+        .filter(f => f.client_id === row.id)
+        .map(f => f.id);
+      res.push(row);
+    }
     stmt.free();
     return res;
   }
@@ -76,6 +95,9 @@ class SQLiteDatabase {
     stmt.bind([id]);
     const row = stmt.step() ? stmt.getAsObject() : null;
     stmt.free();
+    if (!row) return null;
+    const factures = this.getFactures();
+    row.factures = factures.filter(f => f.client_id === row.id).map(f => f.id);
     return row;
   }
 
@@ -164,6 +186,7 @@ class SQLiteDatabase {
       lstmt.free();
     });
     this.save();
+    this.synchroniserFacturesParClient();
     return factureId;
   }
 
@@ -180,6 +203,7 @@ class SQLiteDatabase {
       lstmt.free();
     });
     this.save();
+    if (changes > 0) this.synchroniserFacturesParClient();
     return changes > 0;
   }
 
@@ -188,10 +212,34 @@ class SQLiteDatabase {
     const changes = this.db.getRowsModified();
     this.db.run('DELETE FROM lignes WHERE facture_id=?', [id]);
     this.save();
+    if (changes > 0) this.synchroniserFacturesParClient();
     return changes > 0;
   }
 
   addFactureToClient() {
+    this.synchroniserFacturesParClient();
+    return true;
+  }
+
+  synchroniserFacturesParClient() {
+    const factures = this.getFactures();
+    const clients = this.getClients();
+    clients.forEach(c => {
+      const f = factures.filter(fa => fa.client_id === c.id);
+      const ids = f.map(fa => fa.id);
+      const nombre = ids.length;
+      const payees = f.filter(fa => fa.status === 'paid').length;
+      const impayees = nombre - payees;
+      const totalFact = f.reduce((sum, fa) => sum + fa.montant_total, 0);
+      const totalPaye = f
+        .filter(fa => fa.status === 'paid')
+        .reduce((sum, fa) => sum + fa.montant_total, 0);
+      this.db.run(
+        'UPDATE clients SET nombre_de_factures=?, factures_payees=?, factures_impayees=?, total_facture=?, total_paye=?, updated_at=CURRENT_TIMESTAMP WHERE id=?',
+        [nombre, payees, impayees, totalFact, totalPaye, c.id]
+      );
+    });
+    this.save();
     return true;
   }
 }

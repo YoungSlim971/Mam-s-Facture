@@ -163,6 +163,7 @@ app.post('/api/clients', (req, res) => {
       tva: tva.trim(),
       logo: logo.trim()
     });
+    db.synchroniserFacturesParClient();
     const client = db.getClientById(id);
     res.status(201).json(client);
   } catch (err) {
@@ -411,6 +412,7 @@ app.post('/api/factures', (req, res) => {
     if (client_id) {
       db.addFactureToClient(client_id, factureId);
     }
+    db.synchroniserFacturesParClient();
 
     res.status(201).json({
       message: 'Facture créée avec succès',
@@ -510,6 +512,9 @@ app.put('/api/factures/:id', (req, res) => {
     if (success && client_id) {
       db.addFactureToClient(client_id, parseInt(id));
     }
+    if (success) {
+      db.synchroniserFacturesParClient();
+    }
 
     if (!success) {
       return res.status(404).json({ error: 'Facture non trouvée' });
@@ -540,6 +545,7 @@ app.patch('/api/factures/:id/status', (req, res) => {
     if (!success) {
       return res.status(404).json({ error: 'Facture non trouvée' });
     }
+    db.synchroniserFacturesParClient();
     res.json({ message: 'Statut mis à jour' });
   } catch (err) {
     res.status(500).json({
@@ -558,6 +564,8 @@ app.delete('/api/factures/:id', (req, res) => {
     if (!success) {
       return res.status(404).json({ error: 'Facture non trouvée' });
     }
+
+    db.synchroniserFacturesParClient();
 
     res.json({ message: 'Facture supprimée avec succès' });
   } catch (err) {
