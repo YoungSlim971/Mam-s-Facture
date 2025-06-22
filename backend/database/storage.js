@@ -120,6 +120,11 @@ class JSONDatabase {
           telephone: '01 23 45 67 89',
           adresse: '123 Rue de la République, 75001 Paris',
           factures: [1],
+          nombreDeFactures: 1,
+          facturesPayees: 1,
+          facturesImpayees: 0,
+          totalFacture: 1200,
+          totalPaye: 1200,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         },
@@ -130,6 +135,11 @@ class JSONDatabase {
           telephone: '01 98 76 54 32',
           adresse: '456 Avenue des Champs, 69000 Lyon',
           factures: [2],
+          nombreDeFactures: 1,
+          facturesPayees: 1,
+          facturesImpayees: 0,
+          totalFacture: 2500.5,
+          totalPaye: 2500.5,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         },
@@ -140,6 +150,11 @@ class JSONDatabase {
           telephone: '04 56 78 90 12',
           adresse: '789 Boulevard Saint-Michel, 13000 Marseille',
           factures: [3],
+          nombreDeFactures: 1,
+          facturesPayees: 0,
+          facturesImpayees: 1,
+          totalFacture: 850.75,
+          totalPaye: 0,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }
@@ -280,6 +295,8 @@ class JSONDatabase {
     this.factures = factures;
     this.lignes = lignes;
 
+    this.synchroniserFacturesParClient();
+
     return newId;
   }
 
@@ -326,6 +343,8 @@ class JSONDatabase {
     this.factures = factures;
     this.lignes = lignesFiltered;
 
+    this.synchroniserFacturesParClient();
+
     return true;
   }
 
@@ -357,6 +376,8 @@ class JSONDatabase {
     this.factures = factures;
     this.lignes = lignesFiltered;
 
+    this.synchroniserFacturesParClient();
+
     return true;
   }
 
@@ -384,6 +405,11 @@ class JSONDatabase {
       telephone: data.telephone || '',
       adresse: data.adresse || '',
       factures: [],
+      nombreDeFactures: 0,
+      facturesPayees: 0,
+      facturesImpayees: 0,
+      totalFacture: 0,
+      totalPaye: 0,
       created_at: now,
       updated_at: now
     };
@@ -412,8 +438,27 @@ class JSONDatabase {
     if (!client.factures.includes(factureId)) {
       client.factures.push(factureId);
       client.updated_at = new Date().toISOString();
-      this.writeData(this.clientsFile, this.clients);
+      this.synchroniserFacturesParClient();
     }
+    return true;
+  }
+
+  synchroniserFacturesParClient() {
+    const factures = this.factures;
+    this.clients.forEach(client => {
+      const f = factures.filter(fa => fa.client_id === client.id);
+      const ids = [...new Set(f.map(fa => fa.id))];
+      client.factures = ids;
+      client.nombreDeFactures = ids.length;
+      client.facturesPayees = f.filter(fa => fa.status === 'paid').length;
+      client.facturesImpayees = ids.length - client.facturesPayees;
+      client.totalFacture = f.reduce((sum, fa) => sum + (fa.montant_total || 0), 0);
+      client.totalPaye = f
+        .filter(fa => fa.status === 'paid')
+        .reduce((sum, fa) => sum + (fa.montant_total || 0), 0);
+      client.updated_at = new Date().toISOString();
+    });
+    this.writeData(this.clientsFile, this.clients);
     return true;
   }
 }
