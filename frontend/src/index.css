@@ -115,4 +115,8 @@ body.app-fade {
   .input-theme-fix {
     @apply text-black dark:text-black;
   }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 15px rgba(255, 173, 128, 0.6);
+  }
 }

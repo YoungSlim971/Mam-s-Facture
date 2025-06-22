@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { FileText, Plus, BarChart3, Users } from 'lucide-react';
 import {
   QuoteCard,
@@ -8,7 +9,12 @@ import {
 
 export default function Accueil() {
   return (
-    <div className="min-h-screen">
+    <motion.div
+      className="min-h-screen"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+    >
       {/* Header */}
       <header
         className="bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-mid)] to-[var(--gradient-end)] text-white shadow-sm border-b border-gray-200"
@@ -148,6 +154,6 @@ export default function Accueil() {
           </div>
         </div>
       </footer>
-    </div>
+    </motion.div>
   );
 }
