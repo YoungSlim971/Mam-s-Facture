@@ -239,10 +239,11 @@ app.post('/api/factures', (req, res) => {
       legal_form = '',
       vat_number = '',
       vat_rate = 0,
+      montant_total: montant_total_input = undefined,
       rcs_number = ''
     } = req.body;
     const parsedVatRate =
-      vat_rate !== undefined && vat_rate !== '' ? parseFloat(vat_rate) : 0;
+      vat_rate !== undefined && vat_rate !== '' ? parseFloat(vat_rate) : 20;
 
 
     // Validation
@@ -271,9 +272,13 @@ app.post('/api/factures', (req, res) => {
     }
 
 
-    // Calculer les montants HT/TTC
-    const { totalHT } = computeTotals(lignes, parsedVatRate);
-    const montant_total = totalHT;
+    let montant_total;
+    if (montant_total_input !== undefined && montant_total_input !== '') {
+      montant_total = parseFloat(montant_total_input);
+    } else {
+      const { totalHT } = computeTotals(lignes, parsedVatRate);
+      montant_total = totalHT;
+    }
 
     const numero_facture = numero_facture_input.trim() || generateInvoiceNumber();
 
@@ -337,10 +342,11 @@ app.put('/api/factures/:id', (req, res) => {
       legal_form = '',
       vat_number = '',
       vat_rate = 0,
+      montant_total: montant_total_input = undefined,
       rcs_number = ''
     } = req.body;
     const parsedVatRate =
-      vat_rate !== undefined && vat_rate !== '' ? parseFloat(vat_rate) : 0;
+      vat_rate !== undefined && vat_rate !== '' ? parseFloat(vat_rate) : 20;
 
 
     // Validation
@@ -367,9 +373,13 @@ app.put('/api/factures/:id', (req, res) => {
       }
     }
 
-    // Calculer les montants HT/TTC
-    const { totalHT } = computeTotals(lignes, parsedVatRate);
-    const montant_total = totalHT;
+    let montant_total;
+    if (montant_total_input !== undefined && montant_total_input !== '') {
+      montant_total = parseFloat(montant_total_input);
+    } else {
+      const { totalHT } = computeTotals(lignes, parsedVatRate);
+      montant_total = totalHT;
+    }
 
     const factureData = {
       ...(numero_facture_input ? { numero_facture: numero_facture_input.trim() } : {}),

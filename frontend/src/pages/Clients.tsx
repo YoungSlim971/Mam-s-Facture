@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { Plus, X, Edit, Save } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { API_URL } from '@/lib/api'
 import {
   Card,
@@ -208,6 +209,14 @@ export default function Clients() {
                 {c.adresse && <div>{c.adresse}</div>}
                 <div className="text-xs text-zinc-500">
                   {c.factures.length} facture(s)
+                </div>
+                <div>
+                  <Link
+                    to={`/clients/${c.id}`}
+                    className="text-blue-600 hover:underline text-sm"
+                  >
+                    Voir profil
+                  </Link>
                 </div>
               </CardContent>
             </Card>

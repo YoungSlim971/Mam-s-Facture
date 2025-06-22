@@ -6,6 +6,7 @@ import CreerFacture from './pages/CreerFacture'
 import ModifierFacture from './pages/ModifierFacture'
 import DetailFacture from './pages/DetailFacture'
 import Clients from './pages/Clients'
+import ClientProfile from './pages/profiles/ClientProfile'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import Sidebar from './components/Sidebar'
 import { ThemeProvider } from './context/ThemeContext'
@@ -25,6 +26,7 @@ function App() {
                 <Route path="/factures/:id" element={<DetailFacture />} />
                 <Route path="/factures/:id/modifier" element={<ModifierFacture />} />
                 <Route path="/clients" element={<Clients />} />
+                <Route path="/clients/:id" element={<ClientProfile />} />
               </Routes>
             </main>
           </div>
