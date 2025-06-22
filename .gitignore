@@ -7,3 +7,5 @@ backend/node_modules/
 frontend/dist/
 backend/dist/
 backend/database/*.sqlite
+backend/uploads/*
+!backend/uploads/.gitkeep

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
+import LogoDropzone from '@/components/LogoDropzone';
 import { API_URL } from '@/lib/api';
 import { computeTotals } from '@/lib/utils';
 import numeral from 'numeral';
@@ -434,13 +435,8 @@ export default function ModifierFacture() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Chemin logo</label>
-              <input
-                type="text"
-                value={logoPath}
-                onChange={(e) => setLogoPath(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              />
+              <label className="block text-sm font-medium text-gray-700 mb-2">Logo</label>
+              <LogoDropzone onUploaded={setLogoPath} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">SIREN</label>
