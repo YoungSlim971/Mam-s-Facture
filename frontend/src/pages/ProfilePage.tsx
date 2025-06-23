@@ -39,10 +39,10 @@ const initialProfileData: FormProfileData = {
   legal_form: '',
   rcs_rm: '',
   social_capital: '',
-  // Default other fields not in JSON
-  email: '',
-  phone: '',
-  activity_start_date: '',
+  // Default other fields not in JSON (already defined above)
+  // email: '', // Duplicate removed
+  // phone: '', // Duplicate removed
+  // activity_start_date: '', // Duplicate removed
 };
 
 export default function ProfilePage() {

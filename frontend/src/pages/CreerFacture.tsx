@@ -118,7 +118,7 @@ export default function CreerFacture() {
           toast({
             title: 'Profil Vendeur Non Trouvé',
             description: "Veuillez d'abord configurer vos informations dans 'Mes Informations'. Vous allez être redirigé.",
-            variant: 'warning', // Or 'default'
+            variant: 'default', // Changed from 'warning'
             duration: 5000,
           });
           navigate('/profile'); // Redirect to profile settings page
