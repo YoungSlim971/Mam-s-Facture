@@ -34,7 +34,9 @@ describe('Client endpoints', () => {
       .set('Authorization', `Bearer ${API_TOKEN}`)
       .send({ nom_client: 'Client Updated', telephone: '222' });
     expect(updateRes.status).toBe(200);
-    expect(updateRes.body.success).toBe(true);
+    // The API returns the updated client object directly
+    expect(updateRes.body.nom_client).toBe('Client Updated');
+    expect(updateRes.body.telephone).toBe('222');
 
     const getRes = await request(app).get(`/api/clients/${id}`).set('Authorization', `Bearer ${API_TOKEN}`);
     expect(getRes.status).toBe(200);

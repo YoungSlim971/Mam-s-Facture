@@ -10,21 +10,28 @@ describe('GET /api/factures/:id/html', () => {
 
   beforeAll(async () => {
     // Ensure a user profile exists and has some data
-    await request(app)
+    // Ensure a user profile exists and has all required fields for the new validation rules
+    const profilePayload = {
+      full_name: "Test Emitter Company", // maps to raison_sociale
+      address_street: "123 Emitter St", // maps to adresse
+      address_postal_code: "12345",     // maps to code_postal
+      address_city: "Emitville",        // maps to ville
+      siret_siren: "12345678901234",    // maps to siret
+      ape_naf_code: "6201Z",           // maps to ape_naf
+      legal_form: "SAS",                // maps to forme_juridique (THIS WAS MISSING)
+      vat_number: "FR00123456789",     // maps to tva_intra
+      rcs_rm: "RCS Emitville 123",      // maps to rcs_ou_rm
+      // Optional fields for ProfileDataForUpdate, backend will ignore if not for JSON
+      email: "emitter@example.com",
+      phone: "0102030405"
+    };
+    const profileRes = await request(app)
       .post('/api/user-profile')
       .set('Authorization', `Bearer ${API_TOKEN}`)
-      .send({
-        full_name: "Test Emitter Company",
-        address_street: "123 Emitter St",
-        address_postal_code: "12345",
-        address_city: "Emitville",
-        siret_siren: "12345678901234",
-        ape_naf_code: "6201Z",
-        vat_number: "FR00123456789",
-        rcs_rm: "RCS Emitville 123",
-        email: "emitter@example.com",
-        phone: "0102030405"
-      });
+      .send(profilePayload);
+    // Check if profile creation was successful, otherwise tests dependent on it will fail.
+    expect(profileRes.status).toBe(200);
+
 
     // Create a client to be used in tests
     const clientRes = await request(app)

@@ -31,19 +31,23 @@ interface ClientOption {
   rcs_number?: string;
 }
 
-// Interface for seller profile data (align with ProfilePage.tsx and api.ts)
-interface SellerProfileData {
-  full_name: string;
-  address_street: string;
-  address_postal_code: string;
-  address_city: string;
-  siret_siren: string;
-  ape_naf_code: string;
-  vat_number?: string;
-  email: string;
-  phone: string;
-  legal_form: string;
-  rcs_rm: string;
+import { UserProfileJson } from '@/lib/api'; // Import UserProfileJson
+
+// Interface for seller profile data stored in the component's state.
+// This will be populated from UserProfileJson.
+interface SellerProfileState {
+  full_name: string;        // from UserProfileJson.raison_sociale
+  address_street: string;   // from UserProfileJson.adresse
+  address_postal_code: string; // from UserProfileJson.code_postal
+  address_city: string;     // from UserProfileJson.ville
+  siret_siren: string;      // from UserProfileJson.siret
+  ape_naf_code: string;     // from UserProfileJson.ape_naf
+  vat_number?: string;      // from UserProfileJson.tva_intra
+  legal_form: string;       // from UserProfileJson.forme_juridique
+  rcs_rm: string;           // from UserProfileJson.rcs_ou_rm
+  // Fields not in UserProfileJson but part of the old structure/form, default to empty or handle as needed.
+  email?: string;
+  phone?: string;
   social_capital?: string;
 }
 
@@ -74,45 +78,80 @@ export default function CreerFacture() {
   const [editableTvaRate, setEditableTvaRate] = useState(20); // ADDED: Editable VAT Rate
 
   // Seller Profile State
-  const [sellerProfile, setSellerProfile] = useState<SellerProfileData | null>(null);
+  const [sellerProfile, setSellerProfile] = useState<SellerProfileState | null>(null);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // General loading for submission
+  const [pageLoading, setPageLoading] = useState(true); // Loading for initial data fetch
   const [erreurs, setErreurs] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     const fetchInitialData = async () => {
-      // Fetch clients
+      setPageLoading(true);
+      let profileFetched = false;
+      // Fetch seller profile first
       try {
-        const clientsRes = await fetch(`${API_URL}/clients`);
-        if (clientsRes.ok) {
-          const clientsData = await clientsRes.json();
-          setClients(clientsData);
-        } else {
-          toast({ title: 'Erreur Chargement Clients', description: 'Impossible de charger la liste des clients.', variant: 'destructive' });
+        const userProfileJson = await apiClient.getUserProfile(); // Fetches UserProfileJson
+        if (userProfileJson) {
+          // Map UserProfileJson to SellerProfileState
+          setSellerProfile({
+            full_name: userProfileJson.raison_sociale || '',
+            address_street: userProfileJson.adresse || '',
+            address_postal_code: userProfileJson.code_postal || '',
+            address_city: userProfileJson.ville || '',
+            siret_siren: userProfileJson.siret || '',
+            ape_naf_code: userProfileJson.ape_naf || '',
+            vat_number: userProfileJson.tva_intra || '',
+            legal_form: userProfileJson.forme_juridique || '',
+            rcs_rm: userProfileJson.rcs_ou_rm || '',
+            // Optional fields from UserProfileJson if they exist (they were added to UserProfileJson interface for this)
+            email: userProfileJson.email || '',
+            phone: userProfileJson.phone || '',
+            social_capital: userProfileJson.social_capital || '',
+          });
+          profileFetched = true;
         }
-      } catch (error) {
-        toast({ title: 'Erreur Réseau Clients', description: 'Impossible de joindre l\'API pour charger les clients.', variant: 'destructive' });
+        // If profileData is null/undefined but no error, it means API returned empty successfully (should not happen with 404)
+      } catch (error: any) {
+        console.error('Failed to fetch seller profile:', error);
+        // Check if error is due to profile not found (404)
+        if (error.message && error.message.includes('404')) {
+          toast({
+            title: 'Profil Vendeur Non Trouvé',
+            description: "Veuillez d'abord configurer vos informations dans 'Mes Informations'. Vous allez être redirigé.",
+            variant: 'warning', // Or 'default'
+            duration: 5000,
+          });
+          navigate('/profile'); // Redirect to profile settings page
+          // No need to fetch clients if profile is missing and we redirect
+          setPageLoading(false);
+          return;
+        } else {
+          toast({
+            title: 'Erreur Chargement Profil Vendeur',
+            description: 'Impossible de charger les informations du vendeur. Certaines fonctionnalités pourraient être affectées.',
+            variant: 'destructive',
+          });
+          // Decide if we should still try to load clients or stop
+        }
       }
 
-      // Fetch seller profile
-      try {
-        const profileData = await apiClient.getUserProfile();
-        if (profileData) {
-          setSellerProfile(profileData);
-        } else {
-          toast({ title: 'Erreur Profil Vendeur', description: 'Les informations du vendeur sont incomplètes ou non trouvées.', variant: 'destructive'});
+      if(profileFetched) { // Only fetch clients if profile was fetched successfully
+        try {
+          const clientsRes = await fetch(`${API_URL}/clients`); // TODO: Use apiClient if available for clients
+          if (clientsRes.ok) {
+            const clientsData = await clientsRes.json();
+            setClients(clientsData);
+          } else {
+            toast({ title: 'Erreur Chargement Clients', description: 'Impossible de charger la liste des clients.', variant: 'destructive' });
+          }
+        } catch (error) {
+          toast({ title: 'Erreur Réseau Clients', description: 'Impossible de joindre l\'API pour charger les clients.', variant: 'destructive' });
         }
-      } catch (error) {
-        console.error('Failed to fetch seller profile:', error);
-        toast({
-          title: 'Erreur Chargement Profil Vendeur',
-          description: 'Impossible de charger les informations du vendeur.',
-          variant: 'destructive',
-        });
       }
+      setPageLoading(false);
     };
     fetchInitialData();
-  }, [toast]);
+  }, [toast, navigate]);
 
   const handleSelectClient = (selectedClientId: string) => {
     if (!selectedClientId) {
@@ -180,21 +219,52 @@ export default function CreerFacture() {
     }
     setLoading(true);
 
-    // Prepare seller emitter data from sellerProfile
+    // Prepare seller emitter data from sellerProfile (which is SellerProfileState)
+    // The backend /api/factures POST endpoint expects these specific emitter_* keys,
+    // and it will get them from the profil_utilisateur.json.
+    // So, the frontend doesn't strictly need to send these if the backend re-fetches.
+    // However, if the backend relies on the frontend sending them (as it did previously with db.getUserProfile result),
+    // then we need to map SellerProfileState to the expected emitter_* keys.
+    // The current backend implementation for POST /api/factures *does* re-fetch from readUserProfile().
+    // Therefore, we don't strictly need to send emitterData from here.
+    // Sending it could be a fallback or for direct use if backend logic changes.
+    // For now, let's keep sending it, mapped from `sellerProfile` state.
     const emitterData = sellerProfile ? {
-      emitter_full_name: sellerProfile.full_name,
-      emitter_address_street: sellerProfile.address_street,
-      emitter_address_postal_code: sellerProfile.address_postal_code,
-      emitter_address_city: sellerProfile.address_city,
-      emitter_siret_siren: sellerProfile.siret_siren,
-      emitter_ape_naf_code: sellerProfile.ape_naf_code,
-      emitter_vat_number: sellerProfile.vat_number,
-      emitter_email: sellerProfile.email,
-      emitter_phone: sellerProfile.phone,
-      emitter_legal_form: sellerProfile.legal_form,
-      emitter_rcs_rm: sellerProfile.rcs_rm,
-      emitter_social_capital: sellerProfile.social_capital,
-    } : {};
+      // These field names (e.g. emitter_full_name) are what the backend invoice creation
+      // logic (db.createFacture) ultimately expects for denormalizing into the factures table.
+      // The backend POST /api/factures also re-maps from its freshly read UserProfileJson.
+      // So there's a bit of duplication of mapping logic if we send it here.
+      // Let's align with what the backend `factureData` object expects for emitter fields
+      // which are based on the old DB structure.
+      emitter_full_name: sellerProfile.full_name, // from raison_sociale
+      emitter_address_street: sellerProfile.address_street, // from adresse
+      emitter_address_postal_code: sellerProfile.address_postal_code, // from code_postal
+      emitter_address_city: sellerProfile.address_city, // from ville
+      emitter_siret_siren: sellerProfile.siret_siren, // from siret
+      emitter_ape_naf_code: sellerProfile.ape_naf_code, // from ape_naf
+      emitter_vat_number: sellerProfile.vat_number, // from tva_intra
+      emitter_legal_form: sellerProfile.legal_form, // from forme_juridique
+      emitter_rcs_rm: sellerProfile.rcs_rm, // from rcs_ou_rm
+      // These were in the old DB structure, but not in the new JSON.
+      // Send them as undefined or empty if not available in SellerProfileState.
+      emitter_email: sellerProfile.email || '',
+      emitter_phone: sellerProfile.phone || '',
+      emitter_social_capital: sellerProfile.social_capital || '',
+      // emitter_activity_start_date: sellerProfile.activity_start_date, // if it were part of SellerProfileState
+    } : {
+      // Provide default empty strings if sellerProfile is null, to avoid undefined errors
+      // though ideally, form submission should be blocked if sellerProfile is null.
+      emitter_full_name: '', emitter_address_street: '', emitter_address_postal_code: '',
+      emitter_address_city: '', emitter_siret_siren: '', emitter_ape_naf_code: '',
+      emitter_vat_number: '', emitter_legal_form: '', emitter_rcs_rm: '',
+      emitter_email: '', emitter_phone: '', emitter_social_capital: ''
+    };
+
+    if (!sellerProfile) {
+        toast({ title: 'Erreur Profil Vendeur', description: 'Les informations du vendeur sont manquantes. Impossible de créer la facture.', variant: 'destructive' });
+        setLoading(false);
+        return;
+    }
 
     try {
       const lignesValides = lignes.filter(l => l.description.trim() && l.quantite > 0 && l.prix_unitaire >= 0);
@@ -232,7 +302,19 @@ export default function CreerFacture() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ details: 'Erreur serveur inconnue.' }));
-        throw new Error(errorData.details || 'Erreur lors de la création de la facture');
+        // Check for specific error code from backend if profile is missing
+        if (errorData.errorCode === "USER_PROFILE_MISSING") {
+            toast({
+                title: 'Profil Vendeur Requis',
+                description: errorData.details || "Veuillez configurer vos informations avant de créer une facture.",
+                variant: 'destructive',
+                duration: 5000,
+            });
+            navigate('/profile'); // Redirect to profile page
+        } else {
+            throw new Error(errorData.details || 'Erreur lors de la création de la facture');
+        }
+        return; // Stop execution if error
       }
 
       const data = await response.json();
@@ -244,6 +326,10 @@ export default function CreerFacture() {
       setLoading(false);
     }
   };
+
+  if (pageLoading) {
+    return <div className="container mx-auto p-4 text-center">Chargement des données initiales...</div>;
+  }
 
   return (
     <div className="min-h-screen">

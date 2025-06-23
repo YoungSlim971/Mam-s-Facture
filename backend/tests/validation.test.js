@@ -1,13 +1,22 @@
 const request = require('supertest');
+const { setupDummyProfile, cleanupDummyProfile } = require('./testUtils');
 let app;
+const API_TOKEN = 'test-token'; // Standard test token
+
 beforeAll(async () => {
+  await setupDummyProfile();
   app = await require('../server');
+});
+
+afterAll(async () => {
+  await cleanupDummyProfile();
 });
 
 describe('Validation of lignes', () => {
   test('POST rejects non positive quantity', async () => {
     const res = await request(app)
       .post('/api/factures')
+      .set('Authorization', `Bearer ${API_TOKEN}`)
       .send({
         nom_client: 'Client',
         date_facture: '2024-01-01',
@@ -22,6 +31,7 @@ describe('Validation of lignes', () => {
   test('POST rejects negative unit price', async () => {
     const res = await request(app)
       .post('/api/factures')
+      .set('Authorization', `Bearer ${API_TOKEN}`)
       .send({
         nom_client: 'Client',
         date_facture: '2024-01-01',
@@ -37,6 +47,7 @@ describe('Validation of lignes', () => {
     // create a valid facture first
     const createRes = await request(app)
       .post('/api/factures')
+      .set('Authorization', `Bearer ${API_TOKEN}`)
       .send({
         nom_client: 'Client',
         date_facture: '2024-01-01',
@@ -44,14 +55,15 @@ describe('Validation of lignes', () => {
           { description: 'Item', quantite: 1, prix_unitaire: 10 }
         ]
       });
-    expect(createRes.status).toBe(201);
+    expect(createRes.status).toBe(201); // This should now pass with dummy profile
     const id = createRes.body.id;
 
     const updateRes = await request(app)
       .put(`/api/factures/${id}`)
+      .set('Authorization', `Bearer ${API_TOKEN}`)
       .send({
-        nom_client: 'Client',
-        date_facture: '2024-01-01',
+        nom_client: 'Client', // Required for update
+        date_facture: '2024-01-01', // Required for update
         lignes: [
           { description: 'Item', quantite: -1, prix_unitaire: 10 }
         ]
