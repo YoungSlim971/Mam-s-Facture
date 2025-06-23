@@ -215,11 +215,12 @@ export default function Clients() {
       setEditAdresseLivraisonCp('');
       setEditAdresseLivraisonVille('');
       setEditTvaClient('');
-      chargerClients();
+      chargerClients(); // Keep this to refresh the list if the user navigates back
       toast({
         title: 'Client mis à jour',
         description: `Le client ${editNom} ${editEntreprise ? '('+editEntreprise+')' : ''} a été mis à jour.`,
       });
+      navigate(`/clients/${editingId}`); // Redirect to the client's profile page
     } else {
       const data = await res.json().catch(() => null);
       toast({
