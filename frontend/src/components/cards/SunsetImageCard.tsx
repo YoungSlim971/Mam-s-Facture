@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -17,6 +18,7 @@ export function SunsetImageCard() {
   const [img, setImg] = useState('');
 
   useEffect(() => {
+    // choose a fresh image every time the component mounts
     setImg(getRandomImage());
   }, []);
 
@@ -26,7 +28,19 @@ export function SunsetImageCard() {
         <CardTitle>Coucher de soleil</CardTitle>
       </CardHeader>
       <CardContent>
-        {img ? <img src={img} alt="Coucher de soleil" /> : <Skeleton className="h-40 w-full" />}
+        {img ? (
+          <motion.img
+            key={img}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            src={img}
+            alt="Coucher de soleil"
+            className="w-full"
+          />
+        ) : (
+          <Skeleton className="h-40 w-full" />
+        )}
       </CardContent>
     </Card>
   );
