@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "init-db": "node database/init.js",
-    "test": "jest",
+    "test": "API_TOKEN=test-token jest",
     "export-html": "node scripts/export-html.js"
   },
   "dependencies": {

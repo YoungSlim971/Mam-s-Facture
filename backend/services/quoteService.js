@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 function getRandomQuote() {
-  const filePath = path.join(__dirname, '..', 'database', 'data', 'citations_bien_etre.json');
+  const filePath = path.join(__dirname, '..', 'assets', 'data', 'citations_bien_etre.json');
   let content;
   try {
     content = fs.readFileSync(filePath, 'utf8');
