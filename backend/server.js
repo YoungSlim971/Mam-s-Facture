@@ -286,7 +286,10 @@ app.put('/api/clients/:id', (req, res) => {
       logo: logo.trim()
     });
     if (!success) return res.status(404).json({ error: 'Client non trouvé' });
-    res.json({ success: true });
+    const updatedClient = db.getClientById(req.params.id);
+    if (!updatedClient) return res.status(404).json({ error: 'Client non trouvé après mise à jour' });
+    db.synchroniserFacturesParClient(); // Ensure aggregates are updated
+    res.json(updatedClient);
   } catch (err) {
     res.status(500).json({
       error: 'Erreur lors de la mise à jour du client',
@@ -607,7 +610,9 @@ app.patch('/api/factures/:id/status', (req, res) => {
       return res.status(404).json({ error: 'Facture non trouvée' });
     }
     db.synchroniserFacturesParClient();
-    res.json({ message: 'Statut mis à jour' });
+    const updatedInvoice = db.getFactureById(id);
+    if (!updatedInvoice) return res.status(404).json({ error: 'Facture non trouvée après mise à jour du statut' });
+    res.json(updatedInvoice);
   } catch (err) {
     res.status(500).json({
       error: 'Erreur lors de la mise à jour du statut',
