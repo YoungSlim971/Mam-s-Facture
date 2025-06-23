@@ -21,7 +21,6 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { API_URL } from '@/lib/api';
-import { saveAs } from 'file-saver';
 
 interface Facture {
   id: number;
@@ -62,7 +61,6 @@ export default function ListeFactures() {
   const [statusFilter, setStatusFilter] = useState('');
   const [sortField, setSortField] = useState('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [exportFormat, setExportFormat] = useState<'html' | 'pdf'>('html');
 
   const chargerFactures = useCallback(async () => {
     try {
@@ -124,56 +122,14 @@ export default function ListeFactures() {
     }
   };
 
-  const telechargerFacture = async (
+  const telechargerFacture = (
     id: number,
     numeroFacture: string,
     dateFacture: string,
-    nomEntreprise?: string,
-    format: 'html' | 'pdf' = exportFormat
-  ): Promise<void> => {
-    try {
-      console.log('API_URL', API_URL);
-      console.log('Téléchargement de la facture', id, format);
-      const response = await fetch(`${API_URL}/factures/${id}/${format}`);
-      if (!response.ok) {
-        throw new Error('Erreur lors de la génération du fichier');
-      }
-      if (format === 'pdf') {
-        const pdf = await response.blob();
-        saveAs(
-          pdf,
-          `facture-${numeroFacture}-${dateFacture}-${nomEntreprise ? nomEntreprise.replace(/\s+/g, '-') : ''}.pdf`
-        );
-      } else {
-        const html = await response.text();
-        const blob = new Blob([html], { type: 'text/html' });
-        saveAs(
-          blob,
-          `facture-${numeroFacture}-${dateFacture}-${nomEntreprise ? nomEntreprise.replace(/\s+/g, '-') : ''}.html`
-        );
-      }
-    } catch (err) {
-      if (format === 'pdf') {
-        try {
-          await telechargerFacture(
-            id,
-            numeroFacture,
-            dateFacture,
-            nomEntreprise,
-            'html'
-          );
-          alert('Export PDF impossible, fichier HTML généré.');
-        } catch (e) {
-          alert(
-            e instanceof Error ? e.message : 'Erreur lors du téléchargement'
-          );
-        }
-      } else {
-        alert(
-          err instanceof Error ? err.message : 'Erreur lors du téléchargement'
-        );
-      }
-    }
+    nomEntreprise?: string
+  ): void => {
+    const url = `${API_URL}/factures/${id}/html`;
+    window.open(url, '_blank');
   };
 
   const marquerPayee = async (id: number) => {
@@ -326,17 +282,6 @@ export default function ListeFactures() {
               <option value="desc">Décroissant</option>
             </select>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Format export</label>
-            <select
-              value={exportFormat}
-              onChange={(e) => setExportFormat(e.target.value as 'html' | 'pdf')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              <option value="html">HTML</option>
-              <option value="pdf">PDF</option>
-            </select>
-          </div>
         </div>
       </div>
 
@@ -464,25 +409,11 @@ export default function ListeFactures() {
                                       facture.id,
                                       facture.numero_facture,
                                       facture.date_facture,
-                                      facture.nom_entreprise,
-                                      'pdf'
+                                      facture.nom_entreprise
                                     )
                                   }
                                 >
-                                  <FileText className="mr-2 h-4 w-4" /> PDF
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onSelect={() =>
-                                    telechargerFacture(
-                                      facture.id,
-                                      facture.numero_facture,
-                                      facture.date_facture,
-                                      facture.nom_entreprise,
-                                      'html'
-                                    )
-                                  }
-                                >
-                                  <Globe className="mr-2 h-4 w-4" /> HTML
+                                  <Globe className="mr-2 h-4 w-4" /> Télécharger
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>

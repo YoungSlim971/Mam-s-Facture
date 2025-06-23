@@ -6,7 +6,6 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const buildFactureHTML = require('./services/htmlService');
-const generatePdf = require('./pdf/generatePdf');
 const SQLiteDatabase = require('./database/sqlite');
 const { computeTotals } = require('./utils/computeTotals.ts');
 const { getRandomQuote } = require('./services/quoteService');
@@ -603,34 +602,13 @@ app.get('/api/factures/:id/html', (req, res) => {
   try {
     const html = buildFactureHTML(facture);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    const filename = `facture-${facture.numero_facture || facture.id}.html`;
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(html);
   } catch (err) {
     res.status(500).json({ error: 'Erreur lors de la génération du HTML' });
   }
 });
-
-// GET /api/factures/:id/pdf - Génère un PDF depuis le HTML
-app.get('/api/factures/:id/pdf', async (req, res) => {
-  const facture = db.getFactureById(req.params.id);
-  if (!facture) {
-    return res.status(404).json({ error: 'Facture non trouvée' });
-  }
-  try {
-    console.log('Facture reçue pour export :', facture);
-    const html = buildFactureHTML(facture);
-    fs.writeFileSync('last-facture.html', html, 'utf-8');
-    const pdf = await generatePdf(html);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.send(pdf);
-  } catch (err) {
-    console.error('Error generating PDF for invoice:', err);
-    res.status(500).json({
-      error: 'Erreur lors de la génération du PDF',
-      details: err.message,
-    });
-  }
-});
-
 
 // Route de santé
 app.get('/api/health', (req, res) => {
