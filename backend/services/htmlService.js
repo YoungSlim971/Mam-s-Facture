@@ -85,7 +85,12 @@ function buildFactureHTML(facture) {
 
   const templatePath = path.join(__dirname, '..', 'views', 'invoice.ejs');
   const template = fs.readFileSync(templatePath, 'utf8');
-  return ejs.render(template, templateData);
+  try {
+    return ejs.render(template, templateData);
+  } catch (err) {
+    console.error('Erreur lors du rendu du template:', err);
+    throw err;
+  }
 }
 
 module.exports = buildFactureHTML;

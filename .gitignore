@@ -9,3 +9,4 @@ backend/dist/
 backend/database/*.sqlite
 backend/uploads/*
 !backend/uploads/.gitkeep
+backend/last-facture.html
