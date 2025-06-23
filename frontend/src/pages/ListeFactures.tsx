@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { API_URL } from '@/lib/api';
+import { toast } from '@/hooks/use-toast';
 
 interface Facture {
   id: number;
@@ -129,14 +130,33 @@ export default function ListeFactures() {
     }
   };
 
-  const telechargerFacture = (
+  const telechargerFacture = async (
     id: number,
     numeroFacture: string,
-    dateFacture: string,
-    nomEntreprise?: string
-  ): void => {
+    _dateFacture: string,
+    _nomEntreprise?: string
+  ): Promise<void> => {
     const url = `${API_URL}/factures/${id}/html`;
-    window.open(url, '_blank');
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error('Erreur lors du téléchargement');
+      }
+      const blob = await res.blob();
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `facture-${numeroFacture}.html`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast({ description: 'Le fichier a été téléchargé avec succès' });
+    } catch (err) {
+      toast({
+        description:
+          err instanceof Error ? err.message : 'Erreur lors du téléchargement',
+        variant: 'destructive'
+      });
+    }
   };
 
   const marquerPayee = async (id: number) => {

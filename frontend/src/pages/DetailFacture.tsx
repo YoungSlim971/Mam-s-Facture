@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Edit, Download, Trash2, FileText, User, Calendar, Euro } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { API_URL } from '@/lib/api';
+import { toast } from '@/hooks/use-toast';
 import { computeTotals } from '@/lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -97,10 +98,29 @@ export default function DetailFacture() {
     }
   };
 
-  const telechargerFacture = (): void => {
+  const telechargerFacture = async (): Promise<void> => {
     if (!facture) return;
     const url = `${API_URL}/factures/${facture.id}/html`;
-    window.open(url, '_blank');
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error('Erreur lors du téléchargement');
+      }
+      const blob = await res.blob();
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `facture-${facture.numero_facture}.html`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast({ description: 'Le fichier a été téléchargé avec succès' });
+    } catch (err) {
+      toast({
+        description:
+          err instanceof Error ? err.message : 'Erreur lors du téléchargement',
+        variant: 'destructive'
+      });
+    }
   };
 
   const euroFormatter = new Intl.NumberFormat('fr-FR', {
