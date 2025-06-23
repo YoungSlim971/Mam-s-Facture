@@ -73,7 +73,7 @@ export function StatsCarousel() {
   const invoicesThisMonth = pieStats.paid + pieStats.unpaid;
 
   return (
-    <div className="rounded-xl shadow-md bg-white p-6 transition-all duration-300 w-full">
+    <div className="rounded-xl shadow-md bg-white dark:bg-gray-800 p-6 transition-all duration-300 w-full">
       <Carousel setApi={setApi} className="w-full">
         <CarouselContent>
           <CarouselItem>

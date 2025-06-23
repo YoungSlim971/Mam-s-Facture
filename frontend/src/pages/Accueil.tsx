@@ -17,17 +17,17 @@ export default function Accueil() {
     >
       {/* Header */}
       <header
-        className="bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-mid)] to-[var(--gradient-end)] text-white shadow-sm border-b border-gray-200"
+        className="bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-mid)] to-[var(--gradient-end)] text-white shadow-sm border-b border-gray-200 dark:border-gray-700"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <FileText className="h-8 w-8 text-indigo-600 mr-3" />
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 MAM's FACTURE
               </h1>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               Gestion de factures simplifiée
             </div>
           </div>
@@ -38,11 +38,11 @@ export default function Accueil() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+          <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
             Bienvenue dans votre espace de facturation,{' '}
-            <span className="text-indigo-600">Caroline MIRRE</span>
+            <span className="text-indigo-600 dark:text-indigo-400">Caroline MIRRE</span>
           </h2>
-        <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-600">
+        <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-600 dark:text-gray-300">
           Gérez vos factures facilement avec notre solution complète.
           Créez, modifiez et exportez vos factures en quelques clics.
         </p>
@@ -61,17 +61,17 @@ export default function Accueil() {
             to="/factures"
             className="group relative bg-gradient-to-br from-[var(--gradient-start)] via-[var(--gradient-mid)] to-[var(--gradient-end)] text-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300"
           >
-            <div className="flex items-center justify-center w-16 h-16 bg-indigo-100 rounded-xl mb-6 group-hover:bg-indigo-200 transition-colors">
-              <FileText className="h-8 w-8 text-indigo-600" />
+            <div className="flex items-center justify-center w-16 h-16 bg-indigo-100 dark:bg-indigo-900 rounded-xl mb-6 group-hover:bg-indigo-200 dark:group-hover:bg-indigo-800 transition-colors">
+              <FileText className="h-8 w-8 text-indigo-600 dark:text-indigo-300" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
               Toutes les factures
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
               Consultez, recherchez et gérez toutes vos factures existantes. 
               Filtrez par période, client ou montant.
             </p>
-            <div className="flex items-center text-indigo-600 font-semibold">
+            <div className="flex items-center text-indigo-600 dark:text-indigo-300 font-semibold">
               Accéder à la liste
               <svg className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -84,17 +84,17 @@ export default function Accueil() {
             to="/factures/nouvelle"
             className="group relative bg-gradient-to-br from-[var(--gradient-start)] via-[var(--gradient-mid)] to-[var(--gradient-end)] rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 text-white"
           >
-            <div className="flex items-center justify-center w-16 h-16 bg-white bg-opacity-20 rounded-xl mb-6 group-hover:bg-opacity-30 transition-colors">
+            <div className="flex items-center justify-center w-16 h-16 bg-white bg-opacity-20 dark:bg-opacity-10 rounded-xl mb-6 group-hover:bg-opacity-30 dark:group-hover:bg-opacity-20 transition-colors">
               <Plus className="h-8 w-8 text-white" />
             </div>
-            <h3 className="text-2xl font-bold mb-3">
+            <h3 className="text-2xl font-bold text-white mb-3">
               Créer une nouvelle facture
             </h3>
-            <p className="text-indigo-100 mb-4">
+            <p className="text-indigo-100 dark:text-indigo-200 mb-4">
               Créez rapidement une nouvelle facture avec notre formulaire intuitif. 
               Calculs automatiques et mise en forme professionnelle.
             </p>
-            <div className="flex items-center font-semibold">
+            <div className="flex items-center font-semibold text-white">
               Commencer maintenant
               <svg className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -104,41 +104,41 @@ export default function Accueil() {
         </div>
 
         {/* Stats Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-          <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-700">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">
             Fonctionnalités principales
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-4 mx-auto">
-                <BarChart3 className="h-6 w-6 text-green-600" />
+              <div className="flex items-center justify-center w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg mb-4 mx-auto">
+                <BarChart3 className="h-6 w-6 text-green-600 dark:text-green-300" />
               </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                 Gestion complète
               </h4>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-300">
                 Créez, modifiez, supprimez et exportez vos factures en PDF
               </p>
             </div>
             <div className="text-center">
-              <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-4 mx-auto">
-                <Users className="h-6 w-6 text-blue-600" />
+              <div className="flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg mb-4 mx-auto">
+                <Users className="h-6 w-6 text-blue-600 dark:text-blue-300" />
               </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                 Gestion clients
               </h4>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-300">
                 Enregistrez les informations de vos clients pour un accès rapide
               </p>
             </div>
             <div className="text-center">
-              <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-4 mx-auto">
-                <FileText className="h-6 w-6 text-purple-600" />
+              <div className="flex items-center justify-center w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg mb-4 mx-auto">
+                <FileText className="h-6 w-6 text-purple-600 dark:text-purple-300" />
               </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                 Export PDF
               </h4>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-300">
                 Générez des PDFs professionnels prêts à envoyer à vos clients
               </p>
             </div>
@@ -147,9 +147,9 @@ export default function Accueil() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-20">
+      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center text-gray-500">
+          <div className="text-center text-gray-500 dark:text-gray-400">
             <p>&copy; 2024 MAM's FACTURE. Tous droits réservés.</p>
           </div>
         </div>
