@@ -15,6 +15,7 @@ import TopBar from './components/TopBar'
 import { useState, useEffect } from 'react'
 import { useIsMobile } from './hooks/use-mobile'
 import { ThemeProvider } from './context/ThemeContext'
+import { Toaster } from './components/ui/sonner'
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -54,6 +55,7 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <Router>
+          <Toaster />
           <div className="flex h-screen overflow-hidden">
             <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
             <div className="flex flex-col flex-1">
