@@ -1,4 +1,4 @@
-require('ts-node/register/transpile-only');
+// TS-Node registration removed as this file will be pre-compiled
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -860,12 +860,30 @@ app.get('/api/stats', (req, res) => {
   }
 });
 
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Handles any requests that don't match the ones above
+app.get('*', (req, res) => {
+  // Check if the request is for an API route, if so, don't serve index.html
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  // For any other route, serve the frontend's index.html
+  res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
+    if (err) {
+      res.status(500).send(err);
+    }
+  });
+});
+
 // Démarrage du serveur
 if (require.main === module) {
   dbReady.then(() => {
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => { // Listen on 0.0.0.0
       // console.log(`🚀 Serveur de facturation démarré sur le port ${PORT}`);
-      // console.log(`📊 API disponible sur http://localhost:${PORT}/api`);
+      // console.log(`📊 API disponible sur http://0.0.0.0:${PORT}/api`);
+      // console.log(`🌐 Frontend accessible sur http://0.0.0.0:${PORT}`);
       // console.log(`💾 Stockage: SQLite (sql.js)`);
       // console.log(`📂 Fichier base: ${path.join(__dirname, 'database', 'facturation.sqlite')}`);
     });

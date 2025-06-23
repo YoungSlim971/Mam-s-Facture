@@ -4,8 +4,11 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "strict": false,
-    "skipLibCheck": true
+    "strict": false, // Keeping as per original, though true is generally better
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "outDir": "dist" // Optional: for manual tsc builds
   },
-  "include": ["invoiceHTML.ts", "**/*.ts"]
+  "include": ["**/*.ts"], // Broader include for all .ts files in backend
+  "exclude": ["node_modules", "tests"] // Exclude node_modules and tests
 }
