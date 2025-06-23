@@ -1,0 +1,12 @@
+{
+  "nom_client": "Client Test",
+  "nom_entreprise": "Entreprise Test",
+  "adresse": "123 Rue de Test\n75000 Paris",
+  "date_facture": "2024-01-01",
+  "numero_facture": "2024-001",
+  "vat_rate": 20,
+  "lignes": [
+    { "description": "Item A", "quantite": 2, "prix_unitaire": 10 },
+    { "description": "Item B", "quantite": 1, "prix_unitaire": 20 }
+  ]
+}

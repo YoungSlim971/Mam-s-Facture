@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const buildFactureHTML = require('./services/htmlService');
+const generatePdf = require('./pdf/generatePdf');
 const SQLiteDatabase = require('./database/sqlite');
 const { computeTotals } = require('./utils/computeTotals.ts');
 const { getRandomQuote } = require('./services/quoteService');
@@ -600,16 +601,15 @@ app.get('/api/factures/:id/pdf', async (req, res) => {
   }
   try {
     const html = buildFactureHTML(facture);
-    const puppeteer = require('puppeteer');
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-    const pdf = await page.pdf({ format: 'A4' });
-    await browser.close();
+    const pdf = await generatePdf(html);
     res.setHeader('Content-Type', 'application/pdf');
     res.send(pdf);
   } catch (err) {
-    res.status(500).json({ error: 'Erreur lors de la génération du PDF' });
+    console.error('Error generating PDF for invoice:', err);
+    res.status(500).json({
+      error: 'Erreur lors de la génération du PDF',
+      details: err.message,
+    });
   }
 });
 
