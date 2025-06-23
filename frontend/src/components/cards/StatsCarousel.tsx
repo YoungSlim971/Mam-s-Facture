@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Carousel,
   CarouselContent,
@@ -76,31 +77,52 @@ export function StatsCarousel() {
       <Carousel setApi={setApi} className="w-full">
         <CarouselContent>
           <CarouselItem>
-            <Link to="/factures?status=unpaid" className="block">
-              <InvoicePieChart />
-            </Link>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: index === 0 ? 1 : 0, y: index === 0 ? 0 : 10 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Link to="/factures?status=unpaid" className="block">
+                <InvoicePieChart />
+              </Link>
+            </motion.div>
           </CarouselItem>
           <CarouselItem>
-            <Card>
-              <CardHeader>
-                <CardTitle>Paiements en attente</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-3xl font-bold">
-                  {euro.format(unpaidTotal)}
-                </p>
-              </CardContent>
-            </Card>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: index === 1 ? 1 : 0, y: index === 1 ? 0 : 10 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Paiements en attente</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-3xl font-bold">
+                    {euro.format(unpaidTotal)}
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
           </CarouselItem>
           <CarouselItem>
-            <Card>
-              <CardHeader>
-                <CardTitle>Factures générées ce mois-ci</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-3xl font-bold">{invoicesThisMonth}</p>
-              </CardContent>
-            </Card>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: index === 2 ? 1 : 0, y: index === 2 ? 0 : 10 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Factures générées ce mois-ci</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-3xl font-bold">{invoicesThisMonth}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
           </CarouselItem>
         </CarouselContent>
         <CarouselPrevious className="-left-4" />

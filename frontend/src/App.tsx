@@ -11,6 +11,9 @@ import ClientProfile from './pages/profiles/ClientProfile'
 import NotFound from './pages/Error/NotFound'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import Sidebar from './components/Sidebar'
+import TopBar from './components/TopBar'
+import { useState, useEffect } from 'react'
+import { useIsMobile } from './hooks/use-mobile'
 import { ThemeProvider } from './context/ThemeContext'
 
 function AnimatedRoutes() {
@@ -40,15 +43,25 @@ function AnimatedRoutes() {
 }
 
 function App() {
+  const isMobile = useIsMobile()
+  const [sidebarOpen, setSidebarOpen] = useState(!isMobile)
+
+  useEffect(() => {
+    setSidebarOpen(!isMobile)
+  }, [isMobile])
+
   return (
     <ErrorBoundary>
       <ThemeProvider>
         <Router>
-          <div className="flex h-screen">
-            <Sidebar />
-            <main className="flex-1 px-4 py-6 overflow-auto">
-              <AnimatedRoutes />
-            </main>
+          <div className="flex h-screen overflow-hidden">
+            <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+            <div className="flex flex-col flex-1">
+              <TopBar onMenuClick={() => setSidebarOpen(true)} />
+              <main className="flex-1 overflow-auto pt-16 px-4 py-6">
+                <AnimatedRoutes />
+              </main>
+            </div>
           </div>
         </Router>
       </ThemeProvider>
