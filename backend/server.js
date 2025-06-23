@@ -492,6 +492,9 @@ app.post('/api/factures', async (req, res) => { // Added async
       emitter_email: userProfile.email,
       emitter_phone: userProfile.phone,
       emitter_activity_start_date: userProfile.activity_start_date,
+      emitter_legal_form: userProfile.legal_form, // Added for Part 3
+      emitter_rcs_rm: userProfile.rcs_rm,         // Added for Part 3
+      emitter_social_capital: userProfile.social_capital, // Added for Part 3
     };
 
     const factureId = db.createFacture(factureData);
@@ -632,20 +635,31 @@ app.delete('/api/factures/:id', (req, res) => {
 });
 
 // GET /api/factures/:id/html - Génère le HTML d'une facture
-app.get('/api/factures/:id/html', (req, res) => {
+app.get('/api/factures/:id/html', async (req, res) => { // Made async
+  await dbReady; // Ensure db is initialized
   const facture = db.getFactureById(req.params.id);
   if (!facture) {
     return res.status(404).json({ error: 'Facture non trouvée' });
   }
 
+  let clientDetails = null;
+  if (facture.client_id) {
+    clientDetails = db.getClientById(facture.client_id);
+  }
+
   try {
-    const html = buildFactureHTML(facture);
+    const html = buildFactureHTML(facture, clientDetails); // Pass clientDetails
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     const filename = `facture-${facture.numero_facture || facture.id}.html`;
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(html);
   } catch (err) {
-    res.status(500).json({ error: 'Erreur lors de la génération du HTML' });
+    console.error("Error in /api/factures/:id/html route:", err); // Log to server console for visibility
+    res.status(500).json({
+      error: 'Erreur lors de la génération du HTML',
+      details: err.message,
+      stack: process.env.NODE_ENV === 'test' ? err.stack : undefined // Only send stack in test env
+    });
   }
 });
 

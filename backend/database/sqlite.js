@@ -38,6 +38,12 @@ class SQLiteDatabase {
       tva TEXT,
       rcs_number TEXT,
       logo TEXT,
+      adresse_facturation_rue TEXT,    -- Added for Part 2
+      adresse_facturation_cp TEXT,     -- Added for Part 2
+      adresse_facturation_ville TEXT,  -- Added for Part 2
+      adresse_livraison_rue TEXT,      -- Added for Part 2 (optional)
+      adresse_livraison_cp TEXT,       -- Added for Part 2 (optional)
+      adresse_livraison_ville TEXT,    -- Added for Part 2 (optional)
       nombre_de_factures INTEGER DEFAULT 0,
       factures_payees INTEGER DEFAULT 0,
       factures_impayees INTEGER DEFAULT 0,
@@ -68,6 +74,9 @@ class SQLiteDatabase {
       emitter_email TEXT,
       emitter_phone TEXT,
       emitter_activity_start_date TEXT,
+      emitter_legal_form TEXT,         -- Added for Part 3 (denormalized from user_profile)
+      emitter_rcs_rm TEXT,             -- Added for Part 3 (denormalized from user_profile)
+      emitter_social_capital TEXT,     -- Added for Part 3 (denormalized from user_profile)
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );`);
@@ -92,9 +101,24 @@ class SQLiteDatabase {
       email TEXT,
       phone TEXT,
       activity_start_date TEXT,
+      legal_form TEXT,        -- Added for Part 1
+      rcs_rm TEXT,            -- Added for Part 1
+      social_capital TEXT,    -- Added for Part 1 (optional)
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );`);
+
+    // Check and add new columns to user_profile if they don't exist
+    const userProfileCols = this.db.exec('PRAGMA table_info(user_profile)')[0].values.map(r => r[1]);
+    if (!userProfileCols.includes('legal_form')) this.db.run('ALTER TABLE user_profile ADD COLUMN legal_form TEXT');
+    if (!userProfileCols.includes('rcs_rm')) this.db.run('ALTER TABLE user_profile ADD COLUMN rcs_rm TEXT');
+    if (!userProfileCols.includes('social_capital')) this.db.run('ALTER TABLE user_profile ADD COLUMN social_capital TEXT');
+
+    // Check and add new columns to factures if they don't exist
+    const factureCols = this.db.exec('PRAGMA table_info(factures)')[0].values.map(r => r[1]);
+    if (!factureCols.includes('emitter_legal_form')) this.db.run('ALTER TABLE factures ADD COLUMN emitter_legal_form TEXT');
+    if (!factureCols.includes('emitter_rcs_rm')) this.db.run('ALTER TABLE factures ADD COLUMN emitter_rcs_rm TEXT');
+    if (!factureCols.includes('emitter_social_capital')) this.db.run('ALTER TABLE factures ADD COLUMN emitter_social_capital TEXT');
 
     const cols = this.db.exec('PRAGMA table_info(clients)')[0].values.map(r => r[1]);
     if (!cols.includes('nombre_de_factures')) this.db.run('ALTER TABLE clients ADD COLUMN nombre_de_factures INTEGER DEFAULT 0');
@@ -106,6 +130,15 @@ class SQLiteDatabase {
     if (!cols.includes('siren')) this.db.run("ALTER TABLE clients ADD COLUMN siren TEXT");
     if (!cols.includes('legal_form')) this.db.run("ALTER TABLE clients ADD COLUMN legal_form TEXT");
     if (!cols.includes('rcs_number')) this.db.run("ALTER TABLE clients ADD COLUMN rcs_number TEXT");
+
+    // Add new structured address columns to clients if they don't exist
+    if (!cols.includes('adresse_facturation_rue')) this.db.run('ALTER TABLE clients ADD COLUMN adresse_facturation_rue TEXT');
+    if (!cols.includes('adresse_facturation_cp')) this.db.run('ALTER TABLE clients ADD COLUMN adresse_facturation_cp TEXT');
+    if (!cols.includes('adresse_facturation_ville')) this.db.run('ALTER TABLE clients ADD COLUMN adresse_facturation_ville TEXT');
+    if (!cols.includes('adresse_livraison_rue')) this.db.run('ALTER TABLE clients ADD COLUMN adresse_livraison_rue TEXT');
+    if (!cols.includes('adresse_livraison_cp')) this.db.run('ALTER TABLE clients ADD COLUMN adresse_livraison_cp TEXT');
+    if (!cols.includes('adresse_livraison_ville')) this.db.run('ALTER TABLE clients ADD COLUMN adresse_livraison_ville TEXT');
+
     this.save();
   }
 
@@ -137,22 +170,34 @@ class SQLiteDatabase {
   }
 
   createClient(data) {
-    const stmt = this.db.prepare('INSERT INTO clients (nom_client, prenom_client, nom_entreprise, telephone, email, adresse_facturation, adresse_livraison, intitule, siren, siret, legal_form, tva, rcs_number, logo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+    const stmt = this.db.prepare(`INSERT INTO clients (
+      nom_client, prenom_client, nom_entreprise, telephone, email,
+      adresse_facturation, adresse_livraison,
+      intitule, siren, siret, legal_form, tva, rcs_number, logo,
+      adresse_facturation_rue, adresse_facturation_cp, adresse_facturation_ville,
+      adresse_livraison_rue, adresse_livraison_cp, adresse_livraison_ville
+      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
     stmt.run([
       data.nom_client,
       data.prenom_client || '',
       data.nom_entreprise || '',
       data.telephone || '',
       data.email || '',
-      data.adresse_facturation || '',
-      data.adresse_livraison || '',
+      data.adresse_facturation || '', // Keep for potential old data or simple view
+      data.adresse_livraison || '',   // Keep for potential old data or simple view
       data.intitule || '',
       data.siren || '',
       data.siret || '',
       data.legal_form || '',
       data.tva || '',
       data.rcs_number || '',
-      data.logo || ''
+      data.logo || '',
+      data.adresse_facturation_rue || '',
+      data.adresse_facturation_cp || '',
+      data.adresse_facturation_ville || '',
+      data.adresse_livraison_rue || null, // Optional
+      data.adresse_livraison_cp || null,   // Optional
+      data.adresse_livraison_ville || null // Optional
     ]);
     stmt.free();
     const id = this.db.exec('SELECT last_insert_rowid() AS id')[0].values[0][0];
@@ -161,15 +206,21 @@ class SQLiteDatabase {
   }
 
   updateClient(id, data) {
-    const stmt = this.db.prepare('UPDATE clients SET nom_client=?, prenom_client=?, nom_entreprise=?, telephone=?, email=?, adresse_facturation=?, adresse_livraison=?, intitule=?, siren=?, siret=?, legal_form=?, tva=?, rcs_number=?, logo=?, updated_at=CURRENT_TIMESTAMP WHERE id=?');
+    const stmt = this.db.prepare(`UPDATE clients SET
+      nom_client=?, prenom_client=?, nom_entreprise=?, telephone=?, email=?,
+      adresse_facturation=?, adresse_livraison=?,
+      intitule=?, siren=?, siret=?, legal_form=?, tva=?, rcs_number=?, logo=?,
+      adresse_facturation_rue=?, adresse_facturation_cp=?, adresse_facturation_ville=?,
+      adresse_livraison_rue=?, adresse_livraison_cp=?, adresse_livraison_ville=?,
+      updated_at=CURRENT_TIMESTAMP WHERE id=?`);
     stmt.run([
       data.nom_client,
       data.prenom_client || '',
       data.nom_entreprise || '',
       data.telephone || '',
       data.email || '',
-      data.adresse_facturation || '',
-      data.adresse_livraison || '',
+      data.adresse_facturation || '', // Keep for potential old data or simple view
+      data.adresse_livraison || '',   // Keep for potential old data or simple view
       data.intitule || '',
       data.siren || '',
       data.siret || '',
@@ -177,6 +228,12 @@ class SQLiteDatabase {
       data.tva || '',
       data.rcs_number || '',
       data.logo || '',
+      data.adresse_facturation_rue || '',
+      data.adresse_facturation_cp || '',
+      data.adresse_facturation_ville || '',
+      data.adresse_livraison_rue || null, // Optional
+      data.adresse_livraison_cp || null,   // Optional
+      data.adresse_livraison_ville || null, // Optional
       id
     ]);
     const changes = this.db.getRowsModified();
@@ -229,8 +286,8 @@ class SQLiteDatabase {
       date_facture, montant_total, status,
       emitter_full_name, emitter_address_street, emitter_address_postal_code, emitter_address_city,
       emitter_siret_siren, emitter_ape_naf_code, emitter_vat_number, emitter_email, emitter_phone,
-      emitter_activity_start_date
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+      emitter_activity_start_date, emitter_legal_form, emitter_rcs_rm, emitter_social_capital
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`; // Increased placeholders
     const stmt = this.db.prepare(query);
     stmt.run([
       fact.client_id || null,
@@ -251,7 +308,10 @@ class SQLiteDatabase {
       fact.emitter_vat_number || null,
       fact.emitter_email || null,
       fact.emitter_phone || null,
-      fact.emitter_activity_start_date || null
+      fact.emitter_activity_start_date || null,
+      fact.emitter_legal_form || null,      // Added for Part 3
+      fact.emitter_rcs_rm || null,          // Added for Part 3
+      fact.emitter_social_capital || null   // Added for Part 3
     ]);
     stmt.free();
     const factureId = this.db.exec('SELECT last_insert_rowid() AS id')[0].values[0][0];
@@ -276,7 +336,7 @@ class SQLiteDatabase {
       date_facture=?, montant_total=?, status=?,
       emitter_full_name=?, emitter_address_street=?, emitter_address_postal_code=?, emitter_address_city=?,
       emitter_siret_siren=?, emitter_ape_naf_code=?, emitter_vat_number=?, emitter_email=?, emitter_phone=?,
-      emitter_activity_start_date=?,
+      emitter_activity_start_date=?, emitter_legal_form=?, emitter_rcs_rm=?, emitter_social_capital=?,
       updated_at=CURRENT_TIMESTAMP
       WHERE id=?`;
     const stmt = this.db.prepare(query);
@@ -300,6 +360,9 @@ class SQLiteDatabase {
       fact.emitter_email || null,
       fact.emitter_phone || null,
       fact.emitter_activity_start_date || null,
+      fact.emitter_legal_form || null,        // Added for Part 3
+      fact.emitter_rcs_rm || null,            // Added for Part 3
+      fact.emitter_social_capital || null,    // Added for Part 3
       id
     ]);
     const changes = this.db.getRowsModified();
@@ -362,7 +425,13 @@ class SQLiteDatabase {
     if (!profile) {
       // Create a dummy/default profile row if none exists
       // This simplifies frontend logic as it can always expect an object
-      const insertStmt = this.db.prepare('INSERT INTO user_profile (id) VALUES (1)');
+      const insertStmt = this.db.prepare(`
+        INSERT INTO user_profile (
+          id, full_name, address_street, address_postal_code, address_city,
+          siret_siren, ape_naf_code, vat_number, email, phone, activity_start_date,
+          legal_form, rcs_rm, social_capital
+        ) VALUES (1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+      `);
       insertStmt.run();
       insertStmt.free();
       this.save();
@@ -390,6 +459,9 @@ class SQLiteDatabase {
         email = ?,
         phone = ?,
         activity_start_date = ?,
+        legal_form = ?,
+        rcs_rm = ?,
+        social_capital = ?,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ?`
     );
@@ -404,6 +476,9 @@ class SQLiteDatabase {
       data.email || null,
       data.phone || null,
       data.activity_start_date || null,
+      data.legal_form || null,
+      data.rcs_rm || null,
+      data.social_capital || null,
       existingProfile.id // Use the ID of the existing or newly created profile
     ]);
     stmt.free();

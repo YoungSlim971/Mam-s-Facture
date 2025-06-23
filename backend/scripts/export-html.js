@@ -1,7 +1,8 @@
 require('ts-node/register/transpile-only');
 const fs = require('fs');
 const path = require('path');
-const Database = require('../database/storage');
+// const Database = require('../database/storage'); // Old storage
+const SQLiteDatabase = require('../database/sqlite'); // Use new SQLiteDatabase
 const buildFactureHTML = require('../services/htmlService');
 
 function usage() {
@@ -17,15 +18,21 @@ async function main() {
 
   const output = process.argv[3] || `facture-${id}.html`;
 
-  const db = new Database();
+  const db = await SQLiteDatabase.create(); // Use SQLiteDatabase
   const facture = db.getFactureById(id);
+
   if (!facture) {
     console.error('Facture not found');
     process.exit(1);
   }
 
+  let clientDetails = null;
+  if (facture.client_id) {
+    clientDetails = db.getClientById(facture.client_id);
+  }
+
   try {
-    const html = buildFactureHTML(facture);
+    const html = buildFactureHTML(facture, clientDetails); // Pass clientDetails
     fs.writeFileSync(output, html, 'utf8');
     console.log(`Facture HTML écrite dans ${output}`);
   } catch (err) {
