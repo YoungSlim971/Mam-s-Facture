@@ -67,16 +67,17 @@ export default function ListeFactures() {
   const chargerFactures = useCallback(async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({
-        page: pagination.page.toString(),
-        limit: pagination.limit.toString(),
-        search: recherche,
-        dateDebut,
-        dateFin,
-        status: statusFilter,
-        sortBy: sortField,
-        order: sortOrder
-      });
+      const params = new URLSearchParams();
+      params.set('page', pagination.page.toString());
+      params.set('limit', pagination.limit.toString());
+      params.set('search', recherche);
+      params.set('dateDebut', dateDebut);
+      params.set('dateFin', dateFin);
+      if (statusFilter) {
+        params.set('statut', statusFilter === 'paid' ? 'payee' : 'impayee');
+      }
+      params.set('sortBy', sortField);
+      params.set('order', sortOrder);
 
       const response = await fetch(`${API_URL}/factures?${params}`);
       if (!response.ok) {
@@ -84,6 +85,7 @@ export default function ListeFactures() {
       }
 
       const data = await response.json();
+      console.log('Factures chargées', data.factures);
       setFactures(data.factures);
       setPagination(data.pagination);
     } catch (err) {
@@ -100,7 +102,12 @@ export default function ListeFactures() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const st = params.get('status');
-    if (st) setStatusFilter(st);
+    const statut = params.get('statut');
+    if (statut) {
+      setStatusFilter(statut === 'payee' ? 'paid' : 'unpaid');
+    } else if (st) {
+      setStatusFilter(st);
+    }
   }, [location.search]);
 
   const supprimerFacture = async (id: number, numeroFacture: string) => {

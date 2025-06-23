@@ -159,7 +159,7 @@ class SQLiteDatabase {
   }
 
   // Factures
-  getFactures() {
+  getFactures(filters = {}) {
     const stmt = this.db.prepare('SELECT * FROM factures ORDER BY date_facture DESC');
     const result = [];
     while (stmt.step()) {
@@ -168,6 +168,10 @@ class SQLiteDatabase {
       result.push(row);
     }
     stmt.free();
+
+    if (filters.status) {
+      return result.filter(f => f.status === filters.status);
+    }
     return result;
   }
 
