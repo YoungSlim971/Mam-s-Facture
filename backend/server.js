@@ -18,6 +18,24 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Authentication Middleware
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+  if (token == null) {
+    return res.sendStatus(401); // Unauthorized if no token
+  }
+
+  // For this example, API_TOKEN is an environment variable.
+  // In a real application, use a more secure way to store and manage tokens.
+  if (token === process.env.API_TOKEN) {
+    next(); // Token is valid
+  } else {
+    return res.sendStatus(403); // Forbidden if token is invalid
+  }
+};
+
 // Gestion du stockage des logos
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
@@ -105,6 +123,10 @@ const generateInvoiceNumber = () => {
 };
 
 // Routes API
+
+// Apply authentication to /api/invoices and /api/clients routes
+app.use('/api/invoices', authenticateToken);
+app.use('/api/clients', authenticateToken);
 
 // Upload du logo
 app.post('/api/upload/logo', upload.single('logo'), (req, res) => {
@@ -305,10 +327,6 @@ app.get('/api/factures', (req, res) => {
       date_facture_fr: formatDateFR(row.date_facture),
       montant_total_fr: formatEuro(row.montant_total)
     }));
-
-    if (statut) {
-      console.log('Factures filtrées par statut', statut, facturesFormatees);
-    }
 
     res.json({
       factures: facturesFormatees,
@@ -654,10 +672,10 @@ app.get('/api/stats', (req, res) => {
 if (require.main === module) {
   dbReady.then(() => {
     app.listen(PORT, () => {
-      console.log(`🚀 Serveur de facturation démarré sur le port ${PORT}`);
-      console.log(`📊 API disponible sur http://localhost:${PORT}/api`);
-      console.log(`💾 Stockage: SQLite (sql.js)`);
-      console.log(`📂 Fichier base: ${path.join(__dirname, 'database', 'facturation.sqlite')}`);
+      // console.log(`🚀 Serveur de facturation démarré sur le port ${PORT}`);
+      // console.log(`📊 API disponible sur http://localhost:${PORT}/api`);
+      // console.log(`💾 Stockage: SQLite (sql.js)`);
+      // console.log(`📂 Fichier base: ${path.join(__dirname, 'database', 'facturation.sqlite')}`);
     });
   });
 }
@@ -666,7 +684,7 @@ module.exports = dbReady.then(() => app);
 
 // Gestion propre de l'arrêt
 process.on('SIGINT', () => {
-  console.log('\n🛑 Arrêt du serveur...');
-  console.log('💾 Données sauvegardées dans la base SQLite.');
+  // console.log('\n🛑 Arrêt du serveur...');
+  // console.log('💾 Données sauvegardées dans la base SQLite.');
   process.exit(0);
 });
