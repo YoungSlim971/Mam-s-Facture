@@ -145,8 +145,12 @@ app.post('/api/clients', (req, res) => {
       email = '',
       adresse_facturation = '',
       adresse_livraison = '',
+      intitule = '',
+      siren = '',
       siret = '',
+      legal_form = '',
       tva = '',
+      rcs_number = '',
       logo = ''
     } = req.body;
     if (!nom_client) {
@@ -160,8 +164,12 @@ app.post('/api/clients', (req, res) => {
       email: email.trim(),
       adresse_facturation: adresse_facturation.trim(),
       adresse_livraison: adresse_livraison.trim(),
+      intitule: intitule.trim(),
+      siren: siren.trim(),
       siret: siret.trim(),
+      legal_form: legal_form.trim(),
       tva: tva.trim(),
+      rcs_number: rcs_number.trim(),
       logo: logo.trim()
     });
     db.synchroniserFacturesParClient();
@@ -198,8 +206,12 @@ app.put('/api/clients/:id', (req, res) => {
       email = '',
       adresse_facturation = '',
       adresse_livraison = '',
+      intitule = '',
+      siren = '',
       siret = '',
+      legal_form = '',
       tva = '',
+      rcs_number = '',
       logo = ''
     } = req.body;
     if (!nom_client) {
@@ -213,8 +225,12 @@ app.put('/api/clients/:id', (req, res) => {
       email: email.trim(),
       adresse_facturation: adresse_facturation.trim(),
       adresse_livraison: adresse_livraison.trim(),
+      intitule: intitule.trim(),
+      siren: siren.trim(),
       siret: siret.trim(),
+      legal_form: legal_form.trim(),
       tva: tva.trim(),
+      rcs_number: rcs_number.trim(),
       logo: logo.trim()
     });
     if (!success) return res.status(404).json({ error: 'Client non trouvé' });

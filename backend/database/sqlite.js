@@ -31,8 +31,12 @@ class SQLiteDatabase {
       email TEXT,
       adresse_facturation TEXT,
       adresse_livraison TEXT,
+      intitule TEXT,
+      siren TEXT,
       siret TEXT,
+      legal_form TEXT,
       tva TEXT,
+      rcs_number TEXT,
       logo TEXT,
       nombre_de_factures INTEGER DEFAULT 0,
       factures_payees INTEGER DEFAULT 0,
@@ -71,6 +75,10 @@ class SQLiteDatabase {
     if (!cols.includes('factures_impayees')) this.db.run('ALTER TABLE clients ADD COLUMN factures_impayees INTEGER DEFAULT 0');
     if (!cols.includes('total_facture')) this.db.run('ALTER TABLE clients ADD COLUMN total_facture REAL DEFAULT 0');
     if (!cols.includes('total_paye')) this.db.run('ALTER TABLE clients ADD COLUMN total_paye REAL DEFAULT 0');
+    if (!cols.includes('intitule')) this.db.run("ALTER TABLE clients ADD COLUMN intitule TEXT");
+    if (!cols.includes('siren')) this.db.run("ALTER TABLE clients ADD COLUMN siren TEXT");
+    if (!cols.includes('legal_form')) this.db.run("ALTER TABLE clients ADD COLUMN legal_form TEXT");
+    if (!cols.includes('rcs_number')) this.db.run("ALTER TABLE clients ADD COLUMN rcs_number TEXT");
     this.save();
   }
 
@@ -102,7 +110,7 @@ class SQLiteDatabase {
   }
 
   createClient(data) {
-    const stmt = this.db.prepare('INSERT INTO clients (nom_client, prenom_client, nom_entreprise, telephone, email, adresse_facturation, adresse_livraison, siret, tva, logo) VALUES (?,?,?,?,?,?,?,?,?,?)');
+    const stmt = this.db.prepare('INSERT INTO clients (nom_client, prenom_client, nom_entreprise, telephone, email, adresse_facturation, adresse_livraison, intitule, siren, siret, legal_form, tva, rcs_number, logo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
     stmt.run([
       data.nom_client,
       data.prenom_client || '',
@@ -111,8 +119,12 @@ class SQLiteDatabase {
       data.email || '',
       data.adresse_facturation || '',
       data.adresse_livraison || '',
+      data.intitule || '',
+      data.siren || '',
       data.siret || '',
+      data.legal_form || '',
       data.tva || '',
+      data.rcs_number || '',
       data.logo || ''
     ]);
     stmt.free();
@@ -122,7 +134,7 @@ class SQLiteDatabase {
   }
 
   updateClient(id, data) {
-    const stmt = this.db.prepare('UPDATE clients SET nom_client=?, prenom_client=?, nom_entreprise=?, telephone=?, email=?, adresse_facturation=?, adresse_livraison=?, siret=?, tva=?, logo=?, updated_at=CURRENT_TIMESTAMP WHERE id=?');
+    const stmt = this.db.prepare('UPDATE clients SET nom_client=?, prenom_client=?, nom_entreprise=?, telephone=?, email=?, adresse_facturation=?, adresse_livraison=?, intitule=?, siren=?, siret=?, legal_form=?, tva=?, rcs_number=?, logo=?, updated_at=CURRENT_TIMESTAMP WHERE id=?');
     stmt.run([
       data.nom_client,
       data.prenom_client || '',
@@ -131,8 +143,12 @@ class SQLiteDatabase {
       data.email || '',
       data.adresse_facturation || '',
       data.adresse_livraison || '',
+      data.intitule || '',
+      data.siren || '',
       data.siret || '',
+      data.legal_form || '',
       data.tva || '',
+      data.rcs_number || '',
       data.logo || '',
       id
     ]);
