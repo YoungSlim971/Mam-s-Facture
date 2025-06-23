@@ -3,6 +3,12 @@ import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import ListeFactures from './ListeFactures';
 
+// Mock the api module
+jest.mock('@/lib/api', () => ({
+  API_URL: 'http://localhost:3000/api/mock', // Provide a mock API_URL
+  GEMINI_API_KEY: 'mock-gemini-key', // Provide a mock GEMINI_API_KEY
+}));
+
 const facturesResponse = {
   factures: [
     {
