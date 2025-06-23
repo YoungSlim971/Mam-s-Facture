@@ -601,6 +601,7 @@ app.get('/api/factures/:id/pdf', async (req, res) => {
   }
   try {
     const html = buildFactureHTML(facture);
+    console.log('Payload reçu :', html);
     const pdf = await generatePdf(html);
     res.setHeader('Content-Type', 'application/pdf');
     res.send(pdf);
