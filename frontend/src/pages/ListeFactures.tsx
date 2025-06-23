@@ -139,20 +139,39 @@ export default function ListeFactures() {
     try {
       const res = await fetch(url);
       if (!res.ok) {
-        throw new Error('Erreur lors du téléchargement');
+        let errorMsg = 'Erreur lors du téléchargement du fichier.';
+        try {
+          const errorData = await res.json();
+          errorMsg = errorData.message || errorData.error || errorMsg;
+        } catch (parseError) {
+          errorMsg = `Erreur HTTP ${res.status}: ${res.statusText || 'Impossible de joindre le serveur.'}`;
+        }
+        throw new Error(errorMsg);
       }
       const blob = await res.blob();
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
-      link.download = `facture-${numeroFacture}.html`;
+
+      const contentDisposition = res.headers.get('content-disposition');
+      let filename = `facture-${numeroFacture}.html`; // Default filename
+      if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/i);
+          if (filenameMatch && filenameMatch.length > 1) {
+              filename = filenameMatch[1];
+          }
+      }
+      link.download = filename;
+
       document.body.appendChild(link);
       link.click();
-      link.remove();
-      toast({ description: 'Le fichier a été téléchargé avec succès' });
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(link.href);
+
+      toast({ description: 'Le fichier a été téléchargé avec succès.' });
     } catch (err) {
       toast({
-        description:
-          err instanceof Error ? err.message : 'Erreur lors du téléchargement',
+        title: 'Échec du téléchargement',
+        description: err instanceof Error ? err.message : 'Une erreur inconnue est survenue lors du téléchargement.',
         variant: 'destructive'
       });
     }
