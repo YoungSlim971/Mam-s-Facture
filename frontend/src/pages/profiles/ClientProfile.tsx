@@ -7,16 +7,19 @@ import { ArrowLeft } from 'lucide-react'
 interface Client {
   id: number
   nom_client: string
+  prenom_client?: string
   nom_entreprise?: string
   telephone?: string
-  adresse?: string
   email?: string
+  adresse_facturation?: string
+  adresse_livraison?: string
   intitule?: string
   siren?: string
   siret?: string
   legal_form?: string
   tva?: string
   rcs_number?: string
+  logo?: string
   factures: number[]
 }
 
@@ -64,17 +67,30 @@ export default function ClientProfile() {
         <CardHeader>
           <CardTitle>{client.nom_client}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm">
+        <CardContent className="space-y-4 text-sm">
+          {client.logo ? (
+            <img src={client.logo} alt="logo" className="h-20 object-contain" />
+          ) : (
+            <div className="h-20 w-20 bg-zinc-100 flex items-center justify-center rounded-md text-zinc-400">
+              Aucune image
+            </div>
+          )}
           {client.nom_entreprise && <div>Entreprise : {client.nom_entreprise}</div>}
           {client.telephone && <div>Téléphone : {client.telephone}</div>}
-          {client.adresse && <div>Adresse : {client.adresse}</div>}
-          {client.email && <div>Email : {client.email}</div>}
+          {client.adresse_facturation && <div>Adresse facturation : {client.adresse_facturation}</div>}
+          {client.adresse_livraison && <div>Adresse livraison : {client.adresse_livraison}</div>}
           {client.intitule && <div>Intitulé : {client.intitule}</div>}
-          {client.siren && <div>SIREN : {client.siren}</div>}
-          {client.siret && <div>SIRET : {client.siret}</div>}
-          {client.legal_form && <div>Forme juridique : {client.legal_form}</div>}
-          {client.tva && <div>N° TVA : {client.tva}</div>}
-          {client.rcs_number && <div>RCS : {client.rcs_number}</div>}
+
+          <fieldset className="border border-gray-200 rounded-md p-2 shadow-sm space-y-1">
+            <legend className="text-sm font-medium">Informations légales</legend>
+            <div>Email : {client.email || ''}</div>
+            <div>SIREN : {client.siren || ''}</div>
+            <div>SIRET : {client.siret || ''}</div>
+            <div>RCS : {client.rcs_number || ''}</div>
+            <div>Forme juridique : {client.legal_form || ''}</div>
+            <div>N° TVA : {client.tva || ''}</div>
+          </fieldset>
+
           <div>{(client.factures || []).length} facture(s)</div>
         </CardContent>
       </Card>
