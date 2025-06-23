@@ -3,153 +3,303 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Facture</title>
+  <title>Facture <%= invoiceNumber %></title>
   <style>
     body {
-      font-family: 'Helvetica Neue', sans-serif;
-      margin: 40px;
-      color: #000;
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+      color: #333;
+      font-size: 12px;
+      line-height: 1.6;
     }
-    header, .info-client, .facture-titre, footer {
+
+    .invoice-container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .invoice-header {
       display: flex;
       justify-content: space-between;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #eee;
+      margin-bottom: 20px;
     }
-    table {
+
+    .emitter-info,
+    .client-info {
+      width: 48%;
+    }
+
+    .emitter-info p,
+    .client-info p {
+      margin: 2px 0;
+    }
+
+    .logo {
+      max-width: 150px;
+      max-height: 75px;
+      margin-bottom: 10px;
+    }
+
+    .company-name, .client-name {
+      font-weight: bold;
+      font-size: 1.1em;
+      color: #000;
+    }
+
+    .invoice-details {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .invoice-details h1 {
+      font-size: 1.8em;
+      color: #333;
+      margin: 0 0 10px 0;
+    }
+
+    .invoice-details .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 5px 15px;
+        text-align: left;
+    }
+
+    .invoice-details .details-grid p {
+        margin: 2px 0;
+    }
+
+
+    .items-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      margin-bottom: 20px;
     }
-    th, td {
-      border: 1px solid #ccc;
+
+    .items-table th,
+    .items-table td {
+      border: 1px solid #ddd;
       padding: 8px;
       text-align: left;
     }
-    th {
-      background-color: #e6e6e6;
-    }
-    .titre-section {
-      background: #dcdcdc;
-      padding: 8px;
+
+    .items-table th {
+      background-color: #f2f2f2;
       font-weight: bold;
-      text-transform: uppercase;
     }
-    .totaux {
-      margin-top: 20px;
+
+    .items-table td:nth-child(2), /* Quantité */
+    .items-table td:nth-child(4), /* Prix Unit HT */
+    .items-table td:nth-child(5), /* TVA */
+    .items-table td:nth-child(6) { /* Total HT */
       text-align: right;
     }
-    .conditions, .footer-info {
-      margin-top: 40px;
-      font-size: 0.9em;
+
+    .invoice-totals {
+      margin-top: 20px;
+      padding-top: 10px;
+      border-top: 2px solid #eee;
     }
-    .footer-info {
-      display: flex;
-      justify-content: space-between;
+
+    .totals-summary {
+      float: right;
+      width: auto; /* Adjust as needed, e.g. 40-50% */
+      text-align: right;
     }
-    .bold {
+
+    .totals-summary p {
+        margin: 5px 0;
+    }
+
+    .total-ttc {
       font-weight: bold;
+      font-size: 1.2em;
+      color: #000;
     }
-    .logo {
-      max-width: 120px;
-      max-height: 80px;
+
+    .total-ttc strong {
+        font-size: 1.1em; /* Make Total TTC text slightly bigger */
     }
+
+    .invoice-footer {
+      clear: both; /* Clear float from totals-summary */
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    .invoice-footer h3 {
+        font-size: 1.1em;
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 5px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 3px;
+    }
+
+    .payment-info, .legal-mentions {
+        margin-bottom: 15px;
+    }
+
+    .page-number {
+        text-align: right;
+        font-size: 0.8em;
+        color: #777;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .invoice-header {
+        flex-direction: column;
+      }
+
+      .emitter-info,
+      .client-info {
+        width: 100%;
+        margin-bottom: 15px;
+      }
+
+      .invoice-details .details-grid {
+        grid-template-columns: 1fr; /* Stack details in a single column */
+        text-align: left;
+      }
+
+      .totals-summary {
+        width: 100%;
+        text-align: right; /* Or left if preferred on mobile */
+      }
+
+      .items-table th, .items-table td {
+          padding: 5px;
+          font-size: 0.95em;
+      }
+
+      body {
+        font-size: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+        .invoice-container {
+            margin: 10px;
+            padding: 15px;
+        }
+        .items-table {
+            font-size:0.8em; /* Make table font even smaller, or consider display block for rows */
+        }
+         .items-table th:nth-child(3), /* Unité */
+         .items-table td:nth-child(3) { /* Unité */
+            display: none; /* Hide unit column on very small screens if necessary */
+         }
+    }
+
   </style>
 </head>
 <body>
-  <header>
-    <div>
-      <% if (logoUrl) { %>
-        <img src="<%= logoUrl %>" alt="Logo" class="logo" />
-      <% } %>
-      <div class="bold"><%= companyName %></div>
-      <div><%= companyAddress %></div>
-      <div><%= companyPostalCode %> <%= companyCity %></div>
-      <% if (siren) { %><div>SIRET/SIREN: <%= siren %></div><% } %>
-      <% if (apeNafCode) { %><div>Code APE/NAF: <%= apeNafCode %></div><% } %>
-      <% if (vatNumber) { %><div>N° TVA: <%= vatNumber %></div><% } %>
-      <% if (companyEmail) { %><div>Email: <%= companyEmail %></div><% } %>
-      <% if (companyPhone) { %><div>Téléphone: <%= companyPhone %></div><% } %>
-      <% if (activityStartDate) { %><div>Début d'activité: <%= activityStartDate %></div><% } %>
-    </div>
-    <div style="text-align: right;">
-      <div class="bold">Client:</div>
-      <div class="bold"><%= clientName %></div>
-      <% if (clientCompany) { %><div><%= clientCompany %></div><% } %>
-      <div><%= clientAddress %></div>
-      <% if (clientPostal) { %><div><%= clientPostal %></div><% } %>
-    </div>
-  </header>
+  <div class="invoice-container">
+    <header class="invoice-header">
+      <div class="emitter-info">
+        <% if (logoUrl) { %>
+          <img src="<%= logoUrl %>" alt="Logo" class="logo" />
+        <% } %>
+        <p class="company-name"><%= companyName %></p>
+        <p><%= companyAddress %></p>
+        <p><%= companyPostalCode %> <%= companyCity %></p>
+        <% if (siren) { %><p>SIRET/SIREN: <%= siren %></p><% } %>
+        <% if (apeNafCode) { %><p>Code APE/NAF: <%= apeNafCode %></p><% } %>
+        <% if (vatNumber) { %><p>N° TVA: <%= vatNumber %></p><% } %>
+        <% if (companyEmail) { %><p>Email: <%= companyEmail %></p><% } %>
+        <% if (companyPhone) { %><p>Téléphone: <%= companyPhone %></p><% } %>
+        <% if (activityStartDate) { %><p>Début d'activité: <%= activityStartDate %></p><% } %>
+      </div>
+      <div class="client-info">
+        <h3>Client:</h3>
+        <p class="client-name"><%= clientName %></p>
+        <% if (clientCompany) { %><p><%= clientCompany %></p><% } %>
+        <p><%= clientAddress %></p>
+        <% if (clientPostal) { %><p><%= clientPostal %> <%= clientCity %></p><% } %>
+        <% if (clientEmail) { %><p>Email: <%= clientEmail %></p><% } %>
+        <% if (clientPhone) { %><p>Téléphone: <%= clientPhone %></p><% } %>
+      </div>
+    </header>
 
-  <div class="facture-titre" style="margin: 20px 0;">
-    <div class="titre-section">FACTURE</div>
+    <section class="invoice-details">
+      <h1>Facture #<%= invoiceNumber %></h1>
+      <div class="details-grid">
+        <p><strong>Date d'émission :</strong> <%= invoiceDate %></p>
+        <p><strong>Date d'échéance :</strong> <%= typeof dueDate !== 'undefined' ? dueDate : 'N/A' %></p>
+        <p><strong>Objet :</strong> <%= typeof invoiceSubject !== 'undefined' ? invoiceSubject : 'Prestation de services/Vente de biens' %></p>
+        <% if (clientId) { %><p><strong>N° client :</strong> <%= clientId %></p><% } %>
+      </div>
+    </section>
+
+    <main class="invoice-main">
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Libellé / Description</th>
+            <th>Quantité</th>
+            <th>Unité</th>
+            <th>Prix Unitaire HT</th>
+            <th>TVA (%)</th>
+            <th>Total HT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% items.forEach(function(item){ %>
+          <tr>
+            <td><%= item.description %></td>
+            <td><%= item.quantity %></td>
+            <td><%= item.unit %></td>
+            <td><%= item.unitPrice %></td>
+            <td><%= item.tva %></td>
+            <td><%= item.totalHt %></td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </main>
+
+    <section class="invoice-totals">
+      <div class="totals-summary">
+        <p><strong>Sous-total HT :</strong> <%= typeof subTotalHt !== 'undefined' ? subTotalHt : 'Calculer...' %></p>
+        <% tvaLines.forEach(function(line){ %>
+          <p><strong>Montant TVA (<%= line.rate %>%) :</strong> <%= line.tvaAmount %> (Base HT: <%= line.baseHt %>)</p>
+        <% }); %>
+        <% if (tvaLines.length === 0 && typeof totalTva !== 'undefined' && totalTva > 0) { %>
+          <p><strong>Montant TVA :</strong> <%= totalTva %></p>
+        <% } %>
+        <p class="total-ttc"><strong>Total TTC à payer :</strong> <%= totalTtc %></p>
+      </div>
+    </section>
+
+    <footer class="invoice-footer">
+      <section class="payment-info">
+        <h3>Conditions de paiement</h3>
+        <p><strong>Mode de paiement :</strong> <%= typeof paymentMethod !== 'undefined' ? paymentMethod : 'Virement bancaire' %></p>
+        <p><strong>Pénalités de retard :</strong> <%= typeof latePaymentPenalties !== 'undefined' ? latePaymentPenalties : 'Taux légal en vigueur.' %></p>
+        <% if (bankDetails) { %><p><strong>Coordonnées bancaires :</strong> <%= bankDetails %></p><% } %>
+      </section>
+      <section class="legal-mentions">
+        <h3>Mentions légales</h3>
+        <% if (isAutoEntrepreneur) { %>
+          <p>TVA non applicable, art. 293 B du CGI.</p>
+        <% } %>
+        <% if (companyFooter) { %><p><%= companyFooter %></p><% } %>
+        <% if (companyContact) { %><p><%= companyContact %></p><% } %>
+        <% if (legalInfo) { %><p><%= legalInfo %></p><% } %>
+        <p class="page-number"><%= typeof pageLabel !== 'undefined' ? pageLabel : '' %></p>
+      </section>
+    </footer>
   </div>
-
-  <div class="info-client">
-    <div>
-      <div><span class="bold">Numéro de facture :</span> <%= invoiceNumber %></div>
-      <div><span class="bold">Date de facture :</span> <%= invoiceDate %></div>
-      <div><span class="bold">N° client :</span> <%= clientId %></div>
-    </div>
-    <div style="text-align: right;">
-      <%= pageLabel %>
-    </div>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Description</th>
-        <th>Quantité</th>
-        <th>Unité</th>
-        <th>Prix unitaire HT</th>
-        <th>Total HT</th>
-        <th>TVA</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% items.forEach(function(item){ %>
-      <tr>
-        <td><%= item.description %></td>
-        <td><%= item.quantity %></td>
-        <td><%= item.unit %></td>
-        <td><%= item.unitPrice %></td>
-        <td><%= item.totalHt %></td>
-        <td><%= item.tva %>%</td>
-      </tr>
-      <% }); %>
-    </tbody>
-  </table>
-
-  <div class="totaux">
-    <table style="width: 50%; float: right;">
-      <% tvaLines.forEach(function(line){ %>
-      <tr>
-        <td>TVA <%= line.rate %> %</td>
-        <td><%= line.tvaAmount %></td>
-        <td><%= line.baseHt %></td>
-      </tr>
-      <% }); %>
-      <tr>
-        <td class="bold">Total TTC</td>
-        <td colspan="2" class="bold"><%= totalTtc %></td>
-      </tr>
-    </table>
-  </div>
-
-  <div class="conditions">
-    <p><%= paymentConditions %></p>
-    <p><%= paymentMethod %></p>
-    <p><%= closingMessage %></p>
-  </div>
-
-  <footer class="footer-info">
-    <div>
-      <p><%= companyFooter %></p>
-      <p><%= companyContact %></p>
-    </div>
-    <div>
-      <p><%= bankDetails %></p>
-      <p><%= legalInfo %></p>
-    </div>
-  </footer>
 </body>
 </html>
