@@ -23,11 +23,11 @@ export function SunsetImageCard() {
   }, []);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Coucher de soleil</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="rounded-xl shadow-md bg-white p-6 transition-all duration-300 animate-fade-in">
+      <div className="mb-4">
+        <h3 className="font-semibold">Coucher de soleil</h3>
+      </div>
+      <div>
         {img ? (
           <motion.img
             key={img}
@@ -41,7 +41,7 @@ export function SunsetImageCard() {
         ) : (
           <Skeleton className="h-40 w-full" />
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

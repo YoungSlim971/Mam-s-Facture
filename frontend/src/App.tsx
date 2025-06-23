@@ -44,9 +44,9 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <Router>
-          <div className="flex">
+          <div className="flex h-screen">
             <Sidebar />
-            <main className="ml-64 flex-1 min-h-screen p-0">
+            <main className="flex-1 px-4 py-6 overflow-auto">
               <AnimatedRoutes />
             </main>
           </div>

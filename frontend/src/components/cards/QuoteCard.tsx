@@ -25,11 +25,11 @@ export function QuoteCard() {
   }, []);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Citation du jour</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="rounded-xl shadow-md bg-white p-6 transition-all duration-300">
+      <div className="mb-4">
+        <h3 className="font-semibold">Citation du jour</h3>
+      </div>
+      <div>
         {quote ? (
           <motion.blockquote
             initial={{ opacity: 0, y: 10 }}
@@ -56,8 +56,8 @@ export function QuoteCard() {
         ) : (
           <Skeleton className="h-20 w-full" />
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
