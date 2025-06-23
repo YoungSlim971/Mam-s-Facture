@@ -16,7 +16,7 @@ export default function Sidebar() {
 
   const sidebar = (
     <aside
-      className={`fixed left-0 top-0 z-50 h-full w-64 bg-sidebar p-6 text-sidebar-foreground shadow-lg transform transition-transform md:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'} relative`}
+      className={`${isMobile ? 'fixed left-0 top-0 z-50 h-full' : ''} w-56 min-w-[14rem] border-r border-gray-200 bg-white shadow-sm p-4 flex flex-col justify-between transition-all duration-300 transform md:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
     >
       {isMobile && (
         <button onClick={() => setOpen(false)} className="absolute top-2 right-2 p-1">
