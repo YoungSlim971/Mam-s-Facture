@@ -132,6 +132,8 @@ export default function ListeFactures() {
     format: 'html' | 'pdf' = exportFormat
   ): Promise<void> => {
     try {
+      console.log('API_URL', API_URL);
+      console.log('Téléchargement de la facture', id, format);
       const response = await fetch(`${API_URL}/factures/${id}/${format}`);
       if (!response.ok) {
         throw new Error('Erreur lors de la génération du fichier');

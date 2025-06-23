@@ -105,6 +105,8 @@ export default function DetailFacture() {
   ): Promise<void> => {
     if (!facture) return;
     try {
+      console.log('API_URL', API_URL);
+      console.log('Téléchargement de la facture', facture?.id, format);
       const response = await fetch(
         `${API_URL}/factures/${facture.id}/${format}`
       );
