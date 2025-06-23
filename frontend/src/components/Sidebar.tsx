@@ -23,7 +23,8 @@ export default function Sidebar() {
           <X className="h-5 w-5" />
         </button>
       )}
-      <nav className="space-y-4 mt-6">
+      <div className="flex flex-col justify-between h-full">
+        <div className="space-y-2 mt-6">
         <NavLink to="/" className="flex items-center space-x-2 hover:text-primary">
           <Home className="h-5 w-5" />
           <span>Accueil</span>
@@ -48,8 +49,8 @@ export default function Sidebar() {
           <Users className="h-5 w-5" />
           <span>Clients</span>
         </NavLink>
-      </nav>
-      <div className="absolute bottom-6 left-6 space-y-3">
+        </div>
+        <div className="space-y-2 pb-4">
         <button onClick={toggleTheme} className="flex items-center space-x-2 hover:text-primary">
           <Sun className="h-5 w-5" />
           <span>Changer le thème ({theme})</span>
@@ -62,6 +63,7 @@ export default function Sidebar() {
           <LogOut className="h-5 w-5" />
           <span>Déconnexion</span>
         </button>
+        </div>
       </div>
     </aside>
   )
