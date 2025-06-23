@@ -10,18 +10,24 @@ const euroFormatter = new Intl.NumberFormat('fr-FR', {
 
 function mapFactureToInvoiceData(facture) {
   return {
-    // Informations de l'entreprise
-    companyName: facture.nom_entreprise || '',
-    siren: facture.siren || '',
-    companyAddress: '',
-    companyPostal: '',
-    logoUrl: facture.logo_path
+    // Informations de l'entreprise (Émetteur)
+    companyName: facture.emitter_full_name || facture.nom_entreprise || '', // Fallback to old field if new one is not there
+    siren: facture.emitter_siret_siren || facture.siren || '',
+    apeNafCode: facture.emitter_ape_naf_code || '',
+    vatNumber: facture.emitter_vat_number || '',
+    companyAddress: `${facture.emitter_address_street || ''}`,
+    companyPostalCode: facture.emitter_address_postal_code || '',
+    companyCity: facture.emitter_address_city || '',
+    companyEmail: facture.emitter_email || '',
+    companyPhone: facture.emitter_phone || '',
+    activityStartDate: facture.emitter_activity_start_date || '',
+    logoUrl: facture.logo_path // Assuming logo_path is still relevant for emitter or general branding
       ? path.isAbsolute(facture.logo_path)
         ? facture.logo_path
         : path.join(__dirname, '..', facture.logo_path)
       : undefined,
 
-    // Informations du client
+    // Informations du client (Destinataire)
     clientName: facture.nom_client,
     clientCompany: '',
     clientAddress: facture.adresse ? facture.adresse.replace(/\n/g, '<br>') : '',

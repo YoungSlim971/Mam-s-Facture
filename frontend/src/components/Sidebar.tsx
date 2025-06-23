@@ -52,6 +52,11 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
         </NavLink>
         </div>
         <div className="space-y-2 pb-4">
+        <NavLink to="/profile" className="flex items-center space-x-2 hover:text-primary">
+          {/* Using Users icon as a placeholder, replace with a more appropriate one if available */}
+          <Users className="h-5 w-5" />
+          <span>Mes informations</span>
+        </NavLink>
         <button onClick={toggleTheme} className="flex items-center space-x-2 hover:text-primary">
           <Sun className="h-5 w-5" />
           <span>Changer le thème ({theme})</span>

@@ -57,16 +57,25 @@
 <body>
   <header>
     <div>
-      <img src="<%= logoUrl %>" alt="Logo" class="logo" />
-      <div><%= companyName %></div>
+      <% if (logoUrl) { %>
+        <img src="<%= logoUrl %>" alt="Logo" class="logo" />
+      <% } %>
+      <div class="bold"><%= companyName %></div>
       <div><%= companyAddress %></div>
-      <div><%= companyPostal %></div>
+      <div><%= companyPostalCode %> <%= companyCity %></div>
+      <% if (siren) { %><div>SIRET/SIREN: <%= siren %></div><% } %>
+      <% if (apeNafCode) { %><div>Code APE/NAF: <%= apeNafCode %></div><% } %>
+      <% if (vatNumber) { %><div>N° TVA: <%= vatNumber %></div><% } %>
+      <% if (companyEmail) { %><div>Email: <%= companyEmail %></div><% } %>
+      <% if (companyPhone) { %><div>Téléphone: <%= companyPhone %></div><% } %>
+      <% if (activityStartDate) { %><div>Début d'activité: <%= activityStartDate %></div><% } %>
     </div>
     <div style="text-align: right;">
+      <div class="bold">Client:</div>
       <div class="bold"><%= clientName %></div>
-      <div><%= clientCompany %></div>
+      <% if (clientCompany) { %><div><%= clientCompany %></div><% } %>
       <div><%= clientAddress %></div>
-      <div><%= clientPostal %></div>
+      <% if (clientPostal) { %><div><%= clientPostal %></div><% } %>
     </div>
   </header>
 
