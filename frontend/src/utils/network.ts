@@ -13,7 +13,6 @@ export async function checkInternetConnection() {
     });
     clearTimeout(timeout);
     if (response.ok) {
-      console.log('Connexion Internet détectée');
       return true;
     }
     throw new Error('Network response was not ok');

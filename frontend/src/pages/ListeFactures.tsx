@@ -84,7 +84,6 @@ export default function ListeFactures() {
       }
 
       const data = await response.json();
-      console.log('Factures chargées', data.factures);
       setFactures(data.factures);
       setPagination(data.pagination);
     } catch (err) {
