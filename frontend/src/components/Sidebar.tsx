@@ -1,18 +1,18 @@
 import { NavLink } from 'react-router-dom'
-import { Home, FileText, PlusCircle, CircleAlert, Sun, Users, Menu, X, LogOut } from 'lucide-react'
+import { Home, FileText, PlusCircle, CircleAlert, Sun, Users, X, LogOut } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { useIsMobile } from '../hooks/use-mobile'
-import { useState, useEffect } from 'react'
+
 import { handleQuitApp } from '../utils/system'
 
-export default function Sidebar() {
+interface SidebarProps {
+  open: boolean
+  setOpen: (open: boolean) => void
+}
+
+export default function Sidebar({ open, setOpen }: SidebarProps) {
   const { theme, toggleTheme } = useTheme()
   const isMobile = useIsMobile()
-  const [open, setOpen] = useState(!isMobile)
-
-  useEffect(() => {
-    setOpen(!isMobile)
-  }, [isMobile])
 
   const sidebar = (
     <aside
@@ -70,14 +70,6 @@ export default function Sidebar() {
 
   return (
     <>
-      {isMobile && !open && (
-        <button
-          onClick={() => setOpen(true)}
-          className="fixed top-2 left-2 z-40 p-2 bg-sidebar text-sidebar-foreground rounded-md shadow md:hidden"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
-      )}
       {isMobile && open && (
         <div className="fixed inset-0 z-30 bg-black/50" onClick={() => setOpen(false)} />
       )}
