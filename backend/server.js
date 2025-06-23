@@ -127,6 +127,34 @@ const generateInvoiceNumber = () => {
 // Apply authentication to /api/invoices and /api/clients routes
 app.use('/api/invoices', authenticateToken);
 app.use('/api/clients', authenticateToken);
+app.use('/api/user-profile', authenticateToken); // Secure user profile endpoint
+
+// User Profile Endpoints
+app.get('/api/user-profile', async (req, res) => {
+  try {
+    await dbReady; // Make sure db is initialized
+    const profile = db.getUserProfile();
+    res.json(profile);
+  } catch (err) {
+    res.status(500).json({
+      error: "Erreur lors de la récupération du profil utilisateur",
+      details: err.message,
+    });
+  }
+});
+
+app.post('/api/user-profile', async (req, res) => {
+  try {
+    await dbReady; // Make sure db is initialized
+    const updatedProfile = db.upsertUserProfile(req.body);
+    res.json(updatedProfile);
+  } catch (err) {
+    res.status(500).json({
+      error: "Erreur lors de la mise à jour du profil utilisateur",
+      details: err.message,
+    });
+  }
+});
 
 // Upload du logo
 app.post('/api/upload/logo', upload.single('logo'), (req, res) => {
@@ -369,8 +397,11 @@ app.get('/api/factures/:id', (req, res) => {
 });
 
 // POST /api/factures - Crée une nouvelle facture
-app.post('/api/factures', (req, res) => {
+app.post('/api/factures', async (req, res) => { // Added async
   try {
+    await dbReady; // Ensure DB is ready
+    const userProfile = db.getUserProfile(); // Fetch user profile
+
     const {
       numero_facture: numero_facture_input = '',
       client_id = null,
@@ -449,7 +480,18 @@ app.post('/api/factures', (req, res) => {
       legal_form,
       vat_number,
       vat_rate: parsedVatRate,
-      rcs_number
+      rcs_number,
+      // Add emitter details from profile
+      emitter_full_name: userProfile.full_name,
+      emitter_address_street: userProfile.address_street,
+      emitter_address_postal_code: userProfile.address_postal_code,
+      emitter_address_city: userProfile.address_city,
+      emitter_siret_siren: userProfile.siret_siren,
+      emitter_ape_naf_code: userProfile.ape_naf_code,
+      emitter_vat_number: userProfile.vat_number,
+      emitter_email: userProfile.email,
+      emitter_phone: userProfile.phone,
+      emitter_activity_start_date: userProfile.activity_start_date,
     };
 
     const factureId = db.createFacture(factureData);
