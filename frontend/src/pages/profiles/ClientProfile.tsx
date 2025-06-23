@@ -10,6 +10,13 @@ interface Client {
   nom_entreprise?: string
   telephone?: string
   adresse?: string
+  email?: string
+  intitule?: string
+  siren?: string
+  siret?: string
+  legal_form?: string
+  tva?: string
+  rcs_number?: string
   factures: number[]
 }
 
@@ -61,6 +68,13 @@ export default function ClientProfile() {
           {client.nom_entreprise && <div>Entreprise : {client.nom_entreprise}</div>}
           {client.telephone && <div>Téléphone : {client.telephone}</div>}
           {client.adresse && <div>Adresse : {client.adresse}</div>}
+          {client.email && <div>Email : {client.email}</div>}
+          {client.intitule && <div>Intitulé : {client.intitule}</div>}
+          {client.siren && <div>SIREN : {client.siren}</div>}
+          {client.siret && <div>SIRET : {client.siret}</div>}
+          {client.legal_form && <div>Forme juridique : {client.legal_form}</div>}
+          {client.tva && <div>N° TVA : {client.tva}</div>}
+          {client.rcs_number && <div>RCS : {client.rcs_number}</div>}
           <div>{(client.factures || []).length} facture(s)</div>
         </CardContent>
       </Card>

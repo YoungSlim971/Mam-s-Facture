@@ -34,7 +34,19 @@ export default function CreerFacture() {
   const [legalForm, setLegalForm] = useState('');
   const [vatNumber, setVatNumber] = useState('');
   const [rcsNumber, setRcsNumber] = useState('');
-  const [clients, setClients] = useState<Array<{id:number; nom_client:string; nom_entreprise?:string; telephone?:string; adresse?:string}>>([])
+  const [clients, setClients] = useState<Array<{
+    id: number
+    nom_client: string
+    nom_entreprise?: string
+    telephone?: string
+    adresse?: string
+    intitule?: string
+    siren?: string
+    siret?: string
+    legal_form?: string
+    tva?: string
+    rcs_number?: string
+  }>>([])
   const [clientId, setClientId] = useState<number | ''>('')
   const [lignes, setLignes] = useState<LigneFacture[]>([
     { description: '', quantite: 1, prix_unitaire: 0 }
@@ -67,6 +79,12 @@ export default function CreerFacture() {
       setNomEntreprise(client.nom_entreprise || '')
       setTelephone(client.telephone || '')
       setAdresse(client.adresse || '')
+      setSiren(client.siren || '')
+      setSiret(client.siret || '')
+      setLegalForm(client.legal_form || '')
+      setVatNumber(client.tva || '')
+      setRcsNumber(client.rcs_number || '')
+      setTitle(client.intitule || '')
     }
   }
 
