@@ -1,23 +1,23 @@
 "use client"
 
-import { useTheme } from "../../context/ThemeContext"
+import { useTheme } from "next-themes" // Changed to use next-themes
 import { Toaster as Sonner } from "sonner"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme() // Use resolvedTheme from next-themes
 
-  const toastTheme: ToasterProps["theme"] =
-    theme === "sunset"
-      ? "light"
-      : theme === "dark"
-        ? "dark"
-        : "light"
+  // Adapt theme logic for Sonner. Sonner expects 'light', 'dark', or 'system'.
+  // resolvedTheme will be 'light' or 'dark'.
+  // The original "sunset" theme is not standard in next-themes by default,
+  // mapping it to 'light' as per previous logic.
+  // For simplicity, directly use resolvedTheme if it's 'light' or 'dark'.
+  const toastThemeProp = resolvedTheme === 'dark' ? 'dark' : 'light';
 
   return (
     <Sonner
-      theme={toastTheme}
+      theme={toastThemeProp}
       className="toaster group"
       toastOptions={{
         classNames: {

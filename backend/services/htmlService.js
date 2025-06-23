@@ -1,79 +1,50 @@
 require('ts-node/register/transpile-only');
 const path = require('path');
 const fs = require('fs');
-const ejs = require('ejs');
-const { computeTotals } = require('../utils/computeTotals.ts');
+// const ejs = require('ejs'); // Not used directly for HTML string building here
+const { computeTotals } = require('../utils/computeTotals.ts'); // This computeTotals expects TTC unit prices
 const { fr } = require('date-fns/locale');
 const { format } = require('date-fns');
+const Decimal = require('decimal.js'); // Import Decimal.js
 
 const euroFormatter = new Intl.NumberFormat('fr-FR', {
   style: 'currency',
   currency: 'EUR'
 });
 
-// Helper to format date, defaulting to 'dd/MM/yyyy'
 const formatDate = (dateString, fmt = 'dd/MM/yyyy') => {
   if (!dateString) return '';
   try {
     return format(new Date(dateString), fmt, { locale: fr });
   } catch (e) {
-    return dateString; // if parsing fails, return original string
+    console.warn(`Failed to format date: ${dateString}`, e);
+    return dateString;
   }
 };
 
-
 function mapFactureToInvoiceData(facture, clientDetails) {
-  console.log("mapFactureToInvoiceData input - facture:", JSON.stringify(facture, null, 2));
-  console.log("mapFactureToInvoiceData input - clientDetails:", JSON.stringify(clientDetails, null, 2));
+  // console.log("mapFactureToInvoiceData input - facture:", JSON.stringify(facture, null, 2));
+  // console.log("mapFactureToInvoiceData input - clientDetails:", JSON.stringify(clientDetails, null, 2));
 
-  // facture is expected to be an object, clientDetails can be null/undefined
   facture = facture || {};
   clientDetails = clientDetails || {};
 
-  // Emitter data from the facture object (denormalized)
-  if (!facture.emitter_full_name) console.warn("⚠️ Missing emitter_full_name in facture:", facture);
   const emitterName = facture.emitter_full_name || '-';
-
-  if (!facture.emitter_address_street) console.warn("⚠️ Missing emitter_address_street in facture:", facture);
-  if (!facture.emitter_address_postal_code) console.warn("⚠️ Missing emitter_address_postal_code in facture:", facture);
-  if (!facture.emitter_address_city) console.warn("⚠️ Missing emitter_address_city in facture:", facture);
   const emitterAddress = `${facture.emitter_address_street || ''}<br>${facture.emitter_address_postal_code || ''} ${facture.emitter_address_city || ''}`.trim() || '-';
-
-  if (!facture.emitter_siret_siren) console.warn("⚠️ Missing emitter_siret_siren in facture:", facture);
   const emitterSiret = facture.emitter_siret_siren || '-';
-
-  if (!facture.emitter_ape_naf_code) console.warn("⚠️ Missing emitter_ape_naf_code in facture:", facture);
   const emitterApe = facture.emitter_ape_naf_code || '-';
-
   const emitterVatDisplay = facture.emitter_vat_number ? facture.emitter_vat_number : "TVA non applicable – art. 293 B du CGI";
-
-  if (!facture.emitter_rcs_rm) console.warn("⚠️ Missing emitter_rcs_rm in facture:", facture); // As per task: userProfile.rcs_rm
   const emitterRcsRm = facture.emitter_rcs_rm || '-';
-
-  if (!facture.emitter_email) console.warn("⚠️ Missing emitter_email in facture:", facture);
   const emitterEmail = facture.emitter_email || '-';
-
-  if (!facture.emitter_phone) console.warn("⚠️ Missing emitter_phone in facture:", facture);
   const emitterPhone = facture.emitter_phone || '-';
+  // Emitter activity start date is not currently used in this HTML output from mapFactureToInvoiceData
+  // const emitterActivityStartDate = formatDate(facture.emitter_activity_start_date);
 
-  // Client data from clientDetails (fetched separately)
-  if (!clientDetails.nom_entreprise && !clientDetails.nom_client) console.warn("⚠️ Missing nom_entreprise or nom_client in clientDetails:", clientDetails);
+
   const clientName = clientDetails.nom_entreprise || clientDetails.nom_client || '-';
-
-  const clientStreet = clientDetails.adresse_facturation_rue || '';
-  const clientPostalCode = clientDetails.adresse_facturation_cp || '';
-  const clientCity = clientDetails.adresse_facturation_ville || '';
-  let clientBillingAddress = `${clientStreet}<br>${clientPostalCode} ${clientCity}`.trim();
-
-  if (!clientBillingAddress && facture.adresse) {
-    console.warn("⚠️ Client billing address missing, falling back to facture.adresse. ClientDetails:", clientDetails, "Facture:", facture);
-    clientBillingAddress = facture.adresse.replace(/\n/g, '<br>');
-  }
-  if (!clientBillingAddress) {
-    console.warn("⚠️ Critical: Client billing address is empty. ClientDetails:", clientDetails, "Facture:", facture);
-    clientBillingAddress = '-';
-  }
-
+  let clientBillingAddress = (clientDetails.adresse_facturation_rue && clientDetails.adresse_facturation_cp && clientDetails.adresse_facturation_ville)
+    ? `${clientDetails.adresse_facturation_rue}<br>${clientDetails.adresse_facturation_cp} ${clientDetails.adresse_facturation_ville}`.trim()
+    : (facture.adresse_client || facture.adresse || '').replace(/\n/g, '<br>') || '-'; // facture.adresse is old, facture.adresse_client is new
 
   let clientDeliveryAddress = '';
   const clientDeliveryStreet = clientDetails.adresse_livraison_rue || '';
@@ -81,57 +52,53 @@ function mapFactureToInvoiceData(facture, clientDetails) {
   const clientDeliveryCity = clientDetails.adresse_livraison_ville || '';
   if (clientDeliveryStreet || clientDeliveryPostalCode || clientDeliveryCity) {
     const adrLiv = `${clientDeliveryStreet}<br>${clientDeliveryPostalCode} ${clientDeliveryCity}`.trim();
-    if (adrLiv !== clientBillingAddress && adrLiv) { // Only show if different and not empty
+    if (adrLiv && adrLiv !== clientBillingAddress.replace(/<br>/g, '')) { // Basic check if different
         clientDeliveryAddress = adrLiv;
     }
   }
-  const clientVat = clientDetails.tva || '';
+  const clientVat = clientDetails.tva || ''; // Client's TVA number
 
-  // Invoice specific data
-  if (!facture.numero_facture) console.warn("⚠️ Missing numero_facture in facture:", facture);
   const invoiceNum = facture.numero_facture || 'N/A';
-
-  if (!facture.date_facture) console.warn("⚠️ Missing date_facture in facture:", facture);
   const emissionDate = formatDate(facture.date_facture);
-  const prestationDate = formatDate(facture.date_facture); // Assuming same as emission date
+  const prestationDate = formatDate(facture.date_facture); // Assuming same as emission date for now
 
-  const paymentDeadline = '30'; // Default to 30 days
+  // ADDED: Payment Due Date
+  const paymentDueDate = formatDate(facture.date_limite_paiement);
 
-  const items = (facture.lignes || []).map((l, index) => {
-    if (!l) {
-      console.warn(`⚠️ Missing ligne object at index ${index} in facture.lignes:`, facture.lignes);
-      return { service: '-', quantity: 0, unitPriceHT: 0, totalHT: 0 };
-    }
-    if (l.description === undefined || l.description === null) console.warn(`⚠️ Missing description in ligne ${index}:`, l);
-    if (l.quantite === undefined || l.quantite === null) console.warn(`⚠️ Missing quantite in ligne ${index}:`, l);
-    if (l.prix_unitaire === undefined || l.prix_unitaire === null) console.warn(`⚠️ Missing prix_unitaire in ligne ${index}:`, l);
+  // facture.vat_rate is the overall rate from the form (e.g. 20)
+  const tvaRatePercent = new Decimal(facture.vat_rate !== undefined ? facture.vat_rate : 20);
+  const tvaRateDecimal = tvaRatePercent.div(100); // e.g., 0.20
 
-    const quantity = Number(l.quantite) || 0;
-    const unitPriceHT = Number(l.prix_unitaire) || 0;
+  const items = (facture.lignes || []).map((l) => {
+    const quantity = new Decimal(l.quantite || 0);
+    const unitPriceTTC = new Decimal(l.prix_unitaire || 0); // prix_unitaire from form IS TTC
+
+    const lineTotalTTC = quantity.mul(unitPriceTTC);
+    // HT = TTC / (1 + tauxTVA_decimal)
+    const lineTotalHT = lineTotalTTC.div(tvaRateDecimal.plus(1));
+    const lineVatAmount = lineTotalTTC.minus(lineTotalHT);
+    // unitPriceHT = prix_unitaire_TTC / (1 + tauxTVA_decimal)
+    const unitPriceHT = unitPriceTTC.div(tvaRateDecimal.plus(1));
 
     return {
-      service: l.description || '-',
-      quantity: quantity,
-      unitPriceHT: unitPriceHT,
-      totalHT: quantity * unitPriceHT,
+      description: l.description || '-',
+      quantity: quantity.toNumber(),
+      unitPriceHT: unitPriceHT.toDecimalPlaces(2).toNumber(),
+      totalHT: lineTotalHT.toDecimalPlaces(2).toNumber(),
+      vatRate: tvaRatePercent.toNumber(), // The rate applied to this line
+      vatAmount: lineVatAmount.toDecimalPlaces(2).toNumber(),
+      unitPriceTTC: unitPriceTTC.toDecimalPlaces(2).toNumber(), // For clarity if needed
+      totalTTC: lineTotalTTC.toDecimalPlaces(2).toNumber(),
     };
   });
-  if (!facture.lignes || facture.lignes.length === 0) {
-    console.warn("⚠️ facture.lignes is missing or empty:", facture);
-  }
 
-
-  // Check for total_ht existence (as per task, though it's calculated)
-  // The task mentioned "facture.total_ht", but it's calculated by computeTotals.
-  // We are checking the inputs to computeTotals (items).
-  if (items.some(item => typeof item.unitPriceHT !== 'number' || typeof item.quantity !== 'number')) {
-    console.warn("⚠️ Invalid data in items for total calculation:", items);
-  }
-
-
-  const tvaRate = facture.vat_rate !== undefined && !isNaN(Number(facture.vat_rate)) ? Number(facture.vat_rate) : 20; // Default TVA rate, ensure it's a number
-  const { totalHT, totalTVA, totalTTC } = computeTotals(items.map(i => ({...i, prix_unitaire: i.unitPriceHT, quantite: i.quantity})), tvaRate);
-
+  // Overall totals (using the same computeTotals which expects TTC unit prices)
+  // The `computeTotals` function in `utils` calculates overall HT, TVA, TTC based on the provided lines
+  // where `prix_unitaire` is TTC. This is consistent with what `items` provides for its `unitPriceTTC`.
+  const overallTotals = computeTotals(
+    (facture.lignes || []).map(l => ({ quantite: Number(l.quantite || 0) , prix_unitaire: Number(l.prix_unitaire || 0) })), // Pass original TTC unit prices
+    tvaRatePercent.toNumber()
+  );
 
   return {
     // Emitter
@@ -153,42 +120,38 @@ function mapFactureToInvoiceData(facture, clientDetails) {
     // Invoice details
     numero_facture: invoiceNum,
     date_emission: emissionDate,
-    date_prestation: prestationDate,
-    lignes_facture: items,
+    date_prestation: prestationDate, // Could be different, but here same as emission
+    date_limite_paiement: paymentDueDate, // ADDED
+    lignes_facture: items, // Now contains detailed HT/TVA/TTC per line
 
-    // Totals
-    sous_total_HT: !isNaN(totalHT) ? totalHT : 0,
-    taux_TVA: tvaRate,
-    montant_TVA_calculee: !isNaN(totalTVA) ? totalTVA : 0,
-    total_TTC: !isNaN(totalTTC) ? totalTTC : 0,
+    // Overall Totals from computeTotals
+    sous_total_HT: overallTotals.totalHT,
+    taux_TVA_global: tvaRatePercent.toNumber(), // Global VAT rate used for summary
+    montant_TVA_global: overallTotals.totalTVA,
+    total_TTC_global: overallTotals.totalTTC,
 
     // Mentions
-    delai_paiement: paymentDeadline,
+    // delai_paiement: paymentDeadline, // Replaced by specific date_limite_paiement
+    // Hardcoded mentions can remain in buildFactureHTML or be dynamic
   };
 }
 
-
 function buildFactureHTML(facture, clientDetails) {
-  const d = mapFactureToInvoiceData(facture, clientDetails); // d for data
-  const formatEuro = (amount) => {
-    if (typeof amount !== 'number' || isNaN(amount)) {
-      console.warn(`⚠️ Invalid amount for euro formatting: ${amount}. Using 0.`);
-      amount = 0;
-    }
-    return euroFormatter.format(amount);
-  }
+  const d = mapFactureToInvoiceData(facture, clientDetails);
+  const formatEuro = (amount) => euroFormatter.format(amount || 0);
 
   const lignesHtml = d.lignes_facture.map(ligne => `
     <tr>
-      <td>${ligne.service || '-'}</td>
-      <td>${ligne.quantity || 0}</td>
-      <td>${formatEuro(ligne.unitPriceHT)}</td>
-      <td>${formatEuro(ligne.totalHT)}</td>
+      <td>${ligne.description}</td>
+      <td style="text-align:right;">${ligne.quantity}</td>
+      <td style="text-align:right;">${formatEuro(ligne.unitPriceHT)}</td>
+      <td style="text-align:right;">${ligne.vatRate}%</td>
+      <td style="text-align:right;">${formatEuro(ligne.vatAmount)}</td>
+      <td style="text-align:right;">${formatEuro(ligne.totalTTC)}</td>
     </tr>
   `).join('');
 
-  // Ensure all parts of 'd' are strings or numbers that can be converted to strings
-  // Fallbacks for main display fields if they are still problematic after mapping
+  // Fallbacks for display
   const displayName = d.Nom_entreprise || '-';
   const displayAddress = d.Adresse_emetteur || '-';
   const displaySiret = d.Num_SIRET_emetteur || '-';
@@ -200,67 +163,98 @@ function buildFactureHTML(facture, clientDetails) {
 
   const displayClientName = d.Nom_client || '-';
   const displayClientBillingAddr = d.Adresse_facturation_client || '-';
-  const displayClientDeliveryAddr = d.Adresse_livraison_client || ''; // Can be empty
-  const displayClientVat = d.TVA_client || ''; // Can be empty
+  const displayClientDeliveryAddr = d.Adresse_livraison_client || '';
+  const displayClientVat = d.TVA_client || '';
 
   const displayInvoiceNum = d.numero_facture || 'N/A';
   const displayEmissionDate = d.date_emission || '-';
   const displayPrestationDate = d.date_prestation || '-';
-
+  const displayPaymentDueDate = d.date_limite_paiement || 'Non spécifiée'; // ADDED
 
   return `
-<div class="facture">
-  <div class="en-tete">
-    <div class="emetteur">
-      <strong>${displayName}</strong><br>
-      ${displayAddress}<br>
-      SIRET : ${displaySiret}<br>
-      Code APE : ${displayApe}<br>
-      TVA : ${displayVat}<br>
-      RCS/RM : ${displayRcsRm}<br>
-      Email : ${displayEmail}<br>
-      Tél : ${displayPhone}<br>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Facture ${displayInvoiceNum}</title>
+  <style>
+    body { font-family: Helvetica, Arial, sans-serif; margin: 20px; font-size: 10pt; color: #333; }
+    .facture { border: 1px solid #eee; padding: 20px; }
+    .en-tete { display: flex; justify-content: space-between; margin-bottom: 30px; }
+    .emetteur, .client { width: 48%; }
+    .emetteur strong, .client strong { font-size: 11pt; margin-bottom: 5px; display: block; }
+    .infos-facture { margin-bottom: 20px; padding-bottom:10px; border-bottom: 1px solid #eee; }
+    .infos-facture div { margin-bottom: 3px; }
+    .table-facture { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .table-facture th, .table-facture td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    .table-facture th { background-color: #f8f8f8; font-weight: bold; }
+    .table-facture td:nth-child(2), .table-facture td:nth-child(3), .table-facture td:nth-child(4), .table-facture td:nth-child(5), .table-facture td:nth-child(6) { text-align: right; }
+    .totaux { margin-top: 20px; width: 50%; float: right; text-align: right; }
+    .totaux div { margin-bottom: 5px; }
+    .totaux strong { font-size: 11pt; }
+    .mentions { margin-top: 80px; clear: both; font-size: 9pt; border-top: 1px solid #eee; padding-top: 15px; }
+    .mentions p { margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <div class="facture">
+    <div class="en-tete">
+      <div class="emetteur">
+        <strong>${displayName}</strong><br>
+        ${displayAddress.replace(/<br>/g, '<br/>')}<br>
+        SIRET : ${displaySiret}<br>
+        Code APE : ${displayApe}<br>
+        N° TVA : ${displayVat}<br>
+        ${displayRcsRm ? `RCS/RM : ${displayRcsRm}<br>` : ''}
+        Email : ${displayEmail}<br>
+        Tél : ${displayPhone}
+      </div>
+      <div class="client">
+        <strong>Client :</strong><br>
+        <strong>${displayClientName}</strong><br>
+        ${displayClientBillingAddr.replace(/<br>/g, '<br/>')}<br>
+        ${displayClientDeliveryAddr ? `Adresse de livraison : ${displayClientDeliveryAddr.replace(/<br>/g, '<br/>')}<br>` : ''}
+        ${displayClientVat ? `N° TVA Client : ${displayClientVat}<br>` : ''}
+      </div>
     </div>
 
-    <div class="client">
-      <strong>${displayClientName}</strong><br>
-      ${displayClientBillingAddr}<br>
-      ${displayClientDeliveryAddr ? `Livraison : ${displayClientDeliveryAddr}<br>` : ''}
-      ${displayClientVat ? `TVA : ${displayClientVat}<br>` : ''}
+    <div class="infos-facture">
+      <div><strong>Facture n° :</strong> ${displayInvoiceNum}</div>
+      <div><strong>Date d’émission :</strong> ${displayEmissionDate}</div>
+      <div><strong>Date de réalisation de la prestation :</strong> ${displayPrestationDate}</div>
+      <div><strong>Date limite de paiement :</strong> ${displayPaymentDueDate}</div>
+    </div>
+
+    <table class="table-facture">
+      <thead>
+        <tr>
+          <th>Désignation</th>
+          <th style="text-align:right;">Qté</th>
+          <th style="text-align:right;">Prix Unit. HT</th>
+          <th style="text-align:right;">Taux TVA</th>
+          <th style="text-align:right;">Montant TVA</th>
+          <th style="text-align:right;">Total TTC</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${lignesHtml}
+      </tbody>
+    </table>
+
+    <div class="totaux">
+      <div>Sous-total HT : ${formatEuro(d.sous_total_HT)}</div>
+      <div>Total TVA (${d.taux_TVA_global}%) : ${formatEuro(d.montant_TVA_global)}</div>
+      <div><strong>Total TTC : ${formatEuro(d.total_TTC_global)}</strong></div>
+    </div>
+
+    <div class="mentions">
+      <p>Conditions de paiement : Paiement à réception de facture, au plus tard le ${displayPaymentDueDate}.</p>
+      <p>Aucun escompte pour paiement anticipé.</p>
+      <p>En cas de retard de paiement, une indemnité forfaitaire de 40,00 € pour frais de recouvrement sera appliquée (article L441-10 et D441-5 du Code de commerce), ainsi que des pénalités de retard calculées au taux annuel de 10%.</p>
+      ${d.TVA_emetteur.startsWith('TVA non applicable') ? "<p>" + d.TVA_emetteur + "</p>" : ""}
     </div>
   </div>
-
-  <div class="infos-facture">
-    Facture n°${displayInvoiceNum}<br>
-    Date d’émission : ${displayEmissionDate}<br>
-    Date de prestation : ${displayPrestationDate}<br>
-  </div>
-
-  <table class="table-facture">
-    <thead>
-      <tr>
-        <th>Désignation</th>
-        <th>Quantité</th>
-        <th>Prix unitaire HT</th>
-        <th>Total HT</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${lignesHtml}
-    </tbody>
-  </table>
-
-  <div class="totaux">
-    Sous-total HT : ${formatEuro(d.sous_total_HT)}<br>
-    TVA (${d.taux_TVA}%) : ${formatEuro(d.montant_TVA_calculee)}<br>
-    Total TTC : ${formatEuro(d.total_TTC)}<br>
-  </div>
-
-  <div class="mentions">
-    Paiement sous ${d.delai_paiement || '30'} jours.<br>
-    Indemnité forfaitaire de 40,00 € pour frais de recouvrement (article D441-5 du Code de commerce).<br>
-  </div>
-</div>
+</body>
+</html>
   `;
 }
 

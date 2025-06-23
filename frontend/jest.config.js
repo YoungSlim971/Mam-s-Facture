@@ -13,4 +13,8 @@ export default {
   },
   // Babel config is removed as it wasn't solving the import.meta issue correctly
   // and we are now mocking the modules that use import.meta.env.
+  testPathIgnorePatterns: [
+    "/node_modules/",
+    "/tests/e2e/"
+  ],
 };

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast'; // Corrected import path
 import { apiClient } from '@/lib/api'; // Import the actual apiClient
 
 interface ProfileData {
@@ -115,13 +115,6 @@ export default function ProfilePage() {
           };
         setProfile(sanitizedData);
       }
-    } catch (error) {
-      console.error('Failed to save profile:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Impossible d’enregistrer les informations du profil.',
-        variant: 'destructive',
-      });
     } catch (error) {
       console.error('Failed to save profile:', error);
       toast({
