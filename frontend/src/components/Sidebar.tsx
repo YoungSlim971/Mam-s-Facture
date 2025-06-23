@@ -33,11 +33,11 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
           <FileText className="h-5 w-5" />
           <span>Toutes les factures</span>
         </NavLink>
-        <NavLink to="/factures?status=unpaid" className="flex items-center space-x-2 hover:text-primary">
+        <NavLink to="/factures?statut=impayee" className="flex items-center space-x-2 hover:text-primary">
           <CircleAlert className="h-5 w-5" />
           <span>Factures non payées</span>
         </NavLink>
-        <NavLink to="/factures?status=paid" className="flex items-center space-x-2 hover:text-primary">
+        <NavLink to="/factures?statut=payee" className="flex items-center space-x-2 hover:text-primary">
           <CircleAlert className="h-5 w-5" />
           <span>Factures payées</span>
         </NavLink>

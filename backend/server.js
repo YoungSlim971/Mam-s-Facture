@@ -253,6 +253,7 @@ app.get('/api/factures', (req, res) => {
       dateDebut = '',
       dateFin = '',
       status = '',
+      statut = '',
       sortBy = 'date',
       order = 'desc'
     } = req.query;
@@ -263,7 +264,12 @@ app.get('/api/factures', (req, res) => {
     const offset = (pageNum - 1) * limitNum;
 
     const filters = { search, dateDebut, dateFin };
-    if (status) filters.status = status;
+    let statusFilter = status;
+    if (!statusFilter && statut) {
+      if (statut === 'payee') statusFilter = 'paid';
+      else if (statut === 'impayee') statusFilter = 'unpaid';
+    }
+    if (statusFilter) filters.status = statusFilter;
     const allFactures = db.getFactures(filters);
 
     // Tri
@@ -300,6 +306,10 @@ app.get('/api/factures', (req, res) => {
       date_facture_fr: formatDateFR(row.date_facture),
       montant_total_fr: formatEuro(row.montant_total)
     }));
+
+    if (statut) {
+      console.log('Factures filtrées par statut', statut, facturesFormatees);
+    }
 
     res.json({
       factures: facturesFormatees,
