@@ -444,101 +444,70 @@ app.post('/api/factures', (req, res) => {
   }
 });
 
-// PUT /api/factures/:id - Met à jour une facture
+// PUT /api/factures/:id - Mise à jour partielle d'une facture
 app.put('/api/factures/:id', (req, res) => {
   try {
     const { id } = req.params;
-    const {
-      numero_facture: numero_facture_input = '',
-      client_id = null,
-      nom_client,
-      nom_entreprise = '',
-      telephone = '',
-      adresse = '',
-      date_facture,
-      lignes = [],
-      title = '',
-      status = 'unpaid',
-      logo_path = '',
-      siren = '',
-      siret = '',
-      legal_form = '',
-      vat_number = '',
-      vat_rate = 0,
-      montant_total: montant_total_input = undefined,
-      rcs_number = ''
-    } = req.body;
-    const parsedVatRate =
-      vat_rate !== undefined && vat_rate !== '' ? parseFloat(vat_rate) : 20;
-
-
-    // Validation
-    if (!nom_client || !date_facture || !lignes.length) {
-      return res.status(400).json({ 
-        error: 'Données manquantes',
-        details: 'Le nom du client, la date et au moins une ligne sont requis' 
-      });
-    }
-    for (let i = 0; i < lignes.length; i++) {
-      const q = parseFloat(lignes[i].quantite);
-      const pu = parseFloat(lignes[i].prix_unitaire);
-      if (!(q > 0)) {
-        return res.status(400).json({
-          error: 'Quantité invalide',
-          details: `La quantité de la ligne ${i + 1} doit être supérieure à 0`
-        });
-      }
-      if (!(pu >= 0)) {
-        return res.status(400).json({
-          error: 'Prix unitaire invalide',
-          details: `Le prix unitaire de la ligne ${i + 1} doit être positif`
-        });
-      }
-    }
-
-    let montant_total;
-    if (montant_total_input !== undefined && montant_total_input !== '') {
-      montant_total = parseFloat(montant_total_input);
-    } else {
-      const { totalHT } = computeTotals(lignes, parsedVatRate);
-      montant_total = totalHT;
-    }
-
-    const factureData = {
-      ...(numero_facture_input ? { numero_facture: numero_facture_input.trim() } : {}),
-      ...(client_id ? { client_id: parseInt(client_id) } : {}),
-      nom_client: nom_client.trim(),
-      nom_entreprise: nom_entreprise.trim(),
-      telephone: telephone.trim(),
-      adresse: adresse.trim(),
-      date_facture,
-      montant_total,
-      lignes,
-      title,
-      status,
-      logo_path,
-      siren,
-      siret,
-      legal_form,
-      vat_number,
-      vat_rate: parsedVatRate,
-      rcs_number
-    };
-
-    const success = db.updateFacture(id, factureData);
-    if (success && client_id) {
-      db.addFactureToClient(client_id, parseInt(id));
-    }
-    if (success) {
-      db.synchroniserFacturesParClient();
-    }
-
-    if (!success) {
+    const facture = db.getFactureById(id);
+    if (!facture) {
       return res.status(404).json({ error: 'Facture non trouvée' });
     }
 
-    res.json({ message: 'Facture mise à jour avec succès' });
+    const updates = { ...req.body };
+
+    if (updates.statut !== undefined) {
+      if (updates.statut !== 'payée' && updates.statut !== 'non payée') {
+        return res.status(400).json({ error: 'Statut invalide' });
+      }
+      updates.status = updates.statut === 'payée' ? 'paid' : 'unpaid';
+      delete updates.statut;
+    }
+    if (updates.status !== undefined) {
+      if (updates.status !== 'paid' && updates.status !== 'unpaid') {
+        return res.status(400).json({ error: 'Statut invalide' });
+      }
+    }
+
+    if (updates.lignes) {
+      for (let i = 0; i < updates.lignes.length; i++) {
+        const q = parseFloat(updates.lignes[i].quantite);
+        const pu = parseFloat(updates.lignes[i].prix_unitaire);
+        if (!(q > 0)) {
+          return res.status(400).json({
+            error: 'Quantité invalide',
+            details: `La quantité de la ligne ${i + 1} doit être supérieure à 0`
+          });
+        }
+        if (!(pu >= 0)) {
+          return res.status(400).json({
+            error: 'Prix unitaire invalide',
+            details: `Le prix unitaire de la ligne ${i + 1} doit être positif`
+          });
+        }
+      }
+      if (updates.montant_total === undefined) {
+        const rate =
+          updates.vat_rate !== undefined && updates.vat_rate !== ''
+            ? parseFloat(updates.vat_rate)
+            : facture.vat_rate || 20;
+        const { totalHT } = computeTotals(updates.lignes, rate);
+        updates.montant_total = totalHT;
+      }
+    }
+
+    const success = db.updateFacture(id, { ...facture, ...updates });
+    if (success && updates.client_id) {
+      db.addFactureToClient(updates.client_id, parseInt(id));
+    }
+    if (!success) {
+      return res.status(404).json({ error: 'Facture non trouvée' });
+    }
+    db.synchroniserFacturesParClient();
+
+    const updated = db.getFactureById(id);
+    res.json(updated);
   } catch (err) {
+    console.error('Erreur lors de PUT /api/factures/:id', err);
     res.status(500).json({
       error: 'Erreur lors de la mise à jour de la facture',
       details: err.message

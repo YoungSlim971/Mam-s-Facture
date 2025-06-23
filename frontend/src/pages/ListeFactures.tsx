@@ -178,17 +178,18 @@ export default function ListeFactures() {
 
   const marquerPayee = async (id: number) => {
     try {
-      const response = await fetch(`${API_URL}/factures/${id}/status`, {
-        method: "PATCH",
+      const response = await fetch(`${API_URL}/factures/${id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "paid" })
+        body: JSON.stringify({ statut: "payée" })
       });
       if (!response.ok) {
         throw new Error("Erreur lors du changement de statut");
       }
+      const updatedFacture = await response.json();
       setFactures(prev => {
         const updated = prev.map(f =>
-          f.id === id ? { ...f, status: 'paid' as const } : f
+          f.id === id ? { ...f, status: updatedFacture.status } : f
         );
         return statusFilter === "unpaid"
           ? updated.filter(f => f.id !== id)
