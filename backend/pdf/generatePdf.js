@@ -7,10 +7,16 @@ async function generatePdf(html) {
   let browser;
   try {
     try {
-      browser = await puppeteer.launch();
+      browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
     } catch (initialErr) {
-      console.warn('Default launch failed, retrying with sandbox disabled:', initialErr.message);
-      browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+      console.warn(
+        'Launch with sandbox disabled failed, retrying default configuration:',
+        initialErr.message
+      );
+      browser = await puppeteer.launch();
     }
 
     const outputDir = path.join(__dirname, 'output');
