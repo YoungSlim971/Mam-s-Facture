@@ -1,8 +1,7 @@
-require('ts-node/register/transpile-only');
 const path = require('path');
 const fs = require('fs');
 // const ejs = require('ejs'); // Not used directly for HTML string building here
-const { computeTotals } = require('../utils/computeTotals.ts'); // This computeTotals expects TTC unit prices
+const { computeTotals } = require('../utils/computeTotals'); // This computeTotals expects TTC unit prices
 const { fr } = require('date-fns/locale');
 const { format } = require('date-fns');
 const Decimal = require('decimal.js'); // Import Decimal.js

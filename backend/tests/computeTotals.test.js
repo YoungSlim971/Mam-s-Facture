@@ -1,4 +1,4 @@
-const { computeTotals } = require('../utils/computeTotals.ts');
+const { computeTotals } = require('../utils/computeTotals');
 
 describe('computeTotals', () => {
   test('calculates totals correctly with default VAT', () => {
