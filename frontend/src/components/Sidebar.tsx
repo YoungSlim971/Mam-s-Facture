@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
-import { Home, FileText, PlusCircle, CircleAlert, Sun, Users, X, LogOut } from 'lucide-react'
-import { useTheme } from '../context/ThemeContext'
+import { Home, FileText, PlusCircle, CircleAlert, Users, X, LogOut } from 'lucide-react' // Removed Sun
+import ThemeToggle from './ThemeToggle' // Added ThemeToggle import
 import { useIsMobile } from '../hooks/use-mobile'
 
 import { handleQuitApp } from '../utils/system'
@@ -11,7 +11,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ open, setOpen }: SidebarProps) {
-  const { theme, toggleTheme } = useTheme()
+  // const { theme, toggleTheme } = useTheme() // Removed useTheme
   const isMobile = useIsMobile()
 
   const sidebar = (
@@ -57,10 +57,10 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
           <Users className="h-5 w-5" />
           <span>Mes informations</span>
         </NavLink>
-        <button onClick={toggleTheme} className="flex items-center space-x-2 hover:text-primary">
-          <Sun className="h-5 w-5" />
-          <span>Changer le thème ({theme})</span>
-        </button>
+        <div className="flex items-center space-x-2">
+          <ThemeToggle />
+          <span>Changer le thème</span>
+        </div>
         <button
           onClick={() => handleQuitApp()}
           aria-label="Déconnexion"
