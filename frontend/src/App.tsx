@@ -15,7 +15,7 @@ import Sidebar from './components/Sidebar'
 import TopBar from './components/TopBar'
 import { useState, useEffect } from 'react'
 import { useIsMobile } from './hooks/use-mobile'
-import { ThemeProvider } from './context/ThemeContext'
+// import { ThemeProvider } from './context/ThemeContext' // Removed ThemeProvider
 import { Toaster } from './components/ui/sonner'
 
 function AnimatedRoutes() {
@@ -55,20 +55,20 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <ThemeProvider>
-        <Router>
-          <Toaster />
-          <div className="flex h-screen overflow-hidden">
-            <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-            <div className="flex flex-col flex-1">
-              <TopBar onMenuClick={() => setSidebarOpen(true)} />
-              <main className="flex-1 overflow-auto pt-16 px-4 py-6 pl-0 md:pl-56">
-                <AnimatedRoutes />
-              </main>
-            </div>
+      {/* <ThemeProvider> */}
+      <Router>
+        <Toaster />
+        <div className="flex h-screen overflow-hidden">
+          <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+          <div className="flex flex-col flex-1">
+            <TopBar onMenuClick={() => setSidebarOpen(true)} />
+            <main className="flex-1 overflow-auto pt-16 px-4 py-6 pl-0 md:pl-56">
+              <AnimatedRoutes />
+            </main>
           </div>
-        </Router>
-      </ThemeProvider>
+        </div>
+      </Router>
+      {/* </ThemeProvider> */}
     </ErrorBoundary>
   )
 }
