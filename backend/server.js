@@ -5,7 +5,10 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
-const buildFactureHTML = require('./services/htmlService');
+// Import mapFactureToInvoiceData from htmlService
+const { mapFactureToInvoiceData } = require('./services/htmlService');
+// Import generateInvoiceHTML from invoiceHTML.ts
+const { generateInvoiceHTML } = require('./invoiceHTML.ts');
 const SQLiteDatabase = require('./database/sqlite');
 const { computeTotals } = require('./utils/computeTotals.ts');
 const { getRandomQuote } = require('./services/quoteService');
@@ -636,29 +639,98 @@ app.delete('/api/factures/:id', (req, res) => {
 
 // GET /api/factures/:id/html - Génère le HTML d'une facture
 app.get('/api/factures/:id/html', async (req, res) => { // Made async
-  await dbReady; // Ensure db is initialized
-  const facture = db.getFactureById(req.params.id);
-  if (!facture) {
-    return res.status(404).json({ error: 'Facture non trouvée' });
-  }
-
-  let clientDetails = null;
-  if (facture.client_id) {
-    clientDetails = db.getClientById(facture.client_id);
-  }
-
   try {
-    const html = buildFactureHTML(facture, clientDetails); // Pass clientDetails
+    await dbReady; // Ensure db is initialized
+    const facture = db.getFactureById(req.params.id);
+    if (!facture) {
+      return res.status(404).json({ error: 'Facture non trouvée' });
+    }
+
+    let clientDetails = null;
+    if (facture.client_id) {
+      clientDetails = db.getClientById(facture.client_id);
+    }
+
+    // The actual HTML building is now wrapped in its own try-catch
+    // as per the plan to make the error handling more specific to this part.
+    let html;
+    try {
+      // 1. Use mapFactureToInvoiceData to get a consistently structured object
+      const mappedData = mapFactureToInvoiceData(facture, clientDetails);
+
+      // 2. Transform mappedData to InvoiceData structure for generateInvoiceHTML
+      //    The InvoiceData interface is:
+      //    nom_entreprise: string; siren?: string; vat_number?: string; adresse?: string[]; logo_path?: string;
+      //    nom_client: string; adresse_client?: string[]; numero: string; date: string;
+      //    lignes: { description: string; quantite: number; prix_unitaire: number }[];
+      //    tvaRate?: number; date_reglement: string; date_vente: string; penalites: string;
+
+      const userProfile = db.getUserProfile(); // Fetch user profile for logo
+
+      const invoiceDataForTs = {
+        nom_entreprise: mappedData.Nom_entreprise,
+        siren: mappedData.Num_SIRET_emetteur, // SIRET used as SIREN here
+        vat_number: facture.emitter_vat_number, // Emitter's VAT from original facture, mapFactureToInvoiceData has TVA_emetteur which might include "TVA non applicable"
+        adresse: mappedData.Adresse_emetteur.split('<br>').filter(line => line.trim() !== ''),
+        logo_path: facture.logo_path || (userProfile ? userProfile.logo_path : undefined),
+
+        nom_client: mappedData.Nom_client,
+        adresse_client: mappedData.Adresse_facturation_client.split('<br>').filter(line => line.trim() !== ''),
+        // Note: mappedData.Adresse_livraison_client is available if needed, but InvoiceData only has one adresse_client
+
+        numero: mappedData.numero_facture,
+        date: facture.date_facture, // Needs to be in 'YYYY-MM-DD' or a parsable format for `new Date()` in generateInvoiceHTML
+
+        lignes: mappedData.lignes_facture.map(l => ({
+          description: l.service,
+          quantite: l.quantity,
+          prix_unitaire: l.unitPriceHT,
+        })),
+
+        tvaRate: mappedData.taux_TVA,
+
+        // Fields required by InvoiceData but not directly in mapFactureToInvoiceData output, using defaults or placeholders
+        date_reglement: mappedData.date_emission, // Placeholder: using emission date
+        date_vente: mappedData.date_prestation,  // Placeholder: using prestation date
+        penalites: "Pénalités de retard : Taux d'intérêt légal majoré de 10 points. Pas d'escompte pour paiement anticipé.", // Standard penalty clause
+      };
+
+      if (userProfile && userProfile.logo_path && !invoiceDataForTs.logo_path) {
+        // Ensure the logo_path is correctly prefixed if it's just a filename
+        // This case might be redundant if the above `logo_path: facture.logo_path || (userProfile ? userProfile.logo_path : undefined)` handles it.
+        // However, this ensures the prefixing logic is applied if userProfile.logo_path is chosen.
+        invoiceDataForTs.logo_path = path.basename(userProfile.logo_path).startsWith('http') ? userProfile.logo_path : `/uploads/${path.basename(userProfile.logo_path)}`;
+      } else if (invoiceDataForTs.logo_path && !invoiceDataForTs.logo_path.startsWith('http') && !invoiceDataForTs.logo_path.startsWith('/')) {
+        // If logo_path was taken from facture.logo_path and needs prefixing
+         invoiceDataForTs.logo_path = `/uploads/${path.basename(invoiceDataForTs.logo_path)}`;
+      }
+
+
+      html = generateInvoiceHTML(invoiceDataForTs);
+
+    } catch (buildError) {
+      console.error("❌ Failed to build facture HTML using generateInvoiceHTML:", buildError);
+      // This specific error is about HTML generation failure
+      return res.status(500).json({
+        message: "HTML generation failed",
+        error: buildError.message,
+        details: buildError.stack, // Send stack in test env for more details
+        stack: process.env.NODE_ENV === 'test' ? buildError.stack : undefined
+      });
+    }
+
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     const filename = `facture-${facture.numero_facture || facture.id}.html`;
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(html);
+
   } catch (err) {
-    console.error("Error in /api/factures/:id/html route:", err); // Log to server console for visibility
+    // This outer catch handles other errors like DB issues or unexpected errors before HTML generation
+    console.error("Error in /api/factures/:id/html route (outside HTML build):", err);
     res.status(500).json({
-      error: 'Erreur lors de la génération du HTML',
+      error: 'Erreur lors de la récupération des données ou de la préparation de la facture HTML',
       details: err.message,
-      stack: process.env.NODE_ENV === 'test' ? err.stack : undefined // Only send stack in test env
+      stack: process.env.NODE_ENV === 'test' ? err.stack : undefined
     });
   }
 });
