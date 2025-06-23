@@ -58,7 +58,7 @@ function App() {
             <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
             <div className="flex flex-col flex-1">
               <TopBar onMenuClick={() => setSidebarOpen(true)} />
-              <main className="flex-1 overflow-auto pt-16 px-4 py-6">
+              <main className="flex-1 overflow-auto pt-16 px-4 py-6 pl-0 md:pl-56">
                 <AnimatedRoutes />
               </main>
             </div>

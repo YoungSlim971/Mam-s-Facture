@@ -273,7 +273,7 @@ export default function ListeFactures() {
                   type="date"
                   value={dateDebut}
                   onChange={(e) => setDateDebut(e.target.value)}
-                  className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-[#DD4A3C] md:text-current"
                 />
               </div>
             </div>
@@ -287,7 +287,7 @@ export default function ListeFactures() {
                 type="date"
                 value={dateFin}
                 onChange={(e) => setDateFin(e.target.value)}
-                className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="pl-10 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-[#DD4A3C] md:text-current"
               />
             </div>
           </div>
