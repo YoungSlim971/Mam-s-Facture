@@ -52,4 +52,36 @@ describe('Client creation and listing', () => {
     expect(created).toBeTruthy();
     expect(created.nom_client).toBe('Nouveau Client');
   });
+
+  test('GET /api/clients/:id returns all fields', async () => {
+    const payload = {
+      nom_client: 'Full Fields',
+      telephone: '000',
+      email: 'full@example.com',
+      siren: '123456789',
+      siret: '12345678900011',
+      legal_form: 'SARL',
+      tva: 'FR123456789',
+      rcs_number: 'RCS 123',
+      logo: '/img.png'
+    };
+    const res = await request(app).post('/api/clients').send(payload);
+    expect(res.status).toBe(201);
+    const id = res.body.id;
+
+    const getRes = await request(app).get(`/api/clients/${id}`);
+    expect(getRes.status).toBe(200);
+    expect(getRes.body).toEqual(
+      expect.objectContaining({
+        id,
+        email: payload.email,
+        siren: payload.siren,
+        siret: payload.siret,
+        legal_form: payload.legal_form,
+        tva: payload.tva,
+        rcs_number: payload.rcs_number,
+        logo: payload.logo
+      })
+    );
+  });
 });
