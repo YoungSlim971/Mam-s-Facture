@@ -8,7 +8,8 @@ import ModifierFacture from './pages/ModifierFacture'
 import DetailFacture from './pages/DetailFacture'
 import Clients from './pages/Clients'
 import ClientProfile from './pages/profiles/ClientProfile'
-import ProfilePage from './pages/ProfilePage' // Import the new ProfilePage
+import ProfilePage from './pages/ProfilePage'
+import AfficherProfilUtilisateur from './pages/AfficherProfilUtilisateur' // Import the new summary page
 import NotFound from './pages/Error/NotFound'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import Sidebar from './components/Sidebar'
@@ -37,7 +38,8 @@ function AnimatedRoutes() {
           <Route path="/factures/:id/modifier" element={<ModifierFacture />} />
           <Route path="/clients" element={<Clients />} />
           <Route path="/clients/:id" element={<ClientProfile />} />
-          <Route path="/profile" element={<ProfilePage />} /> {/* Add route for ProfilePage */}
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profil-utilisateur" element={<AfficherProfilUtilisateur />} /> {/* Add route for summary page */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </motion.div>

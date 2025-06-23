@@ -12,6 +12,7 @@ const { generateInvoiceHTML } = require('./invoiceHTML.ts');
 const SQLiteDatabase = require('./database/sqlite');
 const { computeTotals } = require('./utils/computeTotals.ts');
 const { getRandomQuote } = require('./services/quoteService');
+const { readUserProfile, writeUserProfile, USER_PROFILE_PATH } = require('./services/userProfileService');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -135,10 +136,19 @@ app.use('/api/user-profile', authenticateToken); // Secure user profile endpoint
 // User Profile Endpoints
 app.get('/api/user-profile', async (req, res) => {
   try {
-    await dbReady; // Make sure db is initialized
-    const profile = db.getUserProfile();
-    res.json(profile);
+    const profile = await readUserProfile();
+    if (profile) {
+      res.json(profile);
+    } else {
+      // Consistent with ProfilePage.tsx, return an object with empty strings
+      // or a specific structure indicating "not found" but not an error for the client.
+      // For now, let's send a 404 if it's truly not found.
+      // The frontend (AfficherProfilUtilisateur) will handle this by redirecting.
+      // ProfilePage.tsx will also handle this by allowing creation.
+      res.status(404).json({ message: "Profil utilisateur non trouvé." });
+    }
   } catch (err) {
+    console.error('GET /api/user-profile error:', err);
     res.status(500).json({
       error: "Erreur lors de la récupération du profil utilisateur",
       details: err.message,
@@ -148,14 +158,40 @@ app.get('/api/user-profile', async (req, res) => {
 
 app.post('/api/user-profile', async (req, res) => {
   try {
-    await dbReady; // Make sure db is initialized
-    const updatedProfile = db.upsertUserProfile(req.body);
-    res.json(updatedProfile);
+    // The frontend sends data based on its ProfileData interface.
+    // We need to map it to the fields expected by writeUserProfile (which are the JSON keys).
+    const profileDataFromRequest = req.body;
+    const profileToSave = {
+      raison_sociale: profileDataFromRequest.full_name,
+      adresse: profileDataFromRequest.address_street, // Assuming address_street contains the full address line
+      code_postal: profileDataFromRequest.address_postal_code,
+      ville: profileDataFromRequest.address_city,
+      forme_juridique: profileDataFromRequest.legal_form,
+      siret: profileDataFromRequest.siret_siren,
+      ape_naf: profileDataFromRequest.ape_naf_code,
+      tva_intra: profileDataFromRequest.vat_number,
+      rcs_ou_rm: profileDataFromRequest.rcs_rm
+      // Note: other fields like email, phone, activity_start_date, social_capital from ProfileData
+      // are not in the target profil_utilisateur.json structure as per the task.
+      // If they were, they would be mapped here.
+    };
+
+    const savedProfile = await writeUserProfile(profileToSave);
+    res.json(savedProfile);
   } catch (err) {
-    res.status(500).json({
-      error: "Erreur lors de la mise à jour du profil utilisateur",
-      details: err.message,
-    });
+    console.error('POST /api/user-profile error:', err);
+    // If it's a validation error from writeUserProfile
+    if (err.message.startsWith("Le champ") || err.message.startsWith("Failed to save")) {
+         res.status(400).json({
+            error: "Erreur de validation ou de sauvegarde du profil utilisateur",
+            details: err.message,
+        });
+    } else {
+        res.status(500).json({
+          error: "Erreur interne lors de la mise à jour du profil utilisateur",
+          details: err.message,
+        });
+    }
   }
 });
 
@@ -405,8 +441,16 @@ app.get('/api/factures/:id', (req, res) => {
 // POST /api/factures - Crée une nouvelle facture
 app.post('/api/factures', async (req, res) => { // Added async
   try {
-    await dbReady; // Ensure DB is ready
-    const userProfile = db.getUserProfile(); // Fetch user profile
+    // await dbReady; // DB still needed for clients, invoices table etc.
+    const userProfile = await readUserProfile(); // Fetch user profile from JSON
+
+    if (!userProfile) {
+      return res.status(400).json({
+        error: "Profil utilisateur non configuré",
+        details: "Veuillez configurer vos informations dans 'Mes informations' avant de créer une facture.",
+        errorCode: "USER_PROFILE_MISSING" // Custom code for frontend to detect
+      });
+    }
 
     const {
       numero_facture: numero_facture_input = '',
@@ -487,21 +531,33 @@ app.post('/api/factures', async (req, res) => { // Added async
       vat_number,
       vat_rate: parsedVatRate,
       rcs_number,
-      // Add emitter details from profile
-      emitter_full_name: userProfile.full_name,
-      emitter_address_street: userProfile.address_street,
-      emitter_address_postal_code: userProfile.address_postal_code,
-      emitter_address_city: userProfile.address_city,
-      emitter_siret_siren: userProfile.siret_siren,
-      emitter_ape_naf_code: userProfile.ape_naf_code,
-      emitter_vat_number: userProfile.vat_number,
-      emitter_email: userProfile.email,
-      emitter_phone: userProfile.phone,
-      emitter_activity_start_date: userProfile.activity_start_date,
-      emitter_legal_form: userProfile.legal_form, // Added for Part 3
-      emitter_rcs_rm: userProfile.rcs_rm,         // Added for Part 3
-      emitter_social_capital: userProfile.social_capital, // Added for Part 3
+      // Add emitter details from JSON profile
+      // Mapping from profil_utilisateur.json keys to emitter_* fields
+      emitter_full_name: userProfile.raison_sociale,
+      emitter_address_street: `${userProfile.adresse}, ${userProfile.code_postal} ${userProfile.ville}`, // Combined address
+      // emitter_address_postal_code: userProfile.code_postal, // No longer separate, combined above
+      // emitter_address_city: userProfile.ville, // No longer separate, combined above
+      emitter_siret_siren: userProfile.siret,
+      emitter_ape_naf_code: userProfile.ape_naf,
+      emitter_vat_number: userProfile.tva_intra,
+      // email, phone, activity_start_date, social_capital are not in the specified JSON structure
+      // If they were, they would be mapped here:
+      // emitter_email: userProfile.email, (if 'email' was in profil_utilisateur.json)
+      // emitter_phone: userProfile.phone, (if 'phone' was in profil_utilisateur.json)
+      // emitter_activity_start_date: userProfile.activity_start_date, (if 'activity_start_date' was in profil_utilisateur.json)
+      emitter_legal_form: userProfile.forme_juridique,
+      emitter_rcs_rm: userProfile.rcs_ou_rm,
+      // emitter_social_capital: userProfile.social_capital, (if 'social_capital' was in profil_utilisateur.json)
     };
+
+    // Ensure all required emitter fields for db.createFacture are present, even if null
+    factureData.emitter_address_postal_code = null; // Set to null as it's part of combined street
+    factureData.emitter_address_city = null; // Set to null as it's part of combined street
+    factureData.emitter_email = null; // Explicitly null if not in JSON
+    factureData.emitter_phone = null; // Explicitly null if not in JSON
+    factureData.emitter_activity_start_date = null; // Explicitly null if not in JSON
+    factureData.emitter_social_capital = null; // Explicitly null if not in JSON
+
 
     const factureId = db.createFacture(factureData);
     if (client_id) {
