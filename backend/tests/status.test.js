@@ -5,7 +5,7 @@ beforeAll(async () => {
   app = await require('../server');
 });
 
-describe('PATCH /api/factures/:id/status', () => {
+describe('PUT /api/factures/:id', () => {
   test('updates invoice status', async () => {
     const createRes = await request(app)
       .post('/api/factures')
@@ -18,10 +18,10 @@ describe('PATCH /api/factures/:id/status', () => {
     const id = createRes.body.id;
 
     const patchRes = await request(app)
-      .patch(`/api/factures/${id}/status`)
-      .send({ status: 'paid' });
+      .put(`/api/factures/${id}`)
+      .send({ statut: 'payée' });
     expect(patchRes.status).toBe(200);
-    expect(patchRes.body.message).toBe('Statut mis à jour');
+    expect(patchRes.body.status).toBe('paid');
 
     const getRes = await request(app).get(`/api/factures/${id}`);
     expect(getRes.status).toBe(200);

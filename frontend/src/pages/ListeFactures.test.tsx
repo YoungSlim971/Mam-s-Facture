@@ -23,7 +23,7 @@ const facturesResponse = {
 global.fetch = jest
   .fn()
   .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(facturesResponse) })
-  .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ message: 'Statut mis à jour' }) });
+  .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 1, status: 'paid' }) });
 
 test('marque une facture comme payée', async () => {
   render(
@@ -38,8 +38,8 @@ test('marque une facture comme payée', async () => {
 
   await waitFor(() =>
     expect(fetch as any).toHaveBeenCalledWith(
-      expect.stringContaining('/status'),
-      expect.objectContaining({ method: 'PATCH' })
+      expect.stringContaining('/factures/1'),
+      expect.objectContaining({ method: 'PUT' })
     )
   );
 });
