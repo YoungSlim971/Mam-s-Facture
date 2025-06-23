@@ -18,6 +18,9 @@ if ! command -v brew >/dev/null 2>&1; then
   exit 1
 fi
 
+echo "[installer] Mise à jour de Homebrew..."
+brew update >/dev/null
+
 if ! command -v node >/dev/null 2>&1; then
   echo "[installer] Installation de Node.js via Homebrew..."
   brew install node
