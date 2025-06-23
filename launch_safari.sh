@@ -30,10 +30,13 @@ if ! command -v node >/dev/null 2>&1 \
   ./install_macos.sh --skip-build
 fi
 
+# S'assure que les dépendances sont à jour
 PM=pnpm
 if ! command -v pnpm >/dev/null 2>&1; then
   PM=npm
 fi
+(cd backend && "$PM" install > /dev/null)
+(cd frontend && "$PM" install > /dev/null)
 
 echo "[launcher] Démarrage du backend..."
 (cd backend && "$PM" start > ../backend.log 2>&1 &)
