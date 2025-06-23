@@ -4,7 +4,6 @@ import { ArrowLeft, Edit, Download, Trash2, FileText, User, Calendar, Euro } fro
 import { Button } from '@/components/ui/button';
 import { API_URL } from '@/lib/api';
 import { computeTotals } from '@/lib/utils';
-import { saveAs } from 'file-saver';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -98,45 +97,10 @@ export default function DetailFacture() {
     }
   };
 
-  const [exportFormat, setExportFormat] = useState<'html' | 'pdf'>('html');
-
-  const telechargerFacture = async (
-    format: 'html' | 'pdf' = exportFormat
-  ): Promise<void> => {
+  const telechargerFacture = (): void => {
     if (!facture) return;
-    try {
-      console.log('API_URL', API_URL);
-      console.log('Téléchargement de la facture', facture?.id, format);
-      const response = await fetch(
-        `${API_URL}/factures/${facture.id}/${format}`
-      );
-      if (!response.ok) {
-        throw new Error('Erreur lors de la génération du fichier');
-      }
-      if (format === 'pdf') {
-        const pdf = await response.blob();
-        saveAs(pdf, `facture-${facture.numero_facture}.pdf`);
-      } else {
-        const html = await response.text();
-        const blob = new Blob([html], { type: 'text/html' });
-        saveAs(blob, `facture-${facture.numero_facture}.html`);
-      }
-    } catch (err) {
-      if (format === 'pdf') {
-        try {
-          await telechargerFacture('html');
-          alert('Export PDF impossible, fichier HTML généré.');
-        } catch (e) {
-          alert(
-            e instanceof Error ? e.message : 'Erreur lors du téléchargement'
-          );
-        }
-      } else {
-        alert(
-          err instanceof Error ? err.message : 'Erreur lors du téléchargement'
-        );
-      }
-    }
+    const url = `${API_URL}/factures/${facture.id}/html`;
+    window.open(url, '_blank');
   };
 
   const euroFormatter = new Intl.NumberFormat('fr-FR', {
@@ -231,21 +195,13 @@ export default function DetailFacture() {
                 <Edit className="h-5 w-5 mr-2" />
                 Modifier
               </Link>
-              <select
-                value={exportFormat}
-                onChange={e => setExportFormat(e.target.value as 'html' | 'pdf')}
-                className="px-2 py-2 border border-gray-300 rounded-lg"
-              >
-                <option value="html">HTML</option>
-                <option value="pdf">PDF</option>
-              </select>
               <Button
                 variant="outline"
                 onClick={() => telechargerFacture()}
-                title="Exporter la facture"
+                title="Télécharger en HTML"
               >
                 <Download className="h-5 w-5 mr-2" />
-                Exporter
+                Télécharger
               </Button>
               <button
                 onClick={supprimerFacture}

@@ -82,7 +82,7 @@ Pour enrichir la mise en page et les exports des factures, vous pouvez installer
 - **Handlebars** ou **EJS** pour générer l'HTML
 - **easyinvoice** pour un modèle prêt à l'emploi
 - **Tailwind CSS** et **Paged.js** pour le style et l'impression
-- **Puppeteer**, **pdfmake**, **docx**, **exceljs** pour exporter en PDF ou Office
+- **docx** et **exceljs** pour exporter en formats Office
 - **date-fns**, **numeral**, **decimal.js** pour le formatage et les calculs
 
 Installation rapide :
@@ -90,7 +90,7 @@ Installation rapide :
 ```bash
 pnpm add handlebars tailwindcss pagedjs date-fns numeral decimal.js qrcode
 # Export optionnels
-pnpm add puppeteer pdfmake docx exceljs
+pnpm add docx exceljs
 ```
 
 ### Démarrage
