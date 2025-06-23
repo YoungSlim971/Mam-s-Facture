@@ -24,7 +24,8 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
         </button>
       )}
       <div className="flex flex-col justify-between h-full">
-        <div className="space-y-2 mt-6">
+        <h1 className="text-center font-bold text-xl mb-6">MAM’s FACTURE</h1>
+        <div className="space-y-2">
         <NavLink to="/" className="flex items-center space-x-2 hover:text-primary">
           <Home className="h-5 w-5" />
           <span>Accueil</span>
