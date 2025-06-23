@@ -16,6 +16,9 @@ interface ProfileData {
   email: string;
   phone: string;
   activity_start_date?: string;
+  legal_form: string; // Added: Forme juridique
+  rcs_rm: string; // Added: RCS ou RM
+  social_capital?: string; // Added: Capital social (facultatif)
 }
 
 const initialProfileData: ProfileData = {
@@ -29,6 +32,9 @@ const initialProfileData: ProfileData = {
   email: '',
   phone: '',
   activity_start_date: '',
+  legal_form: '',
+  rcs_rm: '',
+  social_capital: '',
 };
 
 export default function ProfilePage() {
@@ -55,6 +61,9 @@ export default function ProfilePage() {
             email: data.email || '',
             phone: data.phone || '',
             activity_start_date: data.activity_start_date || '',
+            legal_form: data.legal_form || '',
+            rcs_rm: data.rcs_rm || '',
+            social_capital: data.social_capital || '',
           };
           setProfile(sanitizedData);
         }
@@ -100,6 +109,9 @@ export default function ProfilePage() {
             email: updatedData.email || '',
             phone: updatedData.phone || '',
             activity_start_date: updatedData.activity_start_date || '',
+            legal_form: updatedData.legal_form || '',
+            rcs_rm: updatedData.rcs_rm || '',
+            social_capital: updatedData.social_capital || '',
           };
         setProfile(sanitizedData);
       }
@@ -131,12 +143,12 @@ export default function ProfilePage() {
       <h1 className="text-2xl font-bold mb-6">Mes informations</h1>
       <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
         <div>
-          <Label htmlFor="full_name">Nom complet ou raison sociale</Label>
+          <Label htmlFor="full_name">Nom / Raison sociale</Label>
           <Input id="full_name" name="full_name" value={profile.full_name} onChange={handleChange} required />
         </div>
 
         <div>
-          <Label htmlFor="address_street">Adresse (rue)</Label>
+          <Label htmlFor="address_street">Adresse de l’entreprise (rue)</Label>
           <Input id="address_street" name="address_street" value={profile.address_street} onChange={handleChange} required />
         </div>
 
@@ -152,33 +164,48 @@ export default function ProfilePage() {
         </div>
 
         <div>
-          <Label htmlFor="siret_siren">Numéro SIRET ou SIREN</Label>
+          <Label htmlFor="legal_form">Forme juridique</Label>
+          <Input id="legal_form" name="legal_form" value={profile.legal_form} onChange={handleChange} required />
+        </div>
+
+        <div>
+          <Label htmlFor="siret_siren">Numéro SIRET / SIREN</Label>
           <Input id="siret_siren" name="siret_siren" value={profile.siret_siren} onChange={handleChange} required />
         </div>
 
         <div>
-          <Label htmlFor="ape_naf_code">Code APE/NAF</Label>
+          <Label htmlFor="ape_naf_code">Code APE / NAF</Label>
           <Input id="ape_naf_code" name="ape_naf_code" value={profile.ape_naf_code} onChange={handleChange} required />
         </div>
 
         <div>
-          <Label htmlFor="vat_number">Numéro de TVA (optionnel)</Label>
+          <Label htmlFor="vat_number">Numéro de TVA intracommunautaire (facultatif)</Label>
           <Input id="vat_number" name="vat_number" value={profile.vat_number || ''} onChange={handleChange} />
+        </div>
+
+        <div>
+          <Label htmlFor="rcs_rm">RCS ou RM</Label>
+          <Input id="rcs_rm" name="rcs_rm" value={profile.rcs_rm} onChange={handleChange} required />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Adresse e-mail</Label>
             <Input id="email" name="email" type="email" value={profile.email} onChange={handleChange} required />
           </div>
           <div>
-            <Label htmlFor="phone">Téléphone</Label>
+            <Label htmlFor="phone">Numéro de téléphone</Label>
             <Input id="phone" name="phone" type="tel" value={profile.phone} onChange={handleChange} required />
           </div>
         </div>
 
         <div>
-          <Label htmlFor="activity_start_date">Date de début d'activité (optionnel)</Label>
+          <Label htmlFor="social_capital">Capital social (facultatif)</Label>
+          <Input id="social_capital" name="social_capital" value={profile.social_capital || ''} onChange={handleChange} />
+        </div>
+
+        <div>
+          <Label htmlFor="activity_start_date">Date de début d’activité (facultatif)</Label>
           <Input id="activity_start_date" name="activity_start_date" type="date" value={profile.activity_start_date || ''} onChange={handleChange} />
         </div>
 
