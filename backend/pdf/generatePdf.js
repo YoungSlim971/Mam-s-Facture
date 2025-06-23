@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 async function generatePdf(html) {
-  console.log('HTML source reçu:', html);
+  console.log('[HTML ENTRANT DANS Puppeteer]:', html.slice(0, 500));
   let browser;
   try {
     try {

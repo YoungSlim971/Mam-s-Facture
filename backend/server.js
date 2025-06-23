@@ -600,8 +600,9 @@ app.get('/api/factures/:id/pdf', async (req, res) => {
     return res.status(404).json({ error: 'Facture non trouvée' });
   }
   try {
+    console.log('Facture reçue pour export :', facture);
     const html = buildFactureHTML(facture);
-    console.log('Payload reçu :', html);
+    fs.writeFileSync('last-facture.html', html, 'utf-8');
     const pdf = await generatePdf(html);
     res.setHeader('Content-Type', 'application/pdf');
     res.send(pdf);
