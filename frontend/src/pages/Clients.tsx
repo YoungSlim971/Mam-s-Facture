@@ -11,6 +11,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { useToast } from '@/hooks/use-toast'; // Added useToast
 
 interface Client {
   id: number
@@ -63,6 +64,7 @@ export default function Clients() {
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
+  const { toast } = useToast(); // Initialize useToast
 
   // Edit form state (to be updated similarly if full edit functionality is maintained for new fields)
   const [editNom, setEditNom] = useState('')
@@ -129,6 +131,10 @@ export default function Clients() {
       })
     })
     if (res.ok) {
+      toast({
+        title: 'Client créé',
+        description: `Le client ${nom} ${entreprise ? '('+entreprise+')' : ''} a été créé avec succès.`,
+      });
       setNom('')
       setEntreprise('')
       setTelephone('')
@@ -152,7 +158,11 @@ export default function Clients() {
       chargerClients()
     } else {
       const data = await res.json().catch(() => null)
-      alert(data?.error || 'Erreur lors de la création du client')
+      toast({
+        title: 'Erreur de création',
+        description: data?.error || 'Erreur lors de la création du client.',
+        variant: 'destructive',
+      });
     }
   }
 
@@ -205,7 +215,18 @@ export default function Clients() {
       setEditAdresseLivraisonCp('');
       setEditAdresseLivraisonVille('');
       setEditTvaClient('');
-      chargerClients()
+      chargerClients();
+      toast({
+        title: 'Client mis à jour',
+        description: `Le client ${editNom} ${editEntreprise ? '('+editEntreprise+')' : ''} a été mis à jour.`,
+      });
+    } else {
+      const data = await res.json().catch(() => null);
+      toast({
+        title: 'Erreur de mise à jour',
+        description: data?.error || 'Erreur lors de la mise à jour du client.',
+        variant: 'destructive',
+      });
     }
   }
 
@@ -288,6 +309,15 @@ export default function Clients() {
               <div>
                 <Label htmlFor="tva_client_form">Numéro de TVA intracommunautaire (facultatif)</Label>
                 <Input id="tva_client_form" value={tvaClient} onChange={(e) => setTvaClient(e.target.value)} />
+              </div>
+
+              <div>
+                <Label htmlFor="siren_form">N° SIREN (facultatif)</Label>
+                <Input id="siren_form" value={siren} onChange={(e) => setSiren(e.target.value)} placeholder="9 chiffres" />
+              </div>
+              <div>
+                <Label htmlFor="siret_form">N° SIRET (facultatif)</Label>
+                <Input id="siret_form" value={siret} onChange={(e) => setSiret(e.target.value)} placeholder="14 chiffres" />
               </div>
 
               {/* Optional: Keep other existing fields if needed, or remove them if they are not part of the "Créer un client" spec */}
