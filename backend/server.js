@@ -681,8 +681,11 @@ app.get('/api/factures/:id/html', async (req, res) => { // Made async
         numero: mappedData.numero_facture,
         date: facture.date_facture, // Needs to be in 'YYYY-MM-DD' or a parsable format for `new Date()` in generateInvoiceHTML
 
+        // Each item from mapFactureToInvoiceData already exposes a `description`
+        // field, so map it directly. Using `service` here caused `undefined`
+        // values and broke invoice HTML generation.
         lignes: mappedData.lignes_facture.map(l => ({
-          description: l.service,
+          description: l.description,
           quantite: l.quantity,
           prix_unitaire: l.unitPriceHT,
         })),
