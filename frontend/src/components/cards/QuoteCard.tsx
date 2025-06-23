@@ -13,26 +13,10 @@ export function QuoteCard() {
   const [quote, setQuote] = useState<QuoteState | null>(null);
 
   useEffect(() => {
-    const key = 'quote-cache';
-    const cached = localStorage.getItem(key);
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached) as { data: QuoteState; ts: number };
-        if (Date.now() - parsed.ts < 24 * 60 * 60 * 1000) {
-          setQuote(parsed.data);
-          return;
-        }
-      } catch {
-        /* ignore */
-      }
-    }
-
     async function load() {
       try {
         const { text, author } = await fetch(`${API_URL}/quote`).then(r => r.json());
-        const data = { text, author };
-        setQuote(data);
-        localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
+        setQuote({ text, author });
       } catch {
         setQuote({ text: '', author: '' });
       }
