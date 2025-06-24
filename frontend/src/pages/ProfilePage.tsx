@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { apiClient } from '@/lib/api';
+import { saveUserProfileToLocal } from '@/utils/userProfile';
 
 // This interface represents the data structure used by the form in this component.
 // It will be mapped to the JSON structure when sending to the backend.
@@ -190,7 +191,8 @@ export default function ProfilePage() {
     try {
       // apiClient.updateUserProfile expects an object that matches its internal ProfileData definition,
       // which aligns with FormProfileData. The backend will perform the final mapping to JSON keys.
-      await apiClient.updateUserProfile(dataToSave);
+      const saved = await apiClient.updateUserProfile(dataToSave);
+      saveUserProfileToLocal(saved);
       toast({
         title: 'Succès',
         description: 'Informations du profil mises à jour.',
