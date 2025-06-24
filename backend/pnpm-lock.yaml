@@ -45,6 +45,9 @@ importers:
         specifier: ^3.24.1
         version: 3.25.67
     devDependencies:
+      '@types/node':
+        specifier: ^24.0.3
+        version: 24.0.3
       '@types/numeral':
         specifier: ^2.0.5
         version: 2.0.5

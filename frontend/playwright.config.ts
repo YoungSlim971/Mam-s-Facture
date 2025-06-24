@@ -60,11 +60,21 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'pnpm run dev', // Command to start the frontend dev server
-    url: 'http://localhost:5173', // URL to wait for
-    reuseExistingServer: !process.env.CI,
-    cwd: './', // Assuming playwright.config.ts is in the frontend directory
-    timeout: 300000, // 5 minutes timeout for the server to start
-  },
+  // Launch frontend and backend dev servers for E2E tests
+  webServer: [
+    {
+      command: 'pnpm run dev',
+      port: 5173,
+      reuseExistingServer: !process.env.CI,
+      cwd: './',
+      timeout: 300000,
+    },
+    {
+      command: 'pnpm start',
+      port: 3001,
+      reuseExistingServer: !process.env.CI,
+      cwd: '../backend',
+      timeout: 300000,
+    },
+  ],
 });
