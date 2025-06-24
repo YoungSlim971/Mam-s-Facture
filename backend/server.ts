@@ -1,19 +1,19 @@
 // TS-Node registration removed as this file will be pre-compiled
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const path = require('path');
-const fs = require('fs');
-const multer = require('multer');
+import express, { type Request, type Response, type NextFunction } from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import path from 'path';
+import fs from 'fs';
+import multer from 'multer';
 // Import mapFactureToInvoiceData from htmlService
-const { mapFactureToInvoiceData } = require('./services/htmlService');
+import { mapFactureToInvoiceData } from './services/htmlService';
 // Import generateInvoiceHTML from invoiceHTML
-const { generateInvoiceHTML } = require('./invoiceHTML');
-const SQLiteDatabase = require('./database/sqlite');
-const { computeTotals } = require('./utils/computeTotals');
-const { getRandomQuote } = require('./services/quoteService');
-const { errorHandler } = require('./middleware/errorHandler');
-const { readUserProfile, writeUserProfile, USER_PROFILE_PATH } = require('./services/userProfileService');
+import { generateInvoiceHTML } from './invoiceHTML';
+import SQLiteDatabase from './database/sqlite';
+import { computeTotals } from './utils/computeTotals';
+import { getRandomQuote } from './services/quoteService';
+import { errorHandler } from './middleware/errorHandler';
+import { readUserProfile, writeUserProfile, USER_PROFILE_PATH } from './services/userProfileService';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -24,7 +24,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Authentication Middleware
-const authenticateToken = (req, res, next) => {
+const authenticateToken = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
@@ -135,7 +139,7 @@ app.use('/api/clients', authenticateToken);
 app.use('/api/user-profile', authenticateToken); // Secure user profile endpoint
 
 // User Profile Endpoints
-app.get('/api/user-profile', async (req, res, next) => {
+app.get('/api/user-profile', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const profile = await readUserProfile();
     if (profile) {
@@ -154,7 +158,7 @@ app.get('/api/user-profile', async (req, res, next) => {
   }
 });
 
-app.post('/api/user-profile', async (req, res, next) => {
+app.post('/api/user-profile', async (req: Request, res: Response, next: NextFunction) => {
   try {
     // The frontend sends data based on its ProfileData interface.
     // We need to map it to the fields expected by writeUserProfile (which are the JSON keys).
@@ -191,7 +195,7 @@ app.post('/api/user-profile', async (req, res, next) => {
 });
 
 // Upload du logo
-app.post('/api/upload/logo', upload.single('logo'), (req, res) => {
+app.post('/api/upload/logo', upload.single('logo'), (req: Request, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: 'Aucun fichier fourni' });
   }
@@ -199,7 +203,7 @@ app.post('/api/upload/logo', upload.single('logo'), (req, res) => {
 });
 
 // Upload du logo client
-app.post('/api/upload/logo-client', uploadClientLogo.single('logo'), (req, res) => {
+app.post('/api/upload/logo-client', uploadClientLogo.single('logo'), (req: Request, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: 'Aucun fichier fourni' });
   }
@@ -207,7 +211,7 @@ app.post('/api/upload/logo-client', uploadClientLogo.single('logo'), (req, res) 
 });
 
 // Gestion des clients
-app.get('/api/clients', (req, res, next) => {
+app.get('/api/clients', (req: Request, res: Response, next: NextFunction) => {
   try {
     res.json(db.getClients());
   } catch (err) {
@@ -215,7 +219,7 @@ app.get('/api/clients', (req, res, next) => {
   }
 });
 
-app.post('/api/clients', (req, res, next) => {
+app.post('/api/clients', (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
       nom_client,
@@ -260,7 +264,7 @@ app.post('/api/clients', (req, res, next) => {
   }
 });
 
-app.get('/api/clients/:id', (req, res, next) => {
+app.get('/api/clients/:id', (req: Request, res: Response, next: NextFunction) => {
   try {
     const client = db.getClientById(req.params.id);
     if (!client) return res.status(404).json({ error: 'Client non trouvé' });
@@ -270,7 +274,7 @@ app.get('/api/clients/:id', (req, res, next) => {
   }
 });
 
-app.put('/api/clients/:id', (req, res, next) => {
+app.put('/api/clients/:id', (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
       nom_client,
