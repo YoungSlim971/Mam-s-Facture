@@ -3,88 +3,47 @@ set -e
 
 # ---------------------------------------------------------------
 # MAMSFACTUREOPENER.sh
-# Script unifié pour installer les dépendances et lancer l'application
-# Fonctionne sur macOS (Intel ou Apple Silicon)
+# Repairs the project and launches the frontend dev server
+# macOS only
 # ---------------------------------------------------------------
 
-if [[ "$(uname)" != "Darwin" ]]; then
-  echo "❌ Ce script est prévu pour macOS." >&2
+trap 'echo "❌ An error occurred. Exiting." >&2' ERR
+
+if [[ $(uname) != "Darwin" ]]; then
+  echo "❌ This script is intended for macOS." >&2
   exit 1
 fi
 
-# Déplacement à la racine du projet
+# Move to the directory containing this script (project root)
 cd "$(dirname "$0")"
 
-# Ajout d'Homebrew s'il est absent
-if ! command -v brew >/dev/null 2>&1; then
-  echo "🍺 Installation de Homebrew..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  if [ -d /opt/homebrew/bin ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  elif [ -d /usr/local/bin ]; then
-    eval "$(/usr/local/bin/brew shellenv)"
-  fi
-else
-  echo "🍺 Homebrew déjà présent"
-fi
-
-echo "🔄 Mise à jour de Homebrew..."
-brew update >/dev/null
-
-# Installation ou mise à niveau de Node.js et pnpm
-if brew list node >/dev/null 2>&1; then
-  brew upgrade node >/dev/null || true
-else
-  brew install node
-fi
-
-if brew list pnpm >/dev/null 2>&1; then
-  brew upgrade pnpm >/dev/null || true
-else
-  brew install pnpm
-fi
-
-NODE_MAJOR=$(node -v | sed 's/^v\([0-9]*\).*$/\1/')
-if [ "$NODE_MAJOR" -lt 18 ]; then
-  echo "🚀 Mise à niveau de Node.js (>=18)..."
-  brew install node
-fi
-
-PM=pnpm
-
-# Vérification des dossiers
-if [ ! -d backend ]; then
-  echo "❌ Dossier backend introuvable" >&2
-  exit 1
-fi
-if [ ! -d frontend ]; then
-  echo "❌ Dossier frontend introuvable" >&2
+# Ensure we are in the root where frontend/ and backend/ exist
+if [[ ! -d frontend || ! -d backend ]]; then
+  echo "❌ Could not locate frontend/ or backend/ directories." >&2
   exit 1
 fi
 
-echo "📦 Installation des dépendances backend..."
-(cd backend && "$PM" install)
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "❌ pnpm is not installed. Please install it and try again." >&2
+  exit 1
+fi
 
-echo "📦 Installation des dépendances frontend..."
-(cd frontend && "$PM" install)
+echo "🧹 Cleaning project…"
+rm -rf node_modules .pnpm-store pnpm-lock.yaml package-lock.json yarn.lock
+rm -rf frontend/node_modules frontend/.pnpm-store frontend/pnpm-lock.yaml \
+       frontend/package-lock.json frontend/yarn.lock
 
-echo "🚀 Démarrage du backend..."
-(cd backend && "$PM" run dev > ../backend.log 2>&1 &)
-BACK_PID=$!
+echo "🗑️ Removing Tailwind preflight.css files if any…"
+find . -path '*preflight.css' -type f -exec rm -f {} +
 
-echo "🚀 Démarrage du frontend..."
-(cd frontend && "$PM" run dev > ../frontend.log 2>&1 &)
-FRONT_PID=$!
+echo "📦 Installing root dependencies…"
+pnpm install
 
-sleep 5
+echo "📦 Installing frontend dependencies…"
+(cd frontend && pnpm install)
 
-URL="http://localhost:5173"
-echo "🌐 Ouverture de Safari sur $URL..."
-open -a Safari "$URL"
+echo "🚀 Launching app…"
+cd frontend
+echo "App running. Press CTRL+C to stop."
+pnpm run dev
 
-echo "🧹 Nettoyage des anciens scripts..."
-rm -f install_macos.sh launch_safari.sh
-
-echo "✅ Application en cours d'exécution. Appuyez sur Ctrl+C pour quitter."
-trap "kill $BACK_PID $FRONT_PID" SIGINT
-wait $FRONT_PID
