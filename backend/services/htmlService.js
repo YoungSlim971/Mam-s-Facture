@@ -29,7 +29,20 @@ function mapFactureToInvoiceData(facture, clientDetails) {
   clientDetails = clientDetails || {};
 
   const emitterName = facture.emitter_full_name || '-';
-  const emitterAddress = `${facture.emitter_address_street || ''}<br>${facture.emitter_address_postal_code || ''} ${facture.emitter_address_city || ''}`.trim() || '-';
+  // Build emitter address without leaving stray <br> when parts are missing
+  const addressParts = [];
+  if (facture.emitter_address_street) {
+    addressParts.push(facture.emitter_address_street);
+  }
+  const postalCity =
+    [facture.emitter_address_postal_code, facture.emitter_address_city]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+  if (postalCity) {
+    addressParts.push(postalCity);
+  }
+  const emitterAddress = addressParts.length ? addressParts.join('<br>') : '-';
   const emitterSiret = facture.emitter_siret_siren || '-';
   const emitterApe = facture.emitter_ape_naf_code || '-';
   const emitterVatDisplay = facture.emitter_vat_number ? facture.emitter_vat_number : "TVA non applicable – art. 293 B du CGI";
