@@ -23,7 +23,7 @@ export default function Accueil() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <FileText className="h-8 w-8 text-indigo-600 mr-3" />
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-2xl font-bold text-indigo-200">
                 MAM's FACTURE
               </h1>
             </div>
