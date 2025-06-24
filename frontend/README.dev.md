@@ -58,3 +58,16 @@ describe('YourComponentThatUsesApi', () => {
 5.  **Avoid Unnecessary Mocking:** If a component or module does not import from `api.ts` (even indirectly), there's no need to add this mock.
 
 This approach ensures that tests for components relying on `api.ts` can run without errors related to `import.meta.env` and allows you to control the API endpoint values during testing.
+
+## Running E2E Tests
+
+End-to-end tests are written with [Playwright](https://playwright.dev/). The configuration in `playwright.config.ts` automatically launches both the Vite dev server and the backend API. The backend is started in **dev** mode so that type errors do not block the tests.
+
+Run the following from the `frontend` directory:
+
+```bash
+pnpm exec playwright install --with-deps    # first time only
+pnpm exec playwright test                   # run all E2E tests
+```
+
+The servers will listen on `http://localhost:5173` for the frontend and `http://localhost:3001` for the backend. Playwright will stop them when the tests finish.
