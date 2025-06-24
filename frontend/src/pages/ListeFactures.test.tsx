@@ -45,7 +45,7 @@ test('marque une facture comme payée', async () => {
   await waitFor(() =>
     expect(fetch as any).toHaveBeenCalledWith(
       expect.stringContaining('/factures/1'),
-      expect.objectContaining({ method: 'PUT' })
+      expect.objectContaining({ method: 'PATCH' })
     )
   );
 });

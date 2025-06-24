@@ -24,6 +24,7 @@ export interface InvoiceData {
   date_reglement: string;
   date_vente: string;
   penalites: string;
+  status?: 'paid' | 'unpaid';
 }
 
 const ligneSchema = z.object({
@@ -47,6 +48,7 @@ const invoiceSchema = z.object({
   date_reglement: z.string(),
   date_vente: z.string(),
   penalites: z.string(),
+  status: z.enum(['paid','unpaid']).optional(),
 });
 
 
@@ -94,6 +96,7 @@ table.lines td.price, .totals p{ text-align:right; }
     <h1>FACTURE</h1>
     <p>N° ${parsed.numero}</p>
     <p>Date : ${dateStr}</p>
+    <p>Statut : ${parsed.status === 'paid' ? 'Payée' : 'Non payée'}</p>
   </section>
 </header>
 <section class="addresses">

@@ -22,6 +22,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { API_URL } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
+import StatutBadge from '@/components/StatutBadge';
+import {
+  fetchInvoices,
+  updateInvoiceStatus,
+  cacheInvoicesLocally,
+} from '@/utils/invoiceService';
 
 interface Facture {
   id: number;
@@ -160,22 +166,13 @@ export default function ListeFactures() {
 
   const marquerPayee = async (id: number) => {
     try {
-      const response = await fetch(`${API_URL}/factures/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ statut: "payée" })
-      });
-      if (!response.ok) {
-        throw new Error("Erreur lors du changement de statut");
-      }
-      const updatedFacture = await response.json();
+      await updateInvoiceStatus(id, 'payée');
       setFactures(prev => {
         const updated = prev.map(f =>
-          f.id === id ? { ...f, status: updatedFacture.status } : f
+          f.id === id ? { ...f, status: 'paid' } : f
         );
-        return statusFilter === "unpaid"
-          ? updated.filter(f => f.id !== id)
-          : updated;
+        cacheInvoicesLocally(updated);
+        return statusFilter === 'unpaid' ? updated.filter(f => f.id !== id) : updated;
       });
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erreur inattendue");
@@ -397,7 +394,7 @@ export default function ListeFactures() {
                           {facture.date_facture_fr}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          {facture.status === 'paid' ? 'Payée' : 'Non payée'}
+                          <StatutBadge statut={facture.status === 'paid' ? 'payée' : 'non payée'} />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="text-lg font-semibold text-green-600">

@@ -757,6 +757,7 @@ app.get('/api/factures/:id/html', async (req, res) => { // Made async
         date_reglement: mappedData.date_emission, // Placeholder: using emission date
         date_vente: mappedData.date_prestation,  // Placeholder: using prestation date
         penalites: "Pénalités de retard : Taux d'intérêt légal majoré de 10 points. Pas d'escompte pour paiement anticipé.", // Standard penalty clause
+        status: facture.status,
       };
 
       if (userProfile && userProfile.logo_path && !invoiceDataForTs.logo_path) {

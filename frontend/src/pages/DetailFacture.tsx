@@ -7,6 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import { computeTotals } from '@/lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import StatutBadge from '@/components/StatutBadge';
 
 interface Facture {
   id: number;
@@ -284,9 +285,7 @@ export default function DetailFacture() {
                       <FileText className="h-5 w-5 text-gray-400 mr-3" />
                       <div>
                         <p className="text-sm text-gray-500">Statut</p>
-                        <p className="font-semibold text-gray-900">
-                          {facture.status === 'paid' ? 'Payée' : 'Non payée'}
-                        </p>
+                        <StatutBadge statut={facture.status === 'paid' ? 'payée' : 'non payée'} />
                       </div>
                     </div>
                   )}
