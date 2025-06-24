@@ -24,8 +24,10 @@ interface Client {
   siren?: string
   siret?: string
   legal_form?: string
+  forme_juridique?: string
   tva?: string; // This will be "Numéro de TVA intracommunautaire"
   rcs_number?: string
+  rcs?: string
   adresse_facturation_rue?: string;
   adresse_facturation_cp?: string;
   adresse_facturation_ville?: string;

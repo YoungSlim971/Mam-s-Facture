@@ -23,8 +23,10 @@ interface Client {
   siren?: string
   siret?: string
   legal_form?: string
+  forme_juridique?: string
   tva?: string
   rcs_number?: string
+  rcs?: string
   logo?: string
   factures: number[]
 }

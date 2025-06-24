@@ -18,6 +18,7 @@ interface ClientOption {
   nom_client: string;
   nom_entreprise?: string;
   telephone?: string;
+  email?: string;
   adresse?: string; // Generic address, might be composed from structured fields
   adresse_facturation_rue?: string;
   adresse_facturation_cp?: string;
@@ -27,8 +28,10 @@ interface ClientOption {
   siren?: string;
   siret?: string;
   legal_form?: string;
+  forme_juridique?: string;
   tva?: string; // Client's TVA number
   rcs_number?: string;
+  rcs?: string;
 }
 
 import { UserProfileJson } from '@/lib/api'; // Import UserProfileJson
@@ -62,6 +65,12 @@ export default function CreerFacture() {
   const [nomEntreprise, setNomEntreprise] = useState(''); // Displayed client company name
   const [telephone, setTelephone] = useState(''); // Client phone
   const [adresse, setAdresse] = useState(''); // Client address display
+  const [email, setEmail] = useState('');
+  const [siren, setSiren] = useState('');
+  const [siret, setSiret] = useState('');
+  const [tva, setTva] = useState('');
+  const [rcs, setRcs] = useState('');
+  const [formeJuridique, setFormeJuridique] = useState('');
   const [clientId, setClientId] = useState<number | ''>('');
   const [clients, setClients] = useState<ClientOption[]>([]);
 
@@ -160,6 +169,12 @@ export default function CreerFacture() {
       setNomEntreprise('');
       setTelephone('');
       setAdresse('');
+      setEmail('');
+      setSiren('');
+      setSiret('');
+      setTva('');
+      setRcs('');
+      setFormeJuridique('');
       setTitle('');
       return;
     }
@@ -170,10 +185,16 @@ export default function CreerFacture() {
       setNomClient(client.nom_client);
       setNomEntreprise(client.nom_entreprise || '');
       setTelephone(client.telephone || '');
+      setEmail(client.email || '');
       const clientAddressDisplay = client.adresse_facturation_rue && client.adresse_facturation_cp && client.adresse_facturation_ville
         ? `${client.adresse_facturation_rue}, ${client.adresse_facturation_cp} ${client.adresse_facturation_ville}`
         : client.adresse || '';
       setAdresse(clientAddressDisplay);
+      setSiren(client.siren || '');
+      setSiret(client.siret || '');
+      setTva(client.tva || '');
+      setRcs(client.rcs || client.rcs_number || '');
+      setFormeJuridique(client.forme_juridique || client.legal_form || '');
       setTitle(client.intitule || '');
     }
   };
@@ -366,6 +387,45 @@ export default function CreerFacture() {
                   {clients.map((c) => (<option key={c.id} value={c.id}>{c.nom_client} {c.nom_entreprise ? `(${c.nom_entreprise})` : ''}</option>))}
                 </select>
                 {erreurs.clientId && <p className="mt-1 text-sm text-red-600">{erreurs.clientId}</p>}
+              </div>
+              <div className="md:col-span-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                  {/* Infos client */}
+                  <div>
+                    <label className="block text-sm font-medium">Nom du client</label>
+                    <input type="text" value={nomClient || '-'} readOnly className="input-style" />
+
+                    <label className="block text-sm font-medium mt-2">Nom de l’entreprise</label>
+                    <input type="text" value={nomEntreprise || '-'} readOnly className="input-style" />
+
+                    <label className="block text-sm font-medium mt-2">E-mail</label>
+                    <input type="text" value={email || '-'} readOnly className="input-style" />
+
+                    <label className="block text-sm font-medium mt-2">Téléphone</label>
+                    <input type="text" value={telephone || '-'} readOnly className="input-style" />
+
+                    <label className="block text-sm font-medium mt-2">Adresse complète</label>
+                    <input type="text" value={adresse || '-'} readOnly className="input-style" />
+                  </div>
+
+                  {/* Infos légales */}
+                  <div>
+                    <label className="block text-sm font-medium">SIREN</label>
+                    <input type="text" value={siren || '-'} readOnly className="input-style" />
+
+                    <label className="block text-sm font-medium mt-2">SIRET</label>
+                    <input type="text" value={siret || '-'} readOnly className="input-style" />
+
+                    <label className="block text-sm font-medium mt-2">Numéro TVA</label>
+                    <input type="text" value={tva || '-'} readOnly className="input-style" />
+
+                    <label className="block text-sm font-medium mt-2">RCS / RM</label>
+                    <input type="text" value={rcs || '-'} readOnly className="input-style" />
+
+                    <label className="block text-sm font-medium mt-2">Forme juridique</label>
+                    <input type="text" value={formeJuridique || '-'} readOnly className="input-style" />
+                  </div>
+                </div>
               </div>
               <div>
                 <label htmlFor="nomClient" className="block text-sm font-medium text-gray-700 mb-2">Nom du client *</label>
