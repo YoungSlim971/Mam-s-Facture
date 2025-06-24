@@ -6,6 +6,7 @@ backend/node_modules/
 # build outputs
 frontend/dist/
 backend/dist/
+electron/dist/
 backend/database/*.sqlite
 backend/uploads/*
 !backend/uploads/.gitkeep
