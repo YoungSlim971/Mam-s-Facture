@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import Decimal from 'decimal.js';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { computeTotals } = require('./utils/computeTotals');
+import { computeTotals } from './utils/computeTotals';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 const euroFormatter = new Intl.NumberFormat('fr-FR', {
