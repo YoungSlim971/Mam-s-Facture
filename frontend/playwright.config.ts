@@ -70,7 +70,7 @@ export default defineConfig({
       timeout: 300000,
     },
     {
-      command: 'pnpm start',
+      command: 'pnpm dev',
       port: 3001,
       reuseExistingServer: !process.env.CI,
       cwd: '../backend',
