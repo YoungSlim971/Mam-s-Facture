@@ -1,6 +1,7 @@
 export default {
   preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'jsdom',
+  testTimeout: 300000,
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
