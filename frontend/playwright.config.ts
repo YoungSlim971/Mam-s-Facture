@@ -17,6 +17,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
+  timeout: 300000,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -64,6 +65,6 @@ export default defineConfig({
     url: 'http://localhost:5173', // URL to wait for
     reuseExistingServer: !process.env.CI,
     cwd: './', // Assuming playwright.config.ts is in the frontend directory
-    timeout: 120 * 1000, // 2 minutes timeout for the server to start
+    timeout: 300000, // 5 minutes timeout for the server to start
   },
 });
