@@ -4,6 +4,7 @@ import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
 import LogoDropzone from '@/components/LogoDropzone';
 import { API_URL, apiClient } from '@/lib/api';
 import { computeTotals } from '@/lib/utils';
+import { updateInvoice, cacheInvoicesLocally } from '@/utils/invoiceService';
 
 interface LigneFacture {
   description: string;
@@ -244,35 +245,26 @@ export default function ModifierFacture() {
         ligne.description.trim() && ligne.quantite > 0 && ligne.prix_unitaire >= 0
       );
 
-      const response = await fetch(`${API_URL}/factures/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          numero_facture: numeroFacture.trim(),
-          client_id: clientId || undefined,
-          nom_client: nomClient.trim(),
-          nom_entreprise: nomEntreprise.trim(),
-          telephone: telephone.trim(),
-          adresse: adresse.trim(),
-          date_facture: dateFacture,
-          title: title.trim(),
-          status,
-          logo_path: logoPath.trim(),
-          siren: siren.trim(),
-          siret: siret.trim(),
-          legal_form: legalForm.trim(),
-          vat_number: vatNumber.trim(),
-          rcs_number: rcsNumber.trim(),
-          lignes: lignesValides
-        }),
+      await updateInvoice(Number(id), {
+        numero_facture: numeroFacture.trim(),
+        client_id: clientId || undefined,
+        nom_client: nomClient.trim(),
+        nom_entreprise: nomEntreprise.trim(),
+        telephone: telephone.trim(),
+        adresse: adresse.trim(),
+        date_facture: dateFacture,
+        title: title.trim(),
+        status,
+        logo_path: logoPath.trim(),
+        siren: siren.trim(),
+        siret: siret.trim(),
+        legal_form: legalForm.trim(),
+        vat_number: vatNumber.trim(),
+        rcs_number: rcsNumber.trim(),
+        lignes: lignesValides,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || 'Erreur lors de la modification de la facture');
-      }
+      cacheInvoicesLocally([]);
 
       alert('Facture modifiée avec succès !');
       navigate(`/factures/${id}`);
