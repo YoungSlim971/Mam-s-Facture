@@ -124,5 +124,65 @@ export const apiClient = {
     }
     return response.json();
   },
+
+  // ---------- Client API Helpers ----------
+
+  getClients: async (): Promise<any[]> => {
+    const token = getAuthToken();
+    const response = await fetch(`${API_URL}/clients`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch clients: ${response.statusText}`);
+    }
+    return response.json();
+  },
+
+  getClient: async (id: number): Promise<any> => {
+    const token = getAuthToken();
+    const response = await fetch(`${API_URL}/clients/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch client ${id}: ${response.statusText}`);
+    }
+    return response.json();
+  },
+
+  createClient: async (client: any): Promise<any> => {
+    const token = getAuthToken();
+    const response = await fetch(`${API_URL}/clients`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(client),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to create client: ${response.statusText}`);
+    }
+    return response.json();
+  },
+
+  updateClient: async (id: number, client: any): Promise<any> => {
+    const token = getAuthToken();
+    const response = await fetch(`${API_URL}/clients/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(client),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to update client ${id}: ${response.statusText}`);
+    }
+    return response.json();
+  },
   // ... other existing api client methods if any
 };

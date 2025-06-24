@@ -2,18 +2,15 @@ import { useEffect, useState } from 'react'
 import FormulaireClient from './FormulaireClient'
 import CarteClient, { Client } from './CarteClient'
 import { Input } from '@/components/ui/input'
-import { API_URL } from '@/lib/api'
+import { apiClient } from '@/lib/api'
 
 export default function ListeClients() {
   const [clients, setClients] = useState<Client[]>([])
   const [search, setSearch] = useState('')
 
   const load = async () => {
-    const res = await fetch(`${API_URL}/clients`)
-    if (res.ok) {
-      const data = await res.json()
-      setClients(data)
-    }
+    const data = await apiClient.getClients()
+    setClients(data)
   }
 
   useEffect(() => {

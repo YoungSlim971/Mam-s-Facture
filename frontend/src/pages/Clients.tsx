@@ -1,7 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react'
 import { Plus, X, Edit, Save, ArrowLeft } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { API_URL } from '@/lib/api'
+import { API_URL, apiClient } from '@/lib/api'
 import {
   Card,
   CardHeader,
@@ -93,11 +93,8 @@ export default function Clients() {
 
 
   const chargerClients = async () => {
-    const res = await fetch(`${API_URL}/clients`)
-    if (res.ok) {
-      const data = await res.json()
-      setClients(data)
-    }
+    const data = await apiClient.getClients();
+    setClients(data);
   }
 
   useEffect(() => {
@@ -107,32 +104,28 @@ export default function Clients() {
   const creerClient = async (e: FormEvent) => {
     e.preventDefault()
     if (!nom.trim()) return
-    const res = await fetch(`${API_URL}/clients`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    try {
+      await apiClient.createClient({
         nom_client: nom,
         nom_entreprise: entreprise,
-        telephone, // Keep existing fields that are not in the new form spec but part of the model
-        email,     // Keep existing fields
-        intitule,  // Keep existing fields
-        siren,     // Keep existing fields
-        siret,     // Keep existing fields
-        legal_form: legalForm, // Keep existing fields
-        rcs_number: rcsNumber, // Keep existing fields
+        telephone,
+        email,
+        intitule,
+        siren,
+        siret,
+        legal_form: legalForm,
+        rcs_number: rcsNumber,
 
-        adresse_facturation_rue: adresseFacturationRue,
-        adresse_facturation_cp: adresseFacturationCp,
-        adresse_facturation_ville: adresseFacturationVille,
+      adresse_facturation_rue: adresseFacturationRue,
+      adresse_facturation_cp: adresseFacturationCp,
+      adresse_facturation_ville: adresseFacturationVille,
 
-        adresse_livraison_rue: adresseLivraisonIdentique ? adresseFacturationRue : adresseLivraisonRue,
-        adresse_livraison_cp: adresseLivraisonIdentique ? adresseFacturationCp : adresseLivraisonCp,
-        adresse_livraison_ville: adresseLivraisonIdentique ? adresseFacturationVille : adresseLivraisonVille,
+      adresse_livraison_rue: adresseLivraisonIdentique ? adresseFacturationRue : adresseLivraisonRue,
+      adresse_livraison_cp: adresseLivraisonIdentique ? adresseFacturationCp : adresseLivraisonCp,
+      adresse_livraison_ville: adresseLivraisonIdentique ? adresseFacturationVille : adresseLivraisonVille,
 
-        tva: tvaClient, // Numéro de TVA intracommunautaire (client)
-      })
-    })
-    if (res.ok) {
+      tva: tvaClient,
+      });
       toast({
         title: 'Client créé',
         description: `Le client ${nom} ${entreprise ? '('+entreprise+')' : ''} a été créé avec succès.`,
@@ -158,11 +151,10 @@ export default function Clients() {
 
       setShowForm(false)
       chargerClients()
-    } else {
-      const data = await res.json().catch(() => null)
+    } catch (error: any) {
       toast({
         title: 'Erreur de création',
-        description: data?.error || 'Erreur lors de la création du client.',
+        description: error.message || 'Erreur lors de la création du client.',
         variant: 'destructive',
       });
     }
@@ -172,10 +164,8 @@ export default function Clients() {
     e.preventDefault()
     if (editingId === null) return
     if (!editNom.trim()) return
-    const res = await fetch(`${API_URL}/clients/${editingId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    try {
+      await apiClient.updateClient(editingId, {
         nom_client: editNom,
         nom_entreprise: editEntreprise,
         telephone: editTelephone,
@@ -195,9 +185,7 @@ export default function Clients() {
         adresse_livraison_ville: editAdresseLivraisonIdentique ? editAdresseFacturationVille : editAdresseLivraisonVille,
 
         tva: editTvaClient,
-      })
-    })
-    if (res.ok) {
+      });
       setEditingId(null)
       // Reset edit form states
       setEditNom('')
@@ -223,11 +211,10 @@ export default function Clients() {
         description: `Le client ${editNom} ${editEntreprise ? '('+editEntreprise+')' : ''} a été mis à jour.`,
       });
       navigate(`/clients/${editingId}`); // Redirect to the client's profile page
-    } else {
-      const data = await res.json().catch(() => null);
+    } catch (error: any) {
       toast({
         title: 'Erreur de mise à jour',
-        description: data?.error || 'Erreur lors de la mise à jour du client.',
+        description: error.message || 'Erreur lors de la mise à jour du client.',
         variant: 'destructive',
       });
     }

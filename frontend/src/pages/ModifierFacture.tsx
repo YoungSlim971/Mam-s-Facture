@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
 import LogoDropzone from '@/components/LogoDropzone';
-import { API_URL } from '@/lib/api';
+import { API_URL, apiClient } from '@/lib/api';
 import { computeTotals } from '@/lib/utils';
 
 interface LigneFacture {
@@ -84,11 +84,8 @@ export default function ModifierFacture() {
 
   useEffect(() => {
     const fetchClients = async () => {
-      const res = await fetch(`${API_URL}/clients`)
-      if (res.ok) {
-        const data = await res.json()
-        setClients(data)
-      }
+      const data = await apiClient.getClients();
+      setClients(data);
     }
     fetchClients()
   }, [])

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { API_URL } from '@/lib/api'
+import { apiClient } from '@/lib/api'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
 
@@ -38,11 +38,8 @@ export default function ClientProfile() {
 
   useEffect(() => {
     const fetchClient = async () => {
-      const res = await fetch(`${API_URL}/clients/${id}`)
-      if (res.ok) {
-        const data = await res.json()
-        setClient(data)
-      }
+      const data = await apiClient.getClient(Number(id))
+      setClient(data)
     }
     if (id) fetchClient()
   }, [id])
