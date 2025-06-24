@@ -75,20 +75,20 @@ export default function ClientProfile() {
               Aucune image
             </div>
           )}
-          {client.nom_entreprise && <div>Entreprise : {client.nom_entreprise}</div>}
-          {client.telephone && <div>Téléphone : {client.telephone}</div>}
-          {client.adresse_facturation && <div>Adresse facturation : {client.adresse_facturation}</div>}
-          {client.adresse_livraison && <div>Adresse livraison : {client.adresse_livraison}</div>}
-          {client.intitule && <div>Intitulé : {client.intitule}</div>}
+          <div>Entreprise : {client.nom_entreprise || '-'}</div>
+          <div>Téléphone : {client.telephone || '-'}</div>
+          <div>Adresse facturation : {client.adresse_facturation || '-'}</div>
+          <div>Adresse livraison : {client.adresse_livraison || '-'}</div>
+          <div>Intitulé : {client.intitule || '-'}</div>
 
           <fieldset className="border border-gray-200 rounded-md p-2 shadow-sm space-y-1">
             <legend className="text-sm font-medium">Informations légales</legend>
-            <div>Email : {client.email || ''}</div>
-            <div>SIREN : {client.siren || ''}</div>
-            <div>SIRET : {client.siret || ''}</div>
-            <div>RCS : {client.rcs_number || ''}</div>
-            <div>Forme juridique : {client.legal_form || ''}</div>
-            <div>N° TVA : {client.tva || ''}</div>
+            <div>Email : {client.email || '-'}</div>
+            <div>SIREN : {client.siren || '-'}</div>
+            <div>SIRET : {client.siret || '-'}</div>
+            <div>RCS : {client.rcs_number || '-'}</div>
+            <div>Forme juridique : {client.legal_form || '-'}</div>
+            <div>N° TVA : {client.tva || '-'}</div>
           </fieldset>
 
           <div>{(client.factures || []).length} facture(s)</div>
