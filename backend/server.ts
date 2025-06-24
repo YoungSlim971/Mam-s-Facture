@@ -12,6 +12,7 @@ const { generateInvoiceHTML } = require('./invoiceHTML');
 const SQLiteDatabase = require('./database/sqlite');
 const { computeTotals } = require('./utils/computeTotals');
 const { getRandomQuote } = require('./services/quoteService');
+const { errorHandler } = require('./middleware/errorHandler');
 const { readUserProfile, writeUserProfile, USER_PROFILE_PATH } = require('./services/userProfileService');
 
 const app = express();
@@ -134,7 +135,7 @@ app.use('/api/clients', authenticateToken);
 app.use('/api/user-profile', authenticateToken); // Secure user profile endpoint
 
 // User Profile Endpoints
-app.get('/api/user-profile', async (req, res) => {
+app.get('/api/user-profile', async (req, res, next) => {
   try {
     const profile = await readUserProfile();
     if (profile) {
@@ -149,14 +150,11 @@ app.get('/api/user-profile', async (req, res) => {
     }
   } catch (err) {
     console.error('GET /api/user-profile error:', err);
-    res.status(500).json({
-      error: "Erreur lors de la récupération du profil utilisateur",
-      details: err.message,
-    });
+    next(err);
   }
 });
 
-app.post('/api/user-profile', async (req, res) => {
+app.post('/api/user-profile', async (req, res, next) => {
   try {
     // The frontend sends data based on its ProfileData interface.
     // We need to map it to the fields expected by writeUserProfile (which are the JSON keys).
@@ -187,10 +185,7 @@ app.post('/api/user-profile', async (req, res) => {
             details: err.message,
         });
     } else {
-        res.status(500).json({
-          error: "Erreur interne lors de la mise à jour du profil utilisateur",
-          details: err.message,
-        });
+        next(err);
     }
   }
 });
@@ -212,18 +207,15 @@ app.post('/api/upload/logo-client', uploadClientLogo.single('logo'), (req, res) 
 });
 
 // Gestion des clients
-app.get('/api/clients', (req, res) => {
+app.get('/api/clients', (req, res, next) => {
   try {
     res.json(db.getClients());
   } catch (err) {
-    res.status(500).json({
-      error: 'Erreur lors de la récupération des clients',
-      details: err.message
-    });
+    next(err);
   }
 });
 
-app.post('/api/clients', (req, res) => {
+app.post('/api/clients', (req, res, next) => {
   try {
     const {
       nom_client,
@@ -264,27 +256,21 @@ app.post('/api/clients', (req, res) => {
     const client = db.getClientById(id);
     res.status(201).json(client);
   } catch (err) {
-    res.status(500).json({
-      error: 'Erreur lors de la création du client',
-      details: err.message
-    });
+    next(err);
   }
 });
 
-app.get('/api/clients/:id', (req, res) => {
+app.get('/api/clients/:id', (req, res, next) => {
   try {
     const client = db.getClientById(req.params.id);
     if (!client) return res.status(404).json({ error: 'Client non trouvé' });
     res.json(client);
   } catch (err) {
-    res.status(500).json({
-      error: 'Erreur lors de la récupération du client',
-      details: err.message
-    });
+    next(err);
   }
 });
 
-app.put('/api/clients/:id', (req, res) => {
+app.put('/api/clients/:id', (req, res, next) => {
   try {
     const {
       nom_client,
@@ -327,15 +313,12 @@ app.put('/api/clients/:id', (req, res) => {
     db.synchroniserFacturesParClient(); // Ensure aggregates are updated
     res.json(updatedClient);
   } catch (err) {
-    res.status(500).json({
-      error: 'Erreur lors de la mise à jour du client',
-      details: err.message
-    });
+    next(err);
   }
 });
 
 // GET /api/factures - Liste toutes les factures avec pagination et recherche
-app.get('/api/factures', (req, res) => {
+app.get('/api/factures', (req, res, next) => {
   try {
     const {
       page = 1,
@@ -408,15 +391,12 @@ app.get('/api/factures', (req, res) => {
       }
     });
   } catch (err) {
-    res.status(500).json({ 
-      error: 'Erreur lors de la récupération des factures',
-      details: err.message 
-    });
+    next(err);
   }
 });
 
 // GET /api/factures/:id - Récupère une facture spécifique avec ses lignes
-app.get('/api/factures/:id', (req, res) => {
+app.get('/api/factures/:id', (req, res, next) => {
   try {
     const { id } = req.params;
     const facture = db.getFactureById(id);
@@ -431,15 +411,12 @@ app.get('/api/factures/:id', (req, res) => {
       montant_total_fr: formatEuro(facture.montant_total)
     });
   } catch (err) {
-    res.status(500).json({ 
-      error: 'Erreur lors de la récupération de la facture',
-      details: err.message 
-    });
+    next(err);
   }
 });
 
 // POST /api/factures - Crée une nouvelle facture
-app.post('/api/factures', async (req, res) => { // Added async
+app.post('/api/factures', async (req, res, next) => { // Added async
   try {
     // await dbReady; // DB still needed for clients, invoices table etc.
     const userProfile = await readUserProfile(); // Fetch user profile from JSON
@@ -571,15 +548,12 @@ app.post('/api/factures', async (req, res) => { // Added async
       numero_facture
     });
   } catch (err) {
-    res.status(500).json({ 
-      error: 'Erreur lors de la création de la facture',
-      details: err.message 
-    });
+    next(err);
   }
 });
 
 // PUT /api/factures/:id - Mise à jour partielle d'une facture
-app.put('/api/factures/:id', (req, res) => {
+app.put('/api/factures/:id', (req, res, next) => {
   try {
     const { id } = req.params;
     const facture = db.getFactureById(id);
@@ -642,15 +616,12 @@ app.put('/api/factures/:id', (req, res) => {
     res.json(updated);
   } catch (err) {
     console.error('Erreur lors de PUT /api/factures/:id', err);
-    res.status(500).json({
-      error: 'Erreur lors de la mise à jour de la facture',
-      details: err.message
-    });
+    next(err);
   }
 });
 
 // PATCH /api/factures/:id/status - Met à jour uniquement le statut d'une facture
-app.patch('/api/factures/:id/status', (req, res) => {
+app.patch('/api/factures/:id/status', (req, res, next) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -670,15 +641,12 @@ app.patch('/api/factures/:id/status', (req, res) => {
     if (!updatedInvoice) return res.status(404).json({ error: 'Facture non trouvée après mise à jour du statut' });
     res.json(updatedInvoice);
   } catch (err) {
-    res.status(500).json({
-      error: 'Erreur lors de la mise à jour du statut',
-      details: err.message
-    });
+    next(err);
   }
 });
 
 // DELETE /api/factures/:id - Supprime une facture
-app.delete('/api/factures/:id', (req, res) => {
+app.delete('/api/factures/:id', (req, res, next) => {
   try {
     const { id } = req.params;
     const success = db.deleteFacture(id);
@@ -691,15 +659,12 @@ app.delete('/api/factures/:id', (req, res) => {
 
     res.json({ message: 'Facture supprimée avec succès' });
   } catch (err) {
-    res.status(500).json({ 
-      error: 'Erreur lors de la suppression de la facture',
-      details: err.message 
-    });
+    next(err);
   }
 });
 
 // GET /api/factures/:id/html - Génère le HTML d'une facture
-app.get('/api/factures/:id/html', async (req, res) => { // Made async
+app.get('/api/factures/:id/html', async (req, res, next) => { // Made async
   try {
     await dbReady; // Ensure db is initialized
     const facture = db.getFactureById(req.params.id);
@@ -775,13 +740,7 @@ app.get('/api/factures/:id/html', async (req, res) => { // Made async
 
     } catch (buildError) {
       console.error("❌ Failed to build facture HTML using generateInvoiceHTML:", buildError);
-      // This specific error is about HTML generation failure
-      return res.status(500).json({
-        message: "HTML generation failed",
-        error: buildError.message,
-        details: buildError.stack, // Send stack in test env for more details
-        stack: process.env.NODE_ENV === 'test' ? buildError.stack : undefined
-      });
+      return next(buildError);
     }
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -790,13 +749,8 @@ app.get('/api/factures/:id/html', async (req, res) => { // Made async
     res.send(html);
 
   } catch (err) {
-    // This outer catch handles other errors like DB issues or unexpected errors before HTML generation
     console.error("Error in /api/factures/:id/html route (outside HTML build):", err);
-    res.status(500).json({
-      error: 'Erreur lors de la récupération des données ou de la préparation de la facture HTML',
-      details: err.message,
-      stack: process.env.NODE_ENV === 'test' ? err.stack : undefined
-    });
+    next(err);
   }
 });
 
@@ -810,17 +764,17 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.get('/api/quote', (req, res) => {
+app.get('/api/quote', (req, res, next) => {
   try {
     const quote = getRandomQuote();
     res.json(quote);
-  } catch {
-    res.status(500).json({ error: 'Erreur lors de la récupération de la citation' });
+  } catch (err) {
+    next(new Error('Erreur lors de la récupération de la citation'));
   }
 });
 
 // Route pour le camembert factures payées vs impayées du mois courant
-app.get('/api/invoices', (req, res) => {
+app.get('/api/invoices', (req, res, next) => {
   const { month } = req.query;
   if (month !== 'current') {
     return res.status(400).json({ error: 'Paramètre month invalide' });
@@ -838,12 +792,12 @@ app.get('/api/invoices', (req, res) => {
     const unpaid = current.filter(f => f.status !== 'paid').length;
     res.json({ paid, unpaid });
   } catch (err) {
-    res.status(500).json({ error: 'Erreur interne', details: err.message });
+    next(err);
   }
 });
 
 // Route de statistiques
-app.get('/api/stats', (req, res) => {
+app.get('/api/stats', (req, res, next) => {
   try {
     const factures = db.getFactures();
     const total = factures.reduce((sum, f) => sum + f.montant_total, 0);
@@ -854,10 +808,7 @@ app.get('/api/stats', (req, res) => {
       factureRecente: factures.length > 0 ? factures[0] : null
     });
   } catch (err) {
-    res.status(500).json({ 
-      error: 'Erreur lors de la récupération des statistiques',
-      details: err.message 
-    });
+    next(err);
   }
 });
 
@@ -865,7 +816,7 @@ app.get('/api/stats', (req, res) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Handles any requests that don't match the ones above
-app.get('*', (req, res) => {
+app.get('*', (req, res, next) => {
   // Check if the request is for an API route, if so, don't serve index.html
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
@@ -873,10 +824,13 @@ app.get('*', (req, res) => {
   // For any other route, serve the frontend's index.html
   res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
     if (err) {
-      res.status(500).send(err);
+      next(err);
     }
   });
 });
+
+// Centralized error handler
+app.use(errorHandler);
 
 // Démarrage du serveur
 if (require.main === module) {
