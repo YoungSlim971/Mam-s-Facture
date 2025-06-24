@@ -1,0 +1,16 @@
+{
+  "appId": "com.mamsfacture.app",
+  "productName": "MAMS Facture",
+  "files": [
+    "assets/**/*",
+    "backend/dist/**/*",
+    "frontend/dist/**/*",
+    "electron/dist/**/*",
+    "package.json"
+  ],
+  "mac": {
+    "target": ["dmg"],
+    "icon": "assets/icon.icns",
+    "artifactName": "MamsFacture-${version}-${arch}.${ext}"
+  }
+}

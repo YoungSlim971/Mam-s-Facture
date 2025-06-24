@@ -1,5 +1,21 @@
 {
+  "name": "mams-facture-desktop",
+  "private": true,
+  "scripts": {
+    "build:web": "cd frontend && pnpm run build",
+    "build:backend": "cd backend && pnpm run build",
+    "build:electron": "pnpm exec tsc -p electron/tsconfig.json",
+    "build": "pnpm run build:web && pnpm run build:backend && pnpm run build:electron && electron-builder",
+    "start": "pnpm run build:web && pnpm run build:backend && pnpm run build:electron && electron ."
+  },
   "dependencies": {
     "playwright": "^1.53.1"
+  },
+  "devDependencies": {
+    "@types/electron": "^1.6.12",
+    "@types/node": "^24.0.3",
+    "electron": "^28.2.3",
+    "electron-builder": "^26.0.12",
+    "typescript": "^5.6.3"
   }
 }
