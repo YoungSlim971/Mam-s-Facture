@@ -146,15 +146,14 @@ export default function CreerFacture() {
 
       if(profileFetched) { // Only fetch clients if profile was fetched successfully
         try {
-          const clientsRes = await fetch(`${API_URL}/clients`); // TODO: Use apiClient if available for clients
-          if (clientsRes.ok) {
-            const clientsData = await clientsRes.json();
-            setClients(clientsData);
-          } else {
-            toast({ title: 'Erreur Chargement Clients', description: 'Impossible de charger la liste des clients.', variant: 'destructive' });
-          }
-        } catch (error) {
-          toast({ title: 'Erreur Réseau Clients', description: 'Impossible de joindre l\'API pour charger les clients.', variant: 'destructive' });
+          const clientsData = await apiClient.getClients();
+          setClients(clientsData);
+        } catch (error: any) {
+          toast({
+            title: 'Erreur Chargement Clients',
+            description: error.message || 'Impossible de charger la liste des clients.',
+            variant: 'destructive',
+          });
         }
       }
       setPageLoading(false);

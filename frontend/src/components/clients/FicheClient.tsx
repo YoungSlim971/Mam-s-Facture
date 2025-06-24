@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
-import { API_URL } from '@/lib/api'
+import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Client } from './CarteClient'
@@ -12,8 +12,14 @@ export default function FicheClient() {
 
   useEffect(() => {
     ;(async () => {
-      const res = await fetch(`${API_URL}/clients/${id}`)
-      if (res.ok) setClient(await res.json())
+      if (id) {
+        try {
+          const data = await apiClient.getClient(Number(id))
+          setClient(data)
+        } catch (error) {
+          console.error('Erreur chargement client', error)
+        }
+      }
     })()
   }, [id])
 

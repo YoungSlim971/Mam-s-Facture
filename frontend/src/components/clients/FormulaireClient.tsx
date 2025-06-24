@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { API_URL } from '@/lib/api'
+import { apiClient } from '@/lib/api'
 
 interface Props {
   onCreated?: () => void
@@ -25,10 +25,8 @@ export default function FormulaireClient({ onCreated }: Props) {
   const submit = async (e: FormEvent) => {
     e.preventDefault()
     if (!nom.trim()) return
-    const res = await fetch(`${API_URL}/clients`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    try {
+      await apiClient.createClient({
         nom_client: nom,
         prenom_client: prenom,
         nom_entreprise: entreprise,
@@ -40,8 +38,20 @@ export default function FormulaireClient({ onCreated }: Props) {
         tva,
         logo
       })
-    })
-    if (res.ok) {
+      setNom('')
+      setPrenom('')
+      setEntreprise('')
+      setTelephone('')
+      setEmail('')
+      setAdresseFact('')
+      setAdresseLiv('')
+      setSiret('')
+      setTva('')
+      setLogo('')
+      onCreated?.()
+    } catch (error) {
+      console.error('Erreur création client', error)
+    }
       setNom('')
       setPrenom('')
       setEntreprise('')
