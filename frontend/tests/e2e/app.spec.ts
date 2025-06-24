@@ -6,6 +6,9 @@ const INVOICE_SUBJECT_E2E = 'E2E Test Invoice Subject';
 
 test.describe('Mam-s-Facture E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('apiToken', 'test-token');
+    });
     await page.goto('/');
   });
 
