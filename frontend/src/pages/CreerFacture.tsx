@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
 import LogoDropzone from '@/components/LogoDropzone';
 import { API_URL, apiClient } from '@/lib/api';
+import { getUserProfileFromLocal, fetchAndSyncUserProfile } from '@/utils/userProfile';
 import { computeTotals } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import numeral from 'numeral';
@@ -97,11 +98,30 @@ export default function CreerFacture() {
     const fetchInitialData = async () => {
       setPageLoading(true);
       let profileFetched = false;
-      // Fetch seller profile first
+
+      // Load from localStorage first for fast display
+      const localProfile = getUserProfileFromLocal();
+      if (localProfile) {
+        setSellerProfile({
+          full_name: localProfile.raison_sociale || '',
+          address_street: localProfile.adresse || '',
+          address_postal_code: localProfile.code_postal || '',
+          address_city: localProfile.ville || '',
+          siret_siren: localProfile.siret || '',
+          ape_naf_code: localProfile.ape_naf || '',
+          vat_number: localProfile.tva_intra || '',
+          legal_form: localProfile.forme_juridique || '',
+          rcs_rm: localProfile.rcs_ou_rm || '',
+          email: localProfile.email || '',
+          phone: localProfile.phone || '',
+          social_capital: localProfile.social_capital || '',
+        });
+        profileFetched = true;
+      }
+
       try {
-        const userProfileJson = await apiClient.getUserProfile(); // Fetches UserProfileJson
+        const userProfileJson = await fetchAndSyncUserProfile();
         if (userProfileJson) {
-          // Map UserProfileJson to SellerProfileState
           setSellerProfile({
             full_name: userProfileJson.raison_sociale || '',
             address_street: userProfileJson.adresse || '',
@@ -112,39 +132,36 @@ export default function CreerFacture() {
             vat_number: userProfileJson.tva_intra || '',
             legal_form: userProfileJson.forme_juridique || '',
             rcs_rm: userProfileJson.rcs_ou_rm || '',
-            // Optional fields from UserProfileJson if they exist (they were added to UserProfileJson interface for this)
             email: userProfileJson.email || '',
             phone: userProfileJson.phone || '',
             social_capital: userProfileJson.social_capital || '',
           });
           profileFetched = true;
         }
-        // If profileData is null/undefined but no error, it means API returned empty successfully (should not happen with 404)
       } catch (error: any) {
         console.error('Failed to fetch seller profile:', error);
-        // Check if error is due to profile not found (404)
-        if (error.message && error.message.includes('404')) {
-          toast({
-            title: 'Profil Vendeur Non Trouvé',
-            description: "Veuillez d'abord configurer vos informations dans 'Mes Informations'. Vous allez être redirigé.",
-            variant: 'default', // Changed from 'warning'
-            duration: 5000,
-          });
-          navigate('/profile'); // Redirect to profile settings page
-          // No need to fetch clients if profile is missing and we redirect
-          setPageLoading(false);
-          return;
-        } else {
-          toast({
-            title: 'Erreur Chargement Profil Vendeur',
-            description: 'Impossible de charger les informations du vendeur. Certaines fonctionnalités pourraient être affectées.',
-            variant: 'destructive',
-          });
-          // Decide if we should still try to load clients or stop
+        if (!localProfile) {
+          if (error.message && error.message.includes('404')) {
+            toast({
+              title: 'Profil Vendeur Non Trouvé',
+              description: "Veuillez d'abord configurer vos informations dans 'Mes Informations'. Vous allez être redirigé.",
+              variant: 'default',
+              duration: 5000,
+            });
+            navigate('/profile');
+            setPageLoading(false);
+            return;
+          } else {
+            toast({
+              title: 'Erreur Chargement Profil Vendeur',
+              description: 'Impossible de charger les informations du vendeur. Certaines fonctionnalités pourraient être affectées.',
+              variant: 'destructive',
+            });
+          }
         }
       }
 
-      if(profileFetched) { // Only fetch clients if profile was fetched successfully
+      if (profileFetched) {
         try {
           const clientsData = await apiClient.getClients();
           setClients(clientsData);
