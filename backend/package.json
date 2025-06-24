@@ -4,9 +4,11 @@
   "description": "Application de facturation - Backend API",
   "main": "dist/server.js",
   "scripts": {
-    "start": "node dist/server.js",
-    "dev": "nodemon --exec ts-node server.ts",
-    "build": "tsc",
+"scripts": {
+  "build": "tsc",
+  "start": "pnpm run build && node dist/server.js",
+  "dev": "nodemon --exec ts-node server.ts"
+}
     "test": "NODE_ENV=test API_TOKEN=test-token jest",
     "export-html": "node scripts/export-html.js"
   },

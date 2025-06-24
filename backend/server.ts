@@ -7,10 +7,10 @@ const fs = require('fs');
 const multer = require('multer');
 // Import mapFactureToInvoiceData from htmlService
 const { mapFactureToInvoiceData } = require('./services/htmlService');
-// Import generateInvoiceHTML from invoiceHTML.ts
-const { generateInvoiceHTML } = require('./invoiceHTML.ts');
+// Import generateInvoiceHTML from invoiceHTML
+const { generateInvoiceHTML } = require('./invoiceHTML');
 const SQLiteDatabase = require('./database/sqlite');
-const { computeTotals } = require('./utils/computeTotals.ts');
+const { computeTotals } = require('./utils/computeTotals');
 const { getRandomQuote } = require('./services/quoteService');
 const { readUserProfile, writeUserProfile, USER_PROFILE_PATH } = require('./services/userProfileService');
 
