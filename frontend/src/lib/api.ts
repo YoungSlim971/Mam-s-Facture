@@ -81,7 +81,7 @@ const getAuthToken = () => {
   // This matches the simple token check in backend/server.js (process.env.API_TOKEN)
   // Replace 'your_static_api_token' with the actual token if it's static,
   // or implement proper token retrieval.
-  return localStorage.getItem('apiToken') || 'TEST_TOKEN_FROM_FRONTEND';
+  return localStorage.getItem('apiToken') || '';
 };
 
 export const apiClient = {

@@ -130,8 +130,19 @@ index 8d1b612983393f38db689b807e29214e58809767..32c76047b2de5043fe0a5f364c1592b9
  
  - **Production** : définir la variable lors du build ou sur votre hébergeur
    ```bash
-     VITE_API_URL=https://mon-domaine.com/api pnpm run build
-     ```
+    VITE_API_URL=https://mon-domaine.com/api pnpm run build
+    ```
+
+### Jeton d'API
+
+Le frontend lit un jeton nommé `apiToken` depuis le `localStorage` du navigateur.
+Pour développer ou lancer les tests, définissez ce jeton :
+
+```js
+localStorage.setItem('apiToken', 'test-token');
+```
+
+Les suites Jest et Playwright le positionnent automatiquement avec cette valeur.
  
  ### Génération locale
  
