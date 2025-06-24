@@ -98,6 +98,7 @@ pnpm add docx exceljs
 1. **Démarrer le serveur backend**
    ```bash
    cd backend
+   pnpm run build
    pnpm start
    # ou pour le développement: pnpm run dev
    ```
@@ -163,7 +164,7 @@ Mam-s-Facture/
 │   ├── database/              # Stockage SQLite (sql.js)
 │   │   ├── sqlite.js          # Gestionnaire de base de données SQLite
 │   │   └── facturation.sqlite # Fichier de base de données
-│   ├── server.js              # Serveur Express principal
+│   ├── server.ts              # Serveur Express principal (compile en dist/server.js)
 │   └── package.json           # Dépendances backend
 ├── frontend/                   # Application React
 │   ├── src/
@@ -252,7 +253,7 @@ L'application inclut des données d'exemple pour la démonstration :
 - Les factures comportent désormais un titre, des informations légales et un statut payé/non payé
 
 ### Personnalisation
-- **Informations entreprise** : Modifiables dans `server.js` (section export)
+- **Informations entreprise** : Modifiables dans `server.ts` (section export)
 - **Styles** : Interface basée sur Tailwind CSS
 - **Stockage** : Facilement extensible vers une base de données
 
@@ -279,7 +280,7 @@ L'application inclut des données d'exemple pour la démonstration :
 ## 🆘 Support
 
 ### Résolution de problèmes
-- **Port déjà utilisé** : Modifier le PORT dans server.js
+- **Port déjà utilisé** : Modifier le PORT dans server.ts
 - **CORS errors** : Vérifier que le backend est démarré
 - **Données perdues** : Vérifier le fichier `facturation.sqlite` dans `backend/database`
 
