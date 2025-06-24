@@ -14,8 +14,9 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-    --gradient-start: #f97316;
-    --gradient-mid: #ec4899;
+    /* Updated gradient for unified indigo/violet accent */
+    --gradient-start: #6366f1;
+    --gradient-mid: #7c3aed;
     --gradient-end: #8b5cf6;
   }
 
@@ -29,7 +30,7 @@
   }
 
   html.dark {
-       --sidebar-background: 240 5.9% 10%;
+    --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
@@ -37,8 +38,8 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-    --background: #1f2937;
-    --foreground: #f9fafb;
+    --background: #0f172a;
+    --foreground: #f8fafc;
   }
 
   html.sunset {
@@ -139,6 +140,6 @@ body.app-fade {
   }
 
   .input-style {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm;
+    @apply w-full px-3 py-2 border rounded-md bg-slate-900 text-white border-slate-700;
   }
 }

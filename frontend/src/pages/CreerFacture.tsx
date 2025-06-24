@@ -362,7 +362,7 @@ export default function CreerFacture() {
                 <ArrowLeft className="h-5 w-5 mr-2" />
                 Retour
               </button>
-              <h1 className="text-2xl font-bold text-gray-900">Créer une nouvelle facture</h1>
+              <h1 className="text-2xl font-bold text-indigo-200">Créer une nouvelle facture</h1>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
