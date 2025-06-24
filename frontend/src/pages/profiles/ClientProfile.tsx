@@ -13,6 +13,12 @@ interface Client {
   email?: string
   adresse_facturation?: string
   adresse_livraison?: string
+  adresse_facturation_rue?: string
+  adresse_facturation_cp?: string
+  adresse_facturation_ville?: string
+  adresse_livraison_rue?: string
+  adresse_livraison_cp?: string
+  adresse_livraison_ville?: string
   intitule?: string
   siren?: string
   siret?: string
@@ -54,6 +60,16 @@ export default function ClientProfile() {
     )
   }
 
+  const billingAddress = client.adresse_facturation
+    || (client.adresse_facturation_rue && client.adresse_facturation_cp && client.adresse_facturation_ville
+      ? `${client.adresse_facturation_rue}, ${client.adresse_facturation_cp} ${client.adresse_facturation_ville}`
+      : '')
+
+  const deliveryAddress = client.adresse_livraison
+    || (client.adresse_livraison_rue && client.adresse_livraison_cp && client.adresse_livraison_ville
+      ? `${client.adresse_livraison_rue}, ${client.adresse_livraison_cp} ${client.adresse_livraison_ville}`
+      : '')
+
   return (
     <div className="p-6 space-y-6">
       <button
@@ -77,8 +93,8 @@ export default function ClientProfile() {
           )}
           <div>Entreprise : {client.nom_entreprise || '-'}</div>
           <div>Téléphone : {client.telephone || '-'}</div>
-          <div>Adresse facturation : {client.adresse_facturation || '-'}</div>
-          <div>Adresse livraison : {client.adresse_livraison || '-'}</div>
+          <div>Adresse facturation : {billingAddress || '-'}</div>
+          <div>Adresse livraison : {deliveryAddress || '-'}</div>
           <div>Intitulé : {client.intitule || '-'}</div>
 
           <fieldset className="border border-gray-200 rounded-md p-2 shadow-sm space-y-1">
