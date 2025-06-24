@@ -1,0 +1,20 @@
+# .github/workflows/agent-run.yml
+name: Agent Executor
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1" # Tous les lundis à 3h du mat
+jobs:
+  agent:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - run: pnpm install
+      - name: Run agent
+        run: pnpm ts-node scripts/agent.ts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
