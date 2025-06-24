@@ -28,6 +28,10 @@ if ! command -v node >/dev/null 2>&1 \
   || [ ! -d backend/node_modules ] || [ ! -d frontend/node_modules ]; then
   echo "[launcher] Préparation de l'environnement (installation)..."
   ./install_macos.sh --skip-build
+else
+  echo "[launcher] Vérification des mises à jour Homebrew..."
+  brew update >/dev/null
+  brew upgrade node pnpm >/dev/null || true
 fi
 
 # S'assure que les dépendances sont à jour
