@@ -21,6 +21,10 @@ fi
 echo "[installer] Mise à jour de Homebrew..."
 brew update >/dev/null
 
+# Upgrade Node.js and pnpm if already installed
+echo "[installer] Mise à niveau des paquets Homebrew..."
+brew upgrade node pnpm >/dev/null || true
+
 if ! command -v node >/dev/null 2>&1; then
   echo "[installer] Installation de Node.js via Homebrew..."
   brew install node
