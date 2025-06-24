@@ -12,6 +12,9 @@ export interface Client {
   adresse_livraison?: string
   siret?: string
   tva?: string
+  siren?: string
+  rcs?: string
+  forme_juridique?: string
   logo?: string
   factures: number[]
 }
