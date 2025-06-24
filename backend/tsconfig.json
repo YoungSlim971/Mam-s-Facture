@@ -7,6 +7,7 @@
     "strict": false, // Keeping as per original, though true is generally better
     "skipLibCheck": true,
     "resolveJsonModule": true,
+    "types": ["node"],
     "outDir": "dist" // Optional: for manual tsc builds
   },
   "include": ["**/*.ts"], // Broader include for all .ts files in backend
