@@ -1,9 +1,10 @@
-# .github/workflows/agent-run.yml
-name: Agent Executor
+name: Run Agent
 on:
+  push:
+    paths:
+      - 'docs/TODO.md'
   workflow_dispatch:
-  schedule:
-    - cron: "0 3 * * 1" # Tous les lundis à 3h du mat
+
 jobs:
   agent:
     runs-on: ubuntu-latest
@@ -18,5 +19,3 @@ jobs:
       - run: pnpm install
       - name: Run agent
         run: pnpm ts-node scripts/agent.ts
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
