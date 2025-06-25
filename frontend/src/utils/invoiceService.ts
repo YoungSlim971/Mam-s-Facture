@@ -38,12 +38,16 @@ export async function updateInvoice(id: number, data: Partial<InvoiceType>): Pro
 export async function updateInvoiceStatus(
   id: number,
   status: 'payée' | 'non payée'
-): Promise<void> {
-  await fetch(`${API_URL}/factures/${id}/status`, {
+): Promise<InvoiceType> {
+  const res = await fetch(`${API_URL}/factures/${id}/update`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status: status === 'payée' ? 'paid' : 'unpaid' }),
   });
+  if (!res.ok) {
+    throw new Error('Failed to update invoice status');
+  }
+  return (await res.json()) as InvoiceType;
 }
 
 export function cacheInvoicesLocally(invoices: InvoiceType[]): void {
