@@ -105,8 +105,8 @@ export default function ListeFactures() {
 
   useEffect(() => {
     const handler = () => chargerFactures();
-    window.addEventListener('invoiceStatusChanged', handler);
-    return () => window.removeEventListener('invoiceStatusChanged', handler);
+    window.addEventListener('factureStatutChange', handler);
+    return () => window.removeEventListener('factureStatutChange', handler);
   }, [chargerFactures]);
 
   useEffect(() => {
@@ -172,17 +172,19 @@ export default function ListeFactures() {
 
   const marquerPayee = async (id: number) => {
     try {
-      await updateInvoiceStatus(id, 'payée');
+      const updated = await updateInvoiceStatus(id, 'payée');
       setFactures(prev => {
-        const updated = prev.map(f =>
-          f.id === id ? { ...f, status: 'paid' } : f
-        );
-        cacheInvoicesLocally(updated);
-        return statusFilter === 'unpaid' ? updated.filter(f => f.id !== id) : updated;
+        const list = prev.map(f => (f.id === id ? updated : f));
+        cacheInvoicesLocally(list);
+        return statusFilter === 'unpaid' ? list.filter(f => f.id !== id) : list;
       });
-      window.dispatchEvent(new Event('invoiceStatusChanged'));
+      toast({ description: 'Statut mis à jour' });
+      window.dispatchEvent(new Event('factureStatutChange'));
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Erreur inattendue");
+      toast({
+        description: err instanceof Error ? err.message : 'Erreur lors de la mise à jour',
+        variant: 'destructive'
+      });
     }
   };
 
