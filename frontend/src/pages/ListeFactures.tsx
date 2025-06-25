@@ -104,6 +104,12 @@ export default function ListeFactures() {
   }, [chargerFactures]);
 
   useEffect(() => {
+    const handler = () => chargerFactures();
+    window.addEventListener('invoiceStatusChanged', handler);
+    return () => window.removeEventListener('invoiceStatusChanged', handler);
+  }, [chargerFactures]);
+
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     const st = params.get('status');
     const statut = params.get('statut');
@@ -174,6 +180,7 @@ export default function ListeFactures() {
         cacheInvoicesLocally(updated);
         return statusFilter === 'unpaid' ? updated.filter(f => f.id !== id) : updated;
       });
+      window.dispatchEvent(new Event('invoiceStatusChanged'));
     } catch (err) {
       alert(err instanceof Error ? err.message : "Erreur inattendue");
     }
