@@ -10,10 +10,18 @@ export interface Client {
   email?: string
   adresse_facturation?: string
   adresse_livraison?: string
+  adresse_facturation_rue?: string
+  adresse_facturation_cp?: string
+  adresse_facturation_ville?: string
+  adresse_livraison_rue?: string
+  adresse_livraison_cp?: string
+  adresse_livraison_ville?: string
   siret?: string
   tva?: string
   siren?: string
   rcs?: string
+  legal_form?: string
+  rcs_number?: string
   forme_juridique?: string
   logo?: string
   factures: number[]
