@@ -2,11 +2,28 @@
 import fs from 'fs';
 import { writeFileSync } from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 
 const TODO_PATH = path.resolve(__dirname, '../docs/TODO.md');
 const STATUS_PATH = path.resolve(__dirname, '../docs/STATUS.md');
 const CHANGELOG_PATH = path.resolve(__dirname, '../docs/CHANGELOG.md');
+
+// === INSTALL DEPENDENCIES ===
+function installDependencies() {
+  const directories = [
+    { name: 'root', cwd: path.resolve(__dirname, '..') },
+    { name: 'backend', cwd: path.resolve(__dirname, '../backend') },
+    { name: 'frontend', cwd: path.resolve(__dirname, '../frontend') },
+  ];
+
+  for (const dir of directories) {
+    console.log(`\uD83D\uDCE6 Installing dependencies in ${dir.name}...`);
+    const res = spawnSync('pnpm', ['install'], { cwd: dir.cwd, stdio: 'inherit' });
+    if (res.status !== 0) {
+      throw new Error(`Failed to install dependencies in ${dir.name}`);
+    }
+  }
+}
 
 // === UTILS ===
 const readFile = (p: string) => fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : '';
@@ -73,6 +90,7 @@ function extractTasks(todoText: string): { section: string, task: string }[] {
 
 // === MAIN EXEC ===
 async function run() {
+  installDependencies();
   const todoText = readFile(TODO_PATH);
   const statusText = readFile(STATUS_PATH);
   const tasks = extractTasks(todoText);
