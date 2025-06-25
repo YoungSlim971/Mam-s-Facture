@@ -1,21 +1,35 @@
 name: Run Agent
+
 on:
   push:
     paths:
       - 'docs/TODO.md'
   workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1" # Tous les lundis à 3h du mat
 
 jobs:
   agent:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
-      - name: Install pnpm
-        run: npm install -g pnpm
-      - run: pnpm install
-      - name: Run agent
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8 # ou la version que tu utilises localement
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run agent.ts
         run: pnpm ts-node scripts/agent.ts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
