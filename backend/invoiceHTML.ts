@@ -53,7 +53,13 @@ const invoiceSchema = z.object({
 
 export function generateInvoiceHTML(data: InvoiceData): string {
   const parsed = invoiceSchema.parse(data);
-  const totals = computeTotals(parsed.lignes, parsed.tvaRate);
+  // Ensure that the lines passed to computeTotals strictly match the expected type.
+  // Zod validation should guarantee that quantite and prix_unitaire are present and are numbers.
+  const lignesForTotals = parsed.lignes.map(l => ({
+    quantite: l.quantite,
+    prix_unitaire: l.prix_unitaire,
+  }));
+  const totals = computeTotals(lignesForTotals, parsed.tvaRate);
   const formatEuro = (v: number) => euroFormatter.format(v);
   const dateStr = format(new Date(parsed.date), 'dd/MM/yyyy', { locale: fr });
   const lignesHtml = parsed.lignes
