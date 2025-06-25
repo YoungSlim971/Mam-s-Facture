@@ -172,7 +172,7 @@ export default function ListeFactures() {
 
   const marquerPayee = async (id: number) => {
     try {
-      const updated = await updateInvoiceStatus(id, 'payée');
+      const updated = await updateInvoiceStatus(id, 'paid');
       setFactures(prev => {
         const list = prev.map(f => (f.id === id ? updated : f));
         cacheInvoicesLocally(list);
