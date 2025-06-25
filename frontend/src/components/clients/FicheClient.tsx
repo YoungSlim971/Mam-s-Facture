@@ -25,6 +25,18 @@ export default function FicheClient() {
 
   if (!client) return <p>Chargement...</p>
 
+  const billingAddress =
+    client.adresse_facturation ||
+    (client.adresse_facturation_rue && client.adresse_facturation_cp && client.adresse_facturation_ville
+      ? `${client.adresse_facturation_rue}, ${client.adresse_facturation_cp} ${client.adresse_facturation_ville}`
+      : '')
+
+  const deliveryAddress =
+    client.adresse_livraison ||
+    (client.adresse_livraison_rue && client.adresse_livraison_cp && client.adresse_livraison_ville
+      ? `${client.adresse_livraison_rue}, ${client.adresse_livraison_cp} ${client.adresse_livraison_ville}`
+      : '')
+
   return (
     <div className="space-y-4 p-4">
       <Button variant="outline" onClick={() => navigate(-1)}>
@@ -40,22 +52,25 @@ export default function FicheClient() {
         {client.nom_entreprise && <div>{client.nom_entreprise}</div>}
         {client.telephone && <div>{client.telephone}</div>}
         {client.email && <div>{client.email}</div>}
-        {client.adresse_facturation && (
+        {billingAddress && (
           <div>
             <h4 className="font-medium">Adresse de facturation</h4>
-            <p>{client.adresse_facturation}</p>
+            <p>{billingAddress}</p>
           </div>
         )}
-        {client.adresse_livraison && (
+        {deliveryAddress && (
           <div>
             <h4 className="font-medium">Adresse de livraison</h4>
-            <p>{client.adresse_livraison}</p>
+            <p>{deliveryAddress}</p>
           </div>
         )}
-        {(client.siret || client.tva) && (
+        {(client.siren || client.siret || client.rcs_number || client.legal_form || client.tva) && (
           <div>
             <h4 className="font-medium">Informations légales</h4>
+            {client.siren && <p>SIREN : {client.siren}</p>}
             {client.siret && <p>SIRET : {client.siret}</p>}
+            {client.rcs_number && <p>RCS : {client.rcs_number}</p>}
+            {client.legal_form && <p>Forme juridique : {client.legal_form}</p>}
             {client.tva && <p>TVA : {client.tva}</p>}
           </div>
         )}
