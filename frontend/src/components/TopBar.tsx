@@ -4,9 +4,10 @@ import { useIsMobile } from '../hooks/use-mobile'
 
 interface TopBarProps {
   onMenuClick: () => void
+  useSmallMargin?: boolean
 }
 
-export default function TopBar({ onMenuClick }: TopBarProps) {
+export default function TopBar({ onMenuClick, useSmallMargin }: TopBarProps) {
   const navigate = useNavigate()
   const location = useLocation()
   const isMobile = useIsMobile()
@@ -22,7 +23,7 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
   const title = titles[location.pathname] || 'MAM\u2019s FACTURE'
 
   return (
-    <header className="fixed top-0 right-0 z-50 bg-slate-900 text-gray-50 shadow py-3 px-4 flex items-center justify-between md:left-56">
+    <header className={`fixed top-0 right-0 z-50 bg-slate-900 text-gray-50 shadow py-3 px-4 flex items-center justify-between left-0 ${useSmallMargin ? 'md:left-2' : 'md:left-56'}` }>
       {isMobile && (
         <button onClick={onMenuClick} className="mr-2 md:hidden">
           <Menu className="h-6 w-6" />

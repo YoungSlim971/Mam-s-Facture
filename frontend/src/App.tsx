@@ -47,7 +47,8 @@ function AnimatedRoutes() {
   )
 }
 
-function App() {
+function Layout() {
+  const location = useLocation()
   const isMobile = useIsMobile()
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile)
 
@@ -55,20 +56,29 @@ function App() {
     setSidebarOpen(!isMobile)
   }, [isMobile])
 
+  const smallMarginRoutes = ['/', '/factures', '/factures/nouvelle', '/clients', '/profile']
+  const useSmallMargin = smallMarginRoutes.some((path) => location.pathname.startsWith(path))
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+      <div className="flex flex-col flex-1">
+        <TopBar onMenuClick={() => setSidebarOpen(true)} useSmallMargin={useSmallMargin} />
+        <main className={`flex-1 overflow-auto pt-16 px-4 py-6 ml-0 ${useSmallMargin ? 'md:ml-2' : 'md:ml-56'}`}>
+          <AnimatedRoutes />
+        </main>
+      </div>
+    </div>
+  )
+}
+
+function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <Router>
         <Toaster />
-        <div className="flex h-screen overflow-hidden">
-          <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-          <div className="flex flex-col flex-1">
-            <TopBar onMenuClick={() => setSidebarOpen(true)} />
-            <main className="flex-1 overflow-auto pt-16 px-4 py-6 pl-0 md:pl-56">
-              <AnimatedRoutes />
-            </main>
-          </div>
-        </div>
+        <Layout />
       </Router>
       </ThemeProvider>
     </ErrorBoundary>
