@@ -1,0 +1,34 @@
+[
+  {
+    "clientKey": "Renoir Design",
+    "numero": "F001",
+    "status": "unpaid",
+    "description": "Site vitrine 3 pages",
+    "montant": 800,
+    "date": "2024-01-20"
+  },
+  {
+    "clientKey": "Renoir Design",
+    "numero": "F002",
+    "status": "paid",
+    "description": "Logo vectoriel",
+    "montant": 300,
+    "date": "2024-02-05"
+  },
+  {
+    "clientKey": "Renoir Design",
+    "numero": "F003",
+    "status": "unpaid",
+    "description": "Charte graphique",
+    "montant": 600,
+    "date": "2024-03-10"
+  },
+  {
+    "clientKey": "Renoir Design",
+    "numero": "F004",
+    "status": "paid",
+    "description": "Carte de visite imprimée",
+    "montant": 150,
+    "date": "2024-03-20"
+  }
+]

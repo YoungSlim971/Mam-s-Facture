@@ -1,0 +1,13 @@
+{
+  "raison_sociale": "Studio Mam’s Facture",
+  "nom_contact": "Alan Emmanuel-Emile",
+  "email": "alan@email.com",
+  "adresse": "1 rue de la Facture",
+  "code_postal": "97100",
+  "ville": "Basse-Terre",
+  "forme_juridique": "EI",
+  "siret": "99999999900016",
+  "ape_naf": "6201Z",
+  "tva_intra": "FR999999999",
+  "rcs_ou_rm": "Basse-Terre 999 999 999"
+}
