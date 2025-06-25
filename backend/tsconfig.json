@@ -8,8 +8,9 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "types": ["node"],
-    "outDir": "dist" // Optional: for manual tsc builds
+    "allowJs": true, // Allow JavaScript files to be compiled
+    "outDir": "dist"
   },
-  "include": ["**/*.ts"], // Broader include for all .ts files in backend
-  "exclude": ["node_modules", "tests"] // Exclude node_modules and tests
+  "include": ["**/*.ts", "**/*.js"], // Include both .ts and .js files
+  "exclude": ["node_modules", "tests", "dist"] // Exclude node_modules, tests, and dist
 }

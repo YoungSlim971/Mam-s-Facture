@@ -341,13 +341,21 @@ app.get('/api/factures', (req, res, next) => {
     const limitNum = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 100);
     const offset = (pageNum - 1) * limitNum;
 
-    const filters = { search, dateDebut, dateFin };
-    let statusFilter = status;
-    if (!statusFilter && statut) {
-      if (statut === 'payee') statusFilter = 'paid';
-      else if (statut === 'impayee') statusFilter = 'unpaid';
+    const filters: { search: any; dateDebut: any; dateFin: any; status?: any } = {
+      search,
+      dateDebut,
+      dateFin
+    };
+    let statusFilterToApply = status; // req.query.status
+    if (!statusFilterToApply && statut) { // req.query.statut
+      if (statut === 'payee') statusFilterToApply = 'paid';
+      else if (statut === 'impayee') statusFilterToApply = 'unpaid';
+      // Allow other values if they come directly from 'status'
     }
-    if (statusFilter) filters.status = statusFilter;
+
+    if (statusFilterToApply) {
+      filters.status = statusFilterToApply;
+    }
     const allFactures = db.getFactures(filters);
 
     // Tri
@@ -456,6 +464,40 @@ app.post('/api/factures', async (req, res, next) => { // Added async
     const parsedVatRate =
       vat_rate !== undefined && vat_rate !== '' ? parseFloat(vat_rate) : 20;
 
+    // Define a type for factureData to ensure all fields are accounted for
+    type FactureDataType = {
+      numero_facture: string;
+      client_id?: number;
+      nom_client: string;
+      nom_entreprise: string;
+      telephone: string;
+      adresse: string;
+      date_facture: string;
+      montant_total: number;
+      lignes: any[]; // Consider defining a stricter type for lignes
+      title: string;
+      status: string;
+      logo_path: string;
+      siren: string;
+      siret: string;
+      legal_form: string;
+      vat_number?: string; // Optional as it might not always be present
+      vat_rate: number;
+      rcs_number: string;
+      emitter_full_name: string;
+      emitter_address_street: string;
+      emitter_address_postal_code: string | null;
+      emitter_address_city: string | null;
+      emitter_siret_siren: string;
+      emitter_ape_naf_code: string;
+      emitter_vat_number?: string | null; // Optional and nullable
+      emitter_email: string | null;
+      emitter_phone: string | null;
+      emitter_activity_start_date: string | null;
+      emitter_legal_form: string;
+      emitter_rcs_rm?: string | null; // Optional and nullable
+      emitter_social_capital: string | null;
+    };
 
     // Validation
     if (!nom_client || !date_facture || !lignes.length) {
@@ -493,7 +535,7 @@ app.post('/api/factures', async (req, res, next) => { // Added async
 
     const numero_facture = numero_facture_input.trim() || generateInvoiceNumber();
 
-    const factureData = {
+    const factureData: FactureDataType = {
       numero_facture,
       ...(client_id ? { client_id: parseInt(client_id) } : {}),
       nom_client: nom_client.trim(),
@@ -509,36 +551,28 @@ app.post('/api/factures', async (req, res, next) => { // Added async
       siren,
       siret,
       legal_form,
-      vat_number,
+      vat_number, // Already optional in FactureDataType if not provided
       vat_rate: parsedVatRate,
       rcs_number,
-      // Add emitter details from JSON profile
-      // Mapping from profil_utilisateur.json keys to emitter_* fields
+      // Emitter details from JSON profile
       emitter_full_name: userProfile.raison_sociale,
-      emitter_address_street: `${userProfile.adresse}, ${userProfile.code_postal} ${userProfile.ville}`, // Combined address
-      // emitter_address_postal_code: userProfile.code_postal, // No longer separate, combined above
-      // emitter_address_city: userProfile.ville, // No longer separate, combined above
+      emitter_address_street: `${userProfile.adresse}, ${userProfile.code_postal} ${userProfile.ville}`,
       emitter_siret_siren: userProfile.siret,
       emitter_ape_naf_code: userProfile.ape_naf,
-      emitter_vat_number: userProfile.tva_intra,
-      // email, phone, activity_start_date, social_capital are not in the specified JSON structure
-      // If they were, they would be mapped here:
-      // emitter_email: userProfile.email, (if 'email' was in profil_utilisateur.json)
-      // emitter_phone: userProfile.phone, (if 'phone' was in profil_utilisateur.json)
-      // emitter_activity_start_date: userProfile.activity_start_date, (if 'activity_start_date' was in profil_utilisateur.json)
+      emitter_vat_number: userProfile.tva_intra || null, // Ensure it's at least null if undefined
       emitter_legal_form: userProfile.forme_juridique,
-      emitter_rcs_rm: userProfile.rcs_ou_rm,
-      // emitter_social_capital: userProfile.social_capital, (if 'social_capital' was in profil_utilisateur.json)
+      emitter_rcs_rm: userProfile.rcs_ou_rm || null, // Ensure it's at least null if undefined
+      // Fields that were previously added later, now initialized
+      emitter_address_postal_code: null, // Part of combined street, so explicitly null
+      emitter_address_city: null,      // Part of combined street, so explicitly null
+      emitter_email: null,             // Not in userProfile.json, so null
+      emitter_phone: null,             // Not in userProfile.json, so null
+      emitter_activity_start_date: null, // Not in userProfile.json, so null
+      emitter_social_capital: null     // Not in userProfile.json, so null
     };
 
-    // Ensure all required emitter fields for db.createFacture are present, even if null
-    factureData.emitter_address_postal_code = null; // Set to null as it's part of combined street
-    factureData.emitter_address_city = null; // Set to null as it's part of combined street
-    factureData.emitter_email = null; // Explicitly null if not in JSON
-    factureData.emitter_phone = null; // Explicitly null if not in JSON
-    factureData.emitter_activity_start_date = null; // Explicitly null if not in JSON
-    factureData.emitter_social_capital = null; // Explicitly null if not in JSON
-
+    // The lines that previously assigned these to null are now redundant
+    // as they are initialized above.
 
     const factureId = db.createFacture(factureData);
     if (client_id) {
