@@ -76,6 +76,18 @@ cd backend
 node database/migrations/002-add-legal-fields.js
 ```
 
+## 🎁 Données de démonstration
+Un jeu de données minimal est fourni dans `data/mockData`. Il permet de créer un
+profil utilisateur, un client et plusieurs factures pour tester l'application.
+
+```bash
+node backend/scripts/seed-demo-data.js
+```
+
+Le script n'insère les données que si la base est vide afin de ne pas écraser un
+travail existant. Il peut ainsi être lancé avant des tests manuels ou automatiqu
+es pour disposer d'exemples réalistes.
+
 ## 📁 Structure du projet
 ```
 Mam-s-Facture/

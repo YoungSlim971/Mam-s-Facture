@@ -1,0 +1,13 @@
+[
+  {
+    "nom_client": "Diana Renoir",
+    "nom_entreprise": "Renoir Design",
+    "email": "diana@renoirdesign.com",
+    "telephone": "0690 00 00 00",
+    "adresse_facturation": "15 rue des Arts, 97100 Basse-Terre",
+    "adresse_livraison": "15 rue des Arts, 97100 Basse-Terre",
+    "siret": "11111111100011",
+    "legal_form": "SARL",
+    "rcs_number": "Basse-Terre 111 111 111"
+  }
+]

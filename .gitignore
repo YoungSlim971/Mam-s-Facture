@@ -11,3 +11,4 @@ backend/database/*.sqlite
 backend/uploads/*
 !backend/uploads/.gitkeep
 backend/last-facture.html
+backend/data/profil_utilisateur.json
