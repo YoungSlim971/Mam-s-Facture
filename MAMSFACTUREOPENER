@@ -1,66 +1,45 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
-LOG_DIR="logs"
-LOG_FILE="$LOG_DIR/install.log"
-mkdir -p "$LOG_DIR"
-exec 2>>"$LOG_FILE"
-
-banner() {
-  cat <<'BANNER'
- __  __                 _____           _                 
-|  \/  |               |  __ \         | |                
-| \  / | __ _ _ __ ___ | |__) |__   ___| |_ __ _ _ __ ___ 
-| |\/| |/ _` | '_ ` _ \|  ___/ _ \ / __| __/ _` | '__/ _ \
-| |  | | (_| | | | | | | |  | (_) | (__| || (_| | | |  __/
-|_|  |_|\__,_|_| |_| |_|_|   \___/ \___|\__\__,_|_|  \___|
-BANNER
-}
-
-banner
-
-if ! command -v pnpm >/dev/null 2>&1; then
-  echo "❌ pnpm n'est pas installé. Veuillez l'installer puis réessayer." >&2
+if [[ "$(uname)" != "Darwin" ]]; then
+  echo "Ce script est destiné à macOS." >&2
   exit 1
 fi
 
-echo "📦 Installation des dépendances racine..."
-pnpm install > /dev/null
+error_exit() {
+  echo "❌ $1" >&2
+  exit 1
+}
 
-echo "📦 Installation des dépendances backend..."
-pnpm --filter ./backend install > /dev/null
+echo "🔧 [1/5] Installation des dépendances..."
+pnpm install --frozen-lockfile || error_exit "Impossible d'installer les dépendances racine."
+(cd backend && pnpm install --frozen-lockfile) || error_exit "Impossible d'installer les dépendances backend."
+(cd frontend && pnpm install --frozen-lockfile && pnpm build) || error_exit "Échec de la compilation du frontend."
 
-echo "📦 Installation des dépendances frontend..."
-pnpm --filter ./frontend install > /dev/null
+echo "✅ [2/5] Frontend compilé avec succès"
 
-echo "🔨 Compilation du backend..."
-pnpm --filter ./backend build > /dev/null
-
-echo "🔨 Construction du frontend..."
-pnpm --filter ./frontend run build > /dev/null
-
-echo "🚀 Lancement des serveurs..."
+echo "🚀 [3/5] Lancement des serveurs..."
 pnpm dev:all &
 SERVERS_PID=$!
 
-sleep 3
-URL="http://localhost:5173"
-case "$(uname)" in
-  Darwin)
-    open "$URL" &
-    ;;
-  Linux)
-    xdg-open "$URL" &>/dev/null &
-    ;;
-  MINGW*|MSYS*|CYGWIN*)
-    start "$URL" &
-    ;;
-  *)
-    echo "Ouvrez votre navigateur sur $URL"
-    ;;
-esac
+# Attente que le port 5173 soit disponible
+for i in {1..15}; do
+  if nc -z localhost 5173 2>/dev/null; then
+    READY=1
+    break
+  fi
+  sleep 1
+done
 
-echo "Application disponible sur $URL"
+if [[ -z ${READY:-} ]]; then
+  kill "$SERVERS_PID"
+  error_exit "Le port 5173 n'est pas disponible."
+fi
 
-trap "kill \$SERVERS_PID" SIGINT
-wait $SERVERS_PID
+echo "🌐 [4/5] Ouverture de Safari..."
+open -a Safari http://localhost:5173 || { kill "$SERVERS_PID"; error_exit "Impossible d'ouvrir Safari."; }
+
+echo "🎉 [5/5] L'application est lancée !"
+
+trap "kill \"$SERVERS_PID\"" SIGINT
+wait "$SERVERS_PID"

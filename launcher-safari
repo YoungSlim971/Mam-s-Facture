@@ -1,68 +1,45 @@
 #!/usr/bin/env bash
-set -e
-
-# ---------------------------------------------------------------
-# Lanceur rapide pour macOS
-# Permet de spécifier le navigateur via --browser=NAME ou de ne pas en ouvrir
-# ---------------------------------------------------------------
+set -euo pipefail
 
 if [[ "$(uname)" != "Darwin" ]]; then
   echo "Ce script est destiné à macOS." >&2
   exit 1
 fi
 
-BROWSER="Safari"
-NO_BROWSER=0
-for arg in "$@"; do
-  case $arg in
-    --browser=*) BROWSER="${arg#*=}" ;;
-    --no-browser) NO_BROWSER=1 ;;
-  esac
+error_exit() {
+  echo "❌ $1" >&2
+  exit 1
+}
+
+echo "🔧 [1/5] Installation des dépendances..."
+pnpm install --frozen-lockfile || error_exit "Impossible d'installer les dépendances racine."
+(cd backend && pnpm install --frozen-lockfile) || error_exit "Impossible d'installer les dépendances backend."
+(cd frontend && pnpm install --frozen-lockfile && pnpm build) || error_exit "Échec de la compilation du frontend."
+
+echo "✅ [2/5] Frontend compilé avec succès"
+
+echo "🚀 [3/5] Lancement des serveurs..."
+pnpm dev:all &
+SERVERS_PID=$!
+
+# Attente que le port 5173 soit disponible
+for i in {1..15}; do
+  if nc -z localhost 5173 2>/dev/null; then
+    READY=1
+    break
+  fi
+  sleep 1
 done
 
-cd "$(dirname "$0")"
-
-# Installe automatiquement les dépendances si nécessaire
-if ! command -v node >/dev/null 2>&1 || ! command -v pnpm >/dev/null 2>&1; then
-  echo "[launcher] Node.js ou pnpm manquant, exécution de install_macos.sh..."
-  ./install_macos.sh
+if [[ -z ${READY:-} ]]; then
+  kill "$SERVERS_PID"
+  error_exit "Le port 5173 n'est pas disponible."
 fi
 
-# Gestionnaire de paquets : pnpm si disponible, sinon npm
-PM=pnpm
-if ! command -v pnpm >/dev/null 2>&1; then
-  PM=npm
-fi
+echo "🌐 [4/5] Ouverture de Safari..."
+open -a Safari http://localhost:5173 || { kill "$SERVERS_PID"; error_exit "Impossible d'ouvrir Safari."; }
 
-# Installation des dépendances (racine, backend puis frontend)
-echo "[launcher] Installation des dépendances racine..."
-"$PM" install > /dev/null
+echo "🎉 [5/5] L'application est lancée !"
 
-echo "[launcher] Installation des dépendances backend..."
-(cd backend && "$PM" install > /dev/null)
-
-echo "[launcher] Installation des dépendances frontend..."
-(cd frontend && "$PM" install > /dev/null)
-
-echo "[launcher] Construction du frontend..."
-(cd frontend && "$PM" run build > /dev/null)
-
-echo "[launcher] Démarrage du backend..."
-(cd backend && "$PM" start > ../backend.log 2>&1 &)
-BACK_PID=$!
-
-echo "[launcher] Démarrage du frontend..."
-(cd frontend && "$PM" run dev > ../frontend.log 2>&1 &)
-FRONT_PID=$!
-
-sleep 3
-URL="http://localhost:5173"
-if [ "$NO_BROWSER" -eq 0 ]; then
-  open -a "$BROWSER" "$URL"
-  echo "[launcher] $BROWSER ouvert sur $URL"
-else
-  echo "[launcher] Application disponible sur $URL"
-fi
-
-trap "kill $BACK_PID $FRONT_PID" SIGINT
-wait $FRONT_PID
+trap "kill \"$SERVERS_PID\"" SIGINT
+wait "$SERVERS_PID"
