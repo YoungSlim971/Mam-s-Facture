@@ -93,8 +93,12 @@ export default function Clients() {
 
 
   const chargerClients = async () => {
-    const data = await apiClient.getClients();
-    setClients(data);
+    try {
+      const data = await apiClient.getClients();
+      setClients(data);
+    } catch (err) {
+      console.error('Erreur chargement clients:', err);
+    }
   }
 
   useEffect(() => {
@@ -355,6 +359,11 @@ export default function Clients() {
             </form>
           )}
         </Card>
+        {clients.length === 0 && (
+          <div className="col-span-full text-center text-gray-500">
+            Aucun client trouvé
+          </div>
+        )}
         {clients.map((c) => (
           editingId === c.id ? (
             <Card key={c.id}>
