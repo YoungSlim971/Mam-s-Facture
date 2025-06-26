@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { apiClient } from '@/lib/api';
+import { apiClient, UserProfileJson } from '@/lib/api';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { saveUserProfileToLocal } from '@/utils/userProfile';
 
 // This interface represents the data structure used by the form in this component.
@@ -51,6 +52,8 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfileJson | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -102,6 +105,8 @@ export default function ProfilePage() {
           setProfile(formCompatibleData);
           setOriginalProfile(formCompatibleData);
           setIsDirty(false);
+          setUserProfile(dataFromApi);
+          setIsEditing(false);
         }
       } catch (error: any) {
         if (error.message && error.message.includes('404')) {
@@ -110,6 +115,8 @@ export default function ProfilePage() {
           setProfile(initialProfileData);
           setOriginalProfile(initialProfileData);
           setIsDirty(false);
+          setUserProfile(null);
+          setIsEditing(false);
            toast({
             title: 'Profil non trouvé',
             description: 'Veuillez compléter vos informations pour créer votre profil.',
@@ -117,6 +124,8 @@ export default function ProfilePage() {
           });
         } else {
           console.error('Failed to fetch profile:', error);
+          setUserProfile(null);
+          setIsEditing(false);
           toast({
             title: 'Erreur de chargement',
             description: 'Impossible de charger les informations du profil existant.',
@@ -256,11 +265,72 @@ export default function ProfilePage() {
       });
     } finally {
       setIsSaving(false);
+      setIsEditing(false);
+      const updated = await apiClient.getUserProfile();
+      setUserProfile(updated);
     }
   };
 
   if (isLoading) {
     return <div>Chargement des informations du profil...</div>;
+  }
+
+  if (!isEditing) {
+    if (userProfile) {
+      return (
+        <div className="container mx-auto p-4">
+          <Card className="max-w-2xl mx-auto">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold">Résumé de votre profil utilisateur</CardTitle>
+              <CardDescription>Voici les informations légales enregistrées pour votre entreprise.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                <div>
+                  <p className="font-medium text-gray-500">Raison Sociale</p>
+                  <p className="text-gray-900">{userProfile.raison_sociale || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-500">Forme Juridique</p>
+                  <p className="text-gray-900">{userProfile.forme_juridique || 'N/A'}</p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="font-medium text-gray-500">Adresse complète</p>
+                  <p className="text-gray-900">{`${userProfile.adresse || ''}, ${userProfile.code_postal || ''} ${userProfile.ville || ''}`}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-500">SIRET</p>
+                  <p className="text-gray-900">{userProfile.siret || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-500">Code APE/NAF</p>
+                  <p className="text-gray-900">{userProfile.ape_naf || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-500">N° TVA Intracommunautaire</p>
+                  <p className="text-gray-900">{userProfile.tva_intra || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-500">RCS ou RM</p>
+                  <p className="text-gray-900">{userProfile.rcs_ou_rm || 'N/A'}</p>
+                </div>
+              </div>
+              <div className="pt-6 text-center">
+                <Button onClick={() => setIsEditing(true)}>
+                  Modifier
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+    return (
+      <div className="container mx-auto p-4 text-center">
+        <p>Aucune information enregistrée.</p>
+        <Button onClick={() => setIsEditing(true)} className="mt-4">Ajouter mes informations</Button>
+      </div>
+    );
   }
 
   return (
