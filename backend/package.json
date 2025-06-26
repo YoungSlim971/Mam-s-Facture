@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc && mkdir -p dist/services && cp services/htmlService.js dist/services/ && cp services/quoteService.js dist/services/ && cp services/userProfileService.js dist/services/ && ls -l dist/services && mkdir -p dist/database/data dist/database/migrations && cp database/sqlite.js dist/database/ && cp database/data/*.* dist/database/data/ && cp database/migrations/*.js dist/database/migrations/ && cp database/facturation.sqlite dist/database/",
     "start": "pnpm run build && API_TOKEN=test-token node dist/server.js",
-    "dev": "nodemon --exec ts-node server.ts",
+    "dev": "nodemon --cwd ./ --watch src --exec \"ts-node server.ts\"",
     "test": "NODE_ENV=test API_TOKEN=test-token jest --runInBand",
     "export-html": "node scripts/export-html.js",
     "seed-demo": "node scripts/seed-demo-data.js"
