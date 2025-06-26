@@ -24,14 +24,20 @@ if ! command -v pnpm >/dev/null 2>&1; then
   exit 1
 fi
 
+echo "📦 Installation des dépendances racine..."
+pnpm install > /dev/null
+
 echo "📦 Installation des dépendances backend..."
-pnpm install --filter backend...
+pnpm --filter ./backend install > /dev/null
 
 echo "📦 Installation des dépendances frontend..."
-pnpm install --filter frontend...
+pnpm --filter ./frontend install > /dev/null
 
 echo "🔨 Compilation du backend..."
-pnpm --filter backend build
+pnpm --filter ./backend build > /dev/null
+
+echo "🔨 Construction du frontend..."
+pnpm --filter ./frontend run build > /dev/null
 
 echo "🚀 Lancement des serveurs..."
 pnpm dev:all &
