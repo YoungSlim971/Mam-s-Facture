@@ -5,7 +5,7 @@ const { writeUserProfile } = require('../services/userProfileService');
 
 const DATA_DIR = path.join(__dirname, '..', '..', 'data', 'mockData');
 
-async function seed() {
+async function seed(dbInstance) {
   // If the server module was loaded previously (e.g. in other tests), remove it
   // from the require cache so requiring it again returns a fresh instance with
   // a newly created database.
@@ -14,7 +14,7 @@ async function seed() {
     delete require.cache[require.resolve(serverPath)];
   }
 
-  const db = await SQLiteDatabase.create();
+  const db = dbInstance || await SQLiteDatabase.create();
 
   // Skip seeding if clients already exist
   if (db.getClients().length > 0) {
@@ -64,6 +64,10 @@ async function seed() {
   });
 
   console.log('Demo data inserted.');
+
+  if (typeof db.setMeta === 'function') {
+    db.setMeta('hasSeeded', 'true');
+  }
 }
 
 if (require.main === module) {
