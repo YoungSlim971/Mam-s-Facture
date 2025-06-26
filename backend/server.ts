@@ -14,6 +14,8 @@ import { computeTotals } from './utils/computeTotals';
 import { getRandomQuote } from './services/quoteService';
 import { errorHandler } from './middleware/errorHandler';
 import { readUserProfile, writeUserProfile, USER_PROFILE_PATH } from './services/userProfileService';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const seedDemoData = require('./scripts/seed-demo-data');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -98,6 +100,18 @@ const dbReady = (async () => {
   db = await SQLiteDatabase.create();
 })();
 
+const seedIfNeeded = async () => {
+  await dbReady;
+  if (db.getMeta('hasSeeded')) return;
+  const profile = await readUserProfile();
+  const hasData = profile || db.getClients().length > 0 || db.getFactures().length > 0;
+  if (!hasData) {
+    await seedDemoData(db);
+  }
+  db.setMeta('hasSeeded', 'true');
+};
+seedIfNeeded();
+
 // Formatters réutilisables pour éviter de recréer les objets à chaque appel
 const euroFormatter = new Intl.NumberFormat('fr-FR', {
   style: 'currency',
@@ -179,6 +193,7 @@ app.post('/api/user-profile', async (req: Request, res: Response, next: NextFunc
     };
 
     const savedProfile = await writeUserProfile(profileToSave);
+    db.setMeta('hasSeeded', 'true');
     res.json(savedProfile);
   } catch (err) {
     console.error('POST /api/user-profile error:', err);
@@ -240,7 +255,7 @@ app.post('/api/clients', (req: Request, res: Response, next: NextFunction) => {
     if (!nom_client) {
       return res.status(400).json({ error: 'Nom du client requis' });
     }
-    const id = db.createClient({
+  const id = db.createClient({
       nom_client: nom_client.trim(),
       prenom_client: prenom_client.trim(),
       nom_entreprise: nom_entreprise.trim(),
@@ -256,8 +271,9 @@ app.post('/api/clients', (req: Request, res: Response, next: NextFunction) => {
       rcs_number: rcs_number.trim(),
       logo: logo.trim()
     });
-    db.synchroniserFacturesParClient();
-    const client = db.getClientById(id);
+  db.synchroniserFacturesParClient();
+  db.setMeta('hasSeeded', 'true');
+  const client = db.getClientById(id);
     res.status(201).json(client);
   } catch (err) {
     next(err);
@@ -295,7 +311,7 @@ app.put('/api/clients/:id', (req: Request, res: Response, next: NextFunction) =>
     if (!nom_client) {
       return res.status(400).json({ error: 'Nom du client requis' });
     }
-    const success = db.updateClient(req.params.id, {
+  const success = db.updateClient(req.params.id, {
       nom_client: nom_client.trim(),
       prenom_client: prenom_client.trim(),
       nom_entreprise: nom_entreprise.trim(),
@@ -314,8 +330,9 @@ app.put('/api/clients/:id', (req: Request, res: Response, next: NextFunction) =>
     if (!success) return res.status(404).json({ error: 'Client non trouvé' });
     const updatedClient = db.getClientById(req.params.id);
     if (!updatedClient) return res.status(404).json({ error: 'Client non trouvé après mise à jour' });
-    db.synchroniserFacturesParClient(); // Ensure aggregates are updated
-    res.json(updatedClient);
+  db.synchroniserFacturesParClient(); // Ensure aggregates are updated
+  db.setMeta('hasSeeded', 'true');
+  res.json(updatedClient);
   } catch (err) {
     next(err);
   }
@@ -575,10 +592,11 @@ app.post('/api/factures', async (req, res, next) => { // Added async
     // as they are initialized above.
 
     const factureId = db.createFacture(factureData);
-    if (client_id) {
-      db.addFactureToClient(client_id, factureId);
-    }
-    db.synchroniserFacturesParClient();
+  if (client_id) {
+    db.addFactureToClient(client_id, factureId);
+  }
+  db.synchroniserFacturesParClient();
+  db.setMeta('hasSeeded', 'true');
 
     res.status(201).json({
       message: 'Facture créée avec succès',
@@ -649,6 +667,7 @@ app.put('/api/factures/:id', (req, res, next) => {
       return res.status(404).json({ error: 'Facture non trouvée' });
     }
     db.synchroniserFacturesParClient();
+    db.setMeta('hasSeeded', 'true');
 
     const updated = db.getFactureById(id);
     res.json(updated);
@@ -675,6 +694,7 @@ app.patch('/api/factures/:id/status', (req, res, next) => {
       return res.status(404).json({ error: 'Facture non trouvée' });
     }
     db.synchroniserFacturesParClient();
+    db.setMeta('hasSeeded', 'true');
     const updatedInvoice = db.getFactureById(id);
     if (!updatedInvoice) return res.status(404).json({ error: 'Facture non trouvée après mise à jour du statut' });
     res.json(updatedInvoice);
@@ -694,6 +714,7 @@ app.delete('/api/factures/:id', (req, res, next) => {
     }
 
     db.synchroniserFacturesParClient();
+    db.setMeta('hasSeeded', 'true');
 
     res.json({ message: 'Facture supprimée avec succès' });
   } catch (err) {

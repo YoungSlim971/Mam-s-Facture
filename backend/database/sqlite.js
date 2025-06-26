@@ -22,6 +22,10 @@ class SQLiteDatabase {
   }
 
   init() {
+    this.db.run(`CREATE TABLE IF NOT EXISTS meta (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    );`);
     this.db.run(`CREATE TABLE IF NOT EXISTS clients (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nom_client TEXT NOT NULL,
@@ -484,6 +488,23 @@ class SQLiteDatabase {
     stmt.free();
     this.save();
     return this.getUserProfile(); // Return the updated profile
+  }
+
+  getMeta(key) {
+    const stmt = this.db.prepare('SELECT value FROM meta WHERE key=?');
+    stmt.bind([key]);
+    const value = stmt.step() ? stmt.getAsObject().value : null;
+    stmt.free();
+    return value;
+  }
+
+  setMeta(key, value) {
+    const stmt = this.db.prepare(
+      'INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value'
+    );
+    stmt.run([key, value]);
+    stmt.free();
+    this.save();
   }
 }
 
