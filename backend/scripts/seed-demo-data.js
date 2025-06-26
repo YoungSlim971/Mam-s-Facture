@@ -50,13 +50,14 @@ async function seed(dbInstance) {
 
   factures.forEach(f => {
     const clientId = clientIdMap[f.clientKey];
+    const client = clients.find(c => c.nom_entreprise === f.clientKey);
     db.createFacture({
       client_id: clientId,
       numero_facture: f.numero,
-      nom_client: clients[0].nom_client,
-      nom_entreprise: clients[0].nom_entreprise,
-      telephone: clients[0].telephone,
-      adresse: clients[0].adresse_facturation,
+      nom_client: client.nom_client,
+      nom_entreprise: client.nom_entreprise,
+      telephone: client.telephone,
+      adresse: client.adresse_facturation,
       date_facture: f.date,
       montant_total: f.montant,
       status: f.status,

@@ -9,5 +9,17 @@
     "siret": "11111111100011",
     "legal_form": "SARL",
     "rcs_number": "Basse-Terre 111 111 111"
+  },
+  {
+    "nom_client": "Malik Johnson",
+    "nom_entreprise": "MJ Architecture",
+    "email": "malik@mj-architecture.fr",
+    "telephone": "0611223344",
+    "adresse_facturation": "42 Rue des Bâtisseurs, 75010 Paris",
+    "adresse_livraison": "42 Rue des Bâtisseurs, 75010 Paris",
+    "siret": "11223344556677",
+    "tva": "FR445566778899",
+    "legal_form": "SASU",
+    "rcs_number": "Paris 123 456 789"
   }
 ]
