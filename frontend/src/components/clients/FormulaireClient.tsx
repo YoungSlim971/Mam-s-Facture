@@ -52,18 +52,6 @@ export default function FormulaireClient({ onCreated }: Props) {
     } catch (error) {
       console.error('Erreur création client', error)
     }
-      setNom('')
-      setPrenom('')
-      setEntreprise('')
-      setTelephone('')
-      setEmail('')
-      setAdresseFact('')
-      setAdresseLiv('')
-      setSiret('')
-      setTva('')
-      setLogo('')
-      onCreated?.()
-    }
   }
 
   return (
