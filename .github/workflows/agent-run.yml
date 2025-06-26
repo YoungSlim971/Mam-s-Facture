@@ -11,6 +11,8 @@ on:
 jobs:
   agent:
     runs-on: ubuntu-latest
+    env:
+      API_TOKEN: ${{ secrets.API_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -24,10 +26,83 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8 # ou la version que tu utilises localement
+          version: 8
 
-      - name: Install dependencies
-        run: pnpm install
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          pnpm install --frozen-lockfile
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          pnpm build
+
+      - name: Seed database if needed
+        run: |
+          node <<'NODE'
+          const SQLiteDatabase = require('./backend/database/sqlite');
+          const seed = require('./backend/scripts/seed-demo-data');
+          (async () => {
+            const db = await SQLiteDatabase.create();
+            if (db.getMeta('hasSeeded') !== 'true') {
+              console.log('Seeding demo data...');
+              await seed(db);
+            } else {
+              console.log('Database already seeded');
+            }
+          })();
+          NODE
+
+      - name: Check ports availability
+        run: |
+          for PORT in 3001 5173; do
+            if lsof -i tcp:$PORT; then
+              echo "Port $PORT already in use" && exit 1
+            else
+              echo "Port $PORT free"
+            fi
+          done
+
+      - name: Start servers
+        run: pnpm dev:all & echo $! > server.pid
+
+      - name: Wait for ports
+        run: |
+          for PORT in 3001 5173; do
+            for i in {1..30}; do
+              if nc -z localhost $PORT; then
+                echo "Port $PORT ready"
+                break
+              fi
+              if [ $i -eq 30 ]; then
+                echo "Timeout waiting for port $PORT" && exit 1
+              fi
+              sleep 1
+            done
+          done
+
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          pnpm test
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          pnpm test
+
+      - name: Stop servers
+        run: |
+          kill $(cat server.pid)
 
       - name: Run agent.ts
         run: pnpm ts-node scripts/agent.ts
