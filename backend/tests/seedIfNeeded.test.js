@@ -1,10 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const SQLiteDatabase = require('../database/sqlite');
-const { readUserProfile } = require('../services/userProfileService');
 
 const dbPath = path.join(__dirname, '..', 'database', 'facturation.sqlite');
-const profilePath = path.join(__dirname, '..', 'data', 'profil_utilisateur.json');
 
 let app;
 
@@ -21,7 +19,6 @@ const waitForSeed = async () => {
 describe('seedIfNeeded() on server startup', () => {
   beforeAll(async () => {
     if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
-    if (fs.existsSync(profilePath)) fs.unlinkSync(profilePath);
     jest.resetModules();
     app = await require('../server');
     await waitForSeed();
@@ -32,8 +29,8 @@ describe('seedIfNeeded() on server startup', () => {
     const hasSeeded = db.getMeta('hasSeeded');
     expect(hasSeeded).toBe('true');
     expect(db.getClients().length).toBeGreaterThanOrEqual(1);
-    const profile = await readUserProfile();
-    expect(profile).not.toBeNull();
+    const profile = db.getUserProfile();
+    expect(profile.full_name).toBeTruthy();
   });
 
   test('does not reseed when restarted', async () => {
