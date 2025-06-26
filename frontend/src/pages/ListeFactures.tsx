@@ -172,12 +172,12 @@ export default function ListeFactures() {
 
   const marquerPayee = async (id: number) => {
     try {
-      const updated = await updateInvoiceStatus(id, 'paid');
-      setFactures(prev => {
-        const list = prev.map(f => (f.id === id ? updated : f));
-        cacheInvoicesLocally(list);
-        return statusFilter === 'unpaid' ? list.filter(f => f.id !== id) : list;
-      });
+    const updated = await updateInvoiceStatus(id, 'paid');
+    setFactures(prev => {
+      const list = prev.map(f => (f.id === id ? { ...f, ...updated } : f));
+      cacheInvoicesLocally(list);
+      return statusFilter === 'unpaid' ? list.filter(f => f.id !== id) : list;
+    });
       toast({ description: 'Statut mis à jour' });
       window.dispatchEvent(new Event('factureStatutChange'));
     } catch (err) {
