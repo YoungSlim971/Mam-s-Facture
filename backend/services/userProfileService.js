@@ -74,7 +74,11 @@ const writeUserProfile = async (profileData) => {
     siret: String(profileData.siret || '').trim(),
     ape_naf: String(profileData.ape_naf || '').trim(),
     tva_intra: String(profileData.tva_intra || '').trim(),
-    rcs_ou_rm: String(profileData.rcs_ou_rm || '').trim()
+    rcs_ou_rm: String(profileData.rcs_ou_rm || '').trim(),
+    email: String(profileData.email || '').trim(),
+    phone: String(profileData.phone || '').trim(),
+    social_capital: String(profileData.social_capital || '').trim(),
+    activity_start_date: String(profileData.activity_start_date || '').trim()
   };
 
   try {

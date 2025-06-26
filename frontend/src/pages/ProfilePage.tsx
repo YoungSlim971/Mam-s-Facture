@@ -59,6 +59,26 @@ export default function ProfilePage() {
       try {
         const dataFromApi = await apiClient.getUserProfile(); // This now fetches JSON structure
         if (dataFromApi) {
+          const expected = [
+            'raison_sociale',
+            'adresse',
+            'code_postal',
+            'ville',
+            'forme_juridique',
+            'siret',
+            'ape_naf',
+            'tva_intra',
+            'rcs_ou_rm',
+            'email',
+            'phone',
+            'social_capital',
+            'activity_start_date'
+          ] as const;
+          expected.forEach(field => {
+            if (!dataFromApi[field]) {
+              console.warn(`Champ manquant dans le profil utilisateur: ${field}`);
+            }
+          });
           // Map incoming JSON structure to form fields
           const formCompatibleData: FormProfileData = {
             full_name: dataFromApi.raison_sociale || '',
@@ -74,10 +94,10 @@ export default function ProfilePage() {
             // This part might need adjustment based on whether these fields are still stored anywhere else
             // or if they should be removed from the form if not part of the new spec.
             // For now, we assume they might come from an older profile or should be empty.
-            email: dataFromApi.email || '',
-            phone: dataFromApi.phone || '',
-            activity_start_date: dataFromApi.activity_start_date || '',
-            social_capital: dataFromApi.social_capital || '',
+            email: dataFromApi.email || 'demo@example.com',
+            phone: dataFromApi.phone || '0000000000',
+            activity_start_date: dataFromApi.activity_start_date || '1970-01-01',
+            social_capital: dataFromApi.social_capital || '0',
           };
           setProfile(formCompatibleData);
         }
