@@ -30,5 +30,29 @@
     "description": "Carte de visite imprimée",
     "montant": 150,
     "date": "2024-03-20"
+  },
+  {
+    "clientKey": "MJ Architecture",
+    "numero": "F2025-045",
+    "status": "paid",
+    "description": "Consultation chantier - Projet Rivoli",
+    "montant": 950,
+    "date": "2025-06-05"
+  },
+  {
+    "clientKey": "MJ Architecture",
+    "numero": "F2025-052",
+    "status": "unpaid",
+    "description": "Plans de rénovation – Appartement Voltaire",
+    "montant": 1400,
+    "date": "2025-06-15"
+  },
+  {
+    "clientKey": "MJ Architecture",
+    "numero": "F2025-060",
+    "status": "paid",
+    "description": "Mission express – Vérification conformité permis",
+    "montant": 550,
+    "date": "2025-06-25"
   }
 ]
