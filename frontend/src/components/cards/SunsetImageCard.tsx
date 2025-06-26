@@ -23,7 +23,9 @@ export function SunsetImageCard() {
   }, []);
 
   return (
-    <div className="rounded-xl shadow-md bg-white p-6 transition-all duration-300 animate-fade-in">
+    <div
+      className="rounded-xl shadow-md border border-zinc-200 dark:border-zinc-800 p-6 transition-all duration-300 w-full animate-fade-in bg-gradient-to-br from-[var(--gradient-start)] via-[var(--gradient-mid)] to-[var(--gradient-end)] text-white dark:from-indigo-900 dark:via-violet-900 dark:to-indigo-950"
+    >
       <div className="mb-4">
         <h3 className="font-semibold">Coucher de soleil</h3>
       </div>
