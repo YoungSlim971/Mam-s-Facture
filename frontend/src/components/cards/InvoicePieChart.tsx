@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Switch } from '@/components/ui/switch';
 import { API_URL } from '@/lib/api';
 
 export function InvoicePieChart() {
   const [url, setUrl] = useState('');
   const [stats, setStats] = useState({ paid: 0, unpaid: 0 });
-  const [showPaid, setShowPaid] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -31,26 +29,27 @@ export function InvoicePieChart() {
       }
     }
     load();
+    const handler = () => load();
+    window.addEventListener('factureChange', handler);
+    window.addEventListener('factureStatutChange', handler);
+    return () => {
+      window.removeEventListener('factureChange', handler);
+      window.removeEventListener('factureStatutChange', handler);
+    };
   }, []);
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Statut du mois</CardTitle>
-          <div className="flex items-center space-x-2">
-            <Switch checked={showPaid} onCheckedChange={setShowPaid} />
-            <span className="text-sm">
-              {showPaid ? 'Payées' : 'Impayées'}
-            </span>
-          </div>
-        </div>
+        <CardTitle>Statut du mois</CardTitle>
       </CardHeader>
       <CardContent className="text-center">
         {url ? <img src={url} alt="Camembert factures" /> : <Skeleton className="h-40 w-full" />}
         <p className="mt-4 font-medium">
-          {showPaid ? stats.paid : stats.unpaid} facture{(showPaid ? stats.paid : stats.unpaid) > 1 ? 's' : ''}{' '}
-          {showPaid ? 'payée' : 'impayée'}{(showPaid ? stats.paid : stats.unpaid) > 1 ? 's' : ''}
+          {stats.paid + stats.unpaid} facture{stats.paid + stats.unpaid > 1 ? 's' : ''} au total
+        </p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          {stats.paid} payée{stats.paid > 1 ? 's' : ''}, {stats.unpaid} impayée{stats.unpaid > 1 ? 's' : ''}
         </p>
       </CardContent>
     </Card>

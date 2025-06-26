@@ -370,6 +370,7 @@ export default function CreerFacture() {
 
       const data = await response.json();
       toast({ title: 'Facture créée', description: `La facture ${data.numero_facture || numeroFacture} a été créée avec succès.` });
+      window.dispatchEvent(new Event('factureChange'));
       navigate('/factures');
     } catch (err) {
       toast({ title: 'Erreur de création', description: (err instanceof Error ? err.message : 'Une erreur est survenue.'), variant: 'destructive' });
