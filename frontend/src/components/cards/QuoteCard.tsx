@@ -9,19 +9,46 @@ interface QuoteState {
   author: string;
 }
 
+const DEFAULT_QUOTES: QuoteState[] = [
+  {
+    text: "La vie est un mystère qu'il faut vivre, et non un problème à résoudre.",
+    author: 'Gandhi'
+  }
+];
+
 export function QuoteCard() {
   const [quote, setQuote] = useState<QuoteState | null>(null);
 
   useEffect(() => {
-    async function load() {
+    const todayKey = new Date().toDateString();
+
+    const fetchQuote = async () => {
       try {
         const { text, author } = await fetch(`${API_URL}/quote`).then(r => r.json());
-        setQuote({ text, author });
+        const q = { text, author };
+        setQuote(q);
+        localStorage.setItem('dailyQuote', JSON.stringify(q));
+        localStorage.setItem('dailyQuoteDate', todayKey);
       } catch {
-        setQuote({ text: '', author: '' });
+        const fallback = DEFAULT_QUOTES[0];
+        setQuote(fallback);
+        localStorage.setItem('dailyQuote', JSON.stringify(fallback));
+        localStorage.setItem('dailyQuoteDate', todayKey);
       }
+    };
+
+    const cached = localStorage.getItem('dailyQuote');
+    const cachedDate = localStorage.getItem('dailyQuoteDate');
+    if (cached && cachedDate === todayKey) {
+      setQuote(JSON.parse(cached));
+    } else {
+      fetchQuote();
     }
-    load();
+
+    const now = new Date();
+    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const timer = setTimeout(fetchQuote, next.getTime() - now.getTime());
+    return () => clearTimeout(timer);
   }, []);
 
   return (

@@ -4,7 +4,7 @@ jest.mock('@/lib/api', () => ({ API_URL: 'http://localhost:3001/api' }));
 import { InvoicePieChart } from './InvoicePieChart';
 
 const fetchMock = jest.fn().mockResolvedValue({
-  json: () => Promise.resolve({ paid: 3, unpaid: 2 })
+  json: () => Promise.resolve({ total: 5, paid: 3, unpaid: 2 })
 });
 
 global.fetch = fetchMock as any;
@@ -16,4 +16,5 @@ test('génère une url de graphique', async () => {
   );
   const img = await screen.findByRole('img');
   expect(img.getAttribute('src')).toMatch('quickchart.io');
+  expect(await screen.findByText(/5 facture/)).toBeInTheDocument();
 });

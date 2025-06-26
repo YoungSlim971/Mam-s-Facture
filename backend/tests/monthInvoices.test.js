@@ -18,7 +18,11 @@ describe('GET /api/invoices?month=current', () => {
       .get('/api/invoices?month=current')
       .set('Authorization', `Bearer ${API_TOKEN}`);
     expect(initialRes.status).toBe(200);
-    const { paid: initPaid = 0, unpaid: initUnpaid = 0 } = initialRes.body;
+    const {
+      paid: initPaid = 0,
+      unpaid: initUnpaid = 0,
+      total: initTotal = 0,
+    } = initialRes.body;
 
     await request(app)
       .post('/api/factures')
@@ -46,5 +50,48 @@ describe('GET /api/invoices?month=current', () => {
     expect(afterRes.status).toBe(200);
     expect(afterRes.body.paid).toBe(initPaid + 1);
     expect(afterRes.body.unpaid).toBe(initUnpaid + 1);
+    expect(afterRes.body.total).toBe(initTotal + 2);
+  });
+});
+
+describe('GET /api/invoices?month=06&year=2025', () => {
+  test('counts invoices for a specific month', async () => {
+    const initialRes = await request(app)
+      .get('/api/invoices?month=06&year=2025')
+      .set('Authorization', `Bearer ${API_TOKEN}`);
+    expect(initialRes.status).toBe(200);
+    const {
+      paid: initPaid = 0,
+      unpaid: initUnpaid = 0,
+      total: initTotal = 0,
+    } = initialRes.body;
+
+    await request(app)
+      .post('/api/factures')
+      .set('Authorization', `Bearer ${API_TOKEN}`)
+      .send({
+        nom_client: 'June Paid',
+        date_facture: '2025-06-10',
+        lignes: [{ description: 'a', quantite: 1, prix_unitaire: 10 }],
+        status: 'paid',
+      });
+
+    await request(app)
+      .post('/api/factures')
+      .set('Authorization', `Bearer ${API_TOKEN}`)
+      .send({
+        nom_client: 'June Unpaid',
+        date_facture: '2025-06-11',
+        lignes: [{ description: 'b', quantite: 1, prix_unitaire: 15 }],
+        status: 'unpaid',
+      });
+
+    const afterRes = await request(app)
+      .get('/api/invoices?month=06&year=2025')
+      .set('Authorization', `Bearer ${API_TOKEN}`);
+    expect(afterRes.status).toBe(200);
+    expect(afterRes.body.paid).toBe(initPaid + 1);
+    expect(afterRes.body.unpaid).toBe(initUnpaid + 1);
+    expect(afterRes.body.total).toBe(initTotal + 2);
   });
 });

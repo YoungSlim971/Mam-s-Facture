@@ -863,22 +863,41 @@ app.get('/api/quote', (req, res, next) => {
 
 // Route pour le camembert factures payées vs impayées du mois courant
 app.get('/api/invoices', (req, res, next) => {
-  const { month } = req.query;
-  if (month !== 'current') {
-    return res.status(400).json({ error: 'Paramètre month invalide' });
-  }
+  const { month, year } = req.query;
+
   try {
-    const now = new Date();
-    const year = now.getFullYear();
-    const monthIndex = now.getMonth();
+    let targetYear: number;
+    let targetMonth: number;
+
+    if (month === 'current' || (!month && !year)) {
+      const now = new Date();
+      targetYear = now.getFullYear();
+      targetMonth = now.getMonth();
+    } else {
+      const parsedMonth = parseInt(String(month), 10) - 1;
+      const parsedYear = parseInt(String(year), 10);
+      if (
+        Number.isNaN(parsedMonth) ||
+        Number.isNaN(parsedYear) ||
+        parsedMonth < 0 ||
+        parsedMonth > 11
+      ) {
+        return res
+          .status(400)
+          .json({ error: 'Paramètres month/year invalides' });
+      }
+      targetMonth = parsedMonth;
+      targetYear = parsedYear;
+    }
+
     const factures = db.getFactures();
-    const current = factures.filter(f => {
+    const filtered = factures.filter(f => {
       const d = new Date(f.created_at || f.date_facture);
-      return d.getFullYear() === year && d.getMonth() === monthIndex;
+      return d.getFullYear() === targetYear && d.getMonth() === targetMonth;
     });
-    const paid = current.filter(f => f.status === 'paid').length;
-    const unpaid = current.filter(f => f.status !== 'paid').length;
-    res.json({ paid, unpaid });
+    const paid = filtered.filter(f => f.status === 'paid').length;
+    const unpaid = filtered.filter(f => f.status !== 'paid').length;
+    res.json({ total: filtered.length, paid, unpaid });
   } catch (err) {
     next(err);
   }
