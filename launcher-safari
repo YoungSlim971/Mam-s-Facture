@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Se place dans la racine du projet quel que soit l'endroit d'où le script est lancé
+cd "$(dirname "$0")/.." || exit 1
+if [[ ! -d backend ]]; then
+  # Le script était déjà a la racine
+  cd "$(dirname "$0")" || exit 1
+fi
+
 if [[ "$(uname)" != "Darwin" ]]; then
   echo "Ce script est destiné à macOS." >&2
   exit 1
