@@ -9,5 +9,8 @@
   "siret": "99999999900016",
   "ape_naf": "6201Z",
   "tva_intra": "FR999999999",
-  "rcs_ou_rm": "Basse-Terre 999 999 999"
+  "rcs_ou_rm": "Basse-Terre 999 999 999",
+  "phone": "0102030405",
+  "social_capital": "1000",
+  "activity_start_date": "2020-01-01"
 }

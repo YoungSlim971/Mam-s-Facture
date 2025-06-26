@@ -36,7 +36,11 @@ async function seed(dbInstance) {
     siret: user.siret,
     ape_naf: user.ape_naf,
     tva_intra: user.tva_intra,
-    rcs_ou_rm: user.rcs_ou_rm
+    rcs_ou_rm: user.rcs_ou_rm,
+    email: user.email,
+    phone: user.phone,
+    social_capital: user.social_capital,
+    activity_start_date: user.activity_start_date
   });
 
   const clientIdMap = {};

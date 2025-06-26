@@ -21,7 +21,33 @@ const AfficherProfilUtilisateur: React.FC = () => {
         const data = await apiClient.getUserProfile(); // Fetches the JSON structure
         console.log('Profil récupéré:', data);
         if (data) {
-          setProfile(data);
+          const expected = [
+            'raison_sociale',
+            'adresse',
+            'code_postal',
+            'ville',
+            'forme_juridique',
+            'siret',
+            'ape_naf',
+            'tva_intra',
+            'rcs_ou_rm',
+            'email',
+            'phone',
+            'social_capital',
+            'activity_start_date'
+          ] as const;
+          expected.forEach(field => {
+            if (!data[field]) {
+              console.warn(`Champ manquant dans le profil utilisateur: ${field}`);
+            }
+          });
+          setProfile({
+            ...data,
+            email: data.email || 'demo@example.com',
+            phone: data.phone || '0000000000',
+            social_capital: data.social_capital || '0',
+            activity_start_date: data.activity_start_date || '1970-01-01'
+          });
         } else {
           toast({
             title: 'Profil non trouvé',
