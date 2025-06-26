@@ -75,13 +75,23 @@ interface ProfileDataForUpdate {
 }
 
 
+const DEFAULT_TOKEN =
+  (typeof process !== 'undefined' && process.env?.VITE_API_TOKEN) ||
+  import.meta.env?.VITE_API_TOKEN ||
+  'test-token';
+
 const getAuthToken = () => {
-  // In a real app, you'd get this from localStorage, Redux store, context, etc.
-  // For this example, let's assume it's stored in localStorage or is a known static value.
-  // This matches the simple token check in backend/server.js (process.env.API_TOKEN)
-  // Replace 'your_static_api_token' with the actual token if it's static,
-  // or implement proper token retrieval.
-  return localStorage.getItem('apiToken') || '';
+  // Retrieve the token from localStorage.  If it's not set (first launch),
+  // initialise it with the default demo token so API requests succeed.
+  if (typeof window !== 'undefined') {
+    let token = localStorage.getItem('apiToken');
+    if (!token) {
+      localStorage.setItem('apiToken', DEFAULT_TOKEN);
+      token = DEFAULT_TOKEN;
+    }
+    return token;
+  }
+  return DEFAULT_TOKEN;
 };
 
 export const apiClient = {
