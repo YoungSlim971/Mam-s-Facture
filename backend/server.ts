@@ -13,7 +13,7 @@ import SQLiteDatabase from './database/sqlite';
 import { computeTotals } from './utils/computeTotals';
 import { getRandomQuote } from './services/quoteService';
 import { errorHandler } from './middleware/errorHandler';
-import { readUserProfile, writeUserProfile, USER_PROFILE_PATH } from './services/userProfileService';
+// Legacy JSON profile helpers removed in favour of SQLite storage
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const seedDemoData = require('./scripts/seed-demo-data');
 
@@ -103,8 +103,8 @@ const dbReady = (async () => {
 const seedIfNeeded = async () => {
   await dbReady;
   if (db.getMeta('hasSeeded')) return;
-  const profile = await readUserProfile();
-  const hasData = profile || db.getClients().length > 0 || db.getFactures().length > 0;
+  const profile = db.getUserProfile();
+  const hasData = (profile && profile.full_name) || db.getClients().length > 0 || db.getFactures().length > 0;
   if (!hasData) {
     await seedDemoData(db);
   }
@@ -153,18 +153,13 @@ app.use('/api/clients', authenticateToken);
 app.use('/api/user-profile', authenticateToken); // Secure user profile endpoint
 
 // User Profile Endpoints
-app.get('/api/user-profile', async (req: Request, res: Response, next: NextFunction) => {
+app.get('/api/user-profile', (req: Request, res: Response, next: NextFunction) => {
   try {
-    const profile = await readUserProfile();
-    if (profile) {
+    const profile = db.getUserProfile();
+    if (profile && profile.full_name) {
       res.json(profile);
     } else {
-      // Consistent with ProfilePage.tsx, return an object with empty strings
-      // or a specific structure indicating "not found" but not an error for the client.
-      // For now, let's send a 404 if it's truly not found.
-      // The frontend (AfficherProfilUtilisateur) will handle this by redirecting.
-      // ProfilePage.tsx will also handle this by allowing creation.
-      res.status(404).json({ message: "Profil utilisateur non trouvé." });
+      res.status(404).json({ message: 'Profil utilisateur non trouvé.' });
     }
   } catch (err) {
     console.error('GET /api/user-profile error:', err);
@@ -172,40 +167,70 @@ app.get('/api/user-profile', async (req: Request, res: Response, next: NextFunct
   }
 });
 
-app.post('/api/user-profile', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/api/user-profile', (req: Request, res: Response, next: NextFunction) => {
   try {
-    // The frontend sends data based on its ProfileData interface.
-    // We need to map it to the fields expected by writeUserProfile (which are the JSON keys).
-    const profileDataFromRequest = req.body;
-    const profileToSave = {
-      raison_sociale: profileDataFromRequest.full_name,
-      adresse: profileDataFromRequest.address_street, // Assuming address_street contains the full address line
-      code_postal: profileDataFromRequest.address_postal_code,
-      ville: profileDataFromRequest.address_city,
-      forme_juridique: profileDataFromRequest.legal_form,
-      siret: profileDataFromRequest.siret_siren,
-      ape_naf: profileDataFromRequest.ape_naf_code,
-      tva_intra: profileDataFromRequest.vat_number,
-      rcs_ou_rm: profileDataFromRequest.rcs_rm
-      // Note: other fields like email, phone, activity_start_date, social_capital from ProfileData
-      // are not in the target profil_utilisateur.json structure as per the task.
-      // If they were, they would be mapped here.
-    };
-
-    const savedProfile = await writeUserProfile(profileToSave);
+    const data = req.body;
+    const saved = db.upsertUserProfile({
+      full_name: data.full_name,
+      address_street: data.address_street,
+      address_postal_code: data.address_postal_code,
+      address_city: data.address_city,
+      siret_siren: data.siret_siren,
+      ape_naf_code: data.ape_naf_code,
+      vat_number: data.vat_number,
+      email: data.email,
+      phone: data.phone,
+      activity_start_date: data.activity_start_date,
+      legal_form: data.legal_form,
+      rcs_rm: data.rcs_rm,
+      social_capital: data.social_capital
+    });
     db.setMeta('hasSeeded', 'true');
-    res.json(savedProfile);
+    res.json(saved);
   } catch (err) {
     console.error('POST /api/user-profile error:', err);
-    // If it's a validation error from writeUserProfile
-    if (err.message.startsWith("Le champ") || err.message.startsWith("Failed to save")) {
-         res.status(400).json({
-            error: "Erreur de validation ou de sauvegarde du profil utilisateur",
-            details: err.message,
-        });
+    next(err);
+  }
+});
+
+// New profile endpoints using SQLite storage
+app.get('/api/profile', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const profile = db.getUserProfile();
+    if (profile && profile.full_name) {
+      res.json(profile);
     } else {
-        next(err);
+      res.status(404).json({ message: 'Profil utilisateur non trouvé.' });
     }
+  } catch (err) {
+    console.error('GET /api/profile error:', err);
+    next(err);
+  }
+});
+
+app.put('/api/profile', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data = req.body;
+    const saved = db.upsertUserProfile({
+      full_name: data.full_name,
+      address_street: data.address_street,
+      address_postal_code: data.address_postal_code,
+      address_city: data.address_city,
+      siret_siren: data.siret_siren,
+      ape_naf_code: data.ape_naf_code,
+      vat_number: data.vat_number,
+      email: data.email,
+      phone: data.phone,
+      activity_start_date: data.activity_start_date,
+      legal_form: data.legal_form,
+      rcs_rm: data.rcs_rm,
+      social_capital: data.social_capital
+    });
+    db.setMeta('hasSeeded', 'true');
+    res.json(saved);
+  } catch (err) {
+    console.error('PUT /api/profile error:', err);
+    next(err);
   }
 });
 
@@ -445,12 +470,11 @@ app.get('/api/factures/:id', (req, res, next) => {
 });
 
 // POST /api/factures - Crée une nouvelle facture
-app.post('/api/factures', async (req, res, next) => { // Added async
+app.post('/api/factures', (req, res, next) => {
   try {
-    // await dbReady; // DB still needed for clients, invoices table etc.
-    const userProfile = await readUserProfile(); // Fetch user profile from JSON
+    const userProfile = db.getUserProfile();
 
-    if (!userProfile) {
+    if (!userProfile || !userProfile.full_name) {
       return res.status(400).json({
         error: "Profil utilisateur non configuré",
         details: "Veuillez configurer vos informations dans 'Mes informations' avant de créer une facture.",
@@ -572,13 +596,13 @@ app.post('/api/factures', async (req, res, next) => { // Added async
       vat_rate: parsedVatRate,
       rcs_number,
       // Emitter details from JSON profile
-      emitter_full_name: userProfile.raison_sociale,
-      emitter_address_street: `${userProfile.adresse}, ${userProfile.code_postal} ${userProfile.ville}`,
-      emitter_siret_siren: userProfile.siret,
-      emitter_ape_naf_code: userProfile.ape_naf,
-      emitter_vat_number: userProfile.tva_intra || null, // Ensure it's at least null if undefined
-      emitter_legal_form: userProfile.forme_juridique,
-      emitter_rcs_rm: userProfile.rcs_ou_rm || null, // Ensure it's at least null if undefined
+      emitter_full_name: userProfile.full_name,
+      emitter_address_street: `${userProfile.address_street}, ${userProfile.address_postal_code} ${userProfile.address_city}`,
+      emitter_siret_siren: userProfile.siret_siren,
+      emitter_ape_naf_code: userProfile.ape_naf_code,
+      emitter_vat_number: userProfile.vat_number || null,
+      emitter_legal_form: userProfile.legal_form,
+      emitter_rcs_rm: userProfile.rcs_rm || null,
       // Fields that were previously added later, now initialized
       emitter_address_postal_code: null, // Part of combined street, so explicitly null
       emitter_address_city: null,      // Part of combined street, so explicitly null

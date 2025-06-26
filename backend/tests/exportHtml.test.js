@@ -26,7 +26,7 @@ describe('GET /api/factures/:id/html', () => {
       phone: "0102030405"
     };
     const profileRes = await request(app)
-      .post('/api/user-profile')
+      .put('/api/profile')
       .set('Authorization', `Bearer ${API_TOKEN}`)
       .send(profilePayload);
     // Check if profile creation was successful, otherwise tests dependent on it will fail.

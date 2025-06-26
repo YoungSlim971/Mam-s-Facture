@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -48,10 +47,11 @@ const initialProfileData: FormProfileData = {
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<FormProfileData>(initialProfileData);
+  const [originalProfile, setOriginalProfile] = useState<FormProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate(); // Initialize navigate
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -100,12 +100,16 @@ export default function ProfilePage() {
             social_capital: dataFromApi.social_capital || '0',
           };
           setProfile(formCompatibleData);
+          setOriginalProfile(formCompatibleData);
+          setIsDirty(false);
         }
       } catch (error: any) {
         if (error.message && error.message.includes('404')) {
           // Profile not found, it's okay, user can create one.
           // Set form to initial (empty) state.
           setProfile(initialProfileData);
+          setOriginalProfile(initialProfileData);
+          setIsDirty(false);
            toast({
             title: 'Profil non trouvé',
             description: 'Veuillez compléter vos informations pour créer votre profil.',
@@ -128,7 +132,16 @@ export default function ProfilePage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
+    setProfile(prev => {
+      const updated = { ...prev, [name]: value };
+      if (originalProfile) {
+        const changed = Object.keys(updated).some(
+          key => (updated as any)[key] !== (originalProfile as any)[key]
+        );
+        setIsDirty(changed);
+      }
+      return updated;
+    });
   };
 
   const validateProfile = (data: FormProfileData): boolean => {
@@ -209,15 +222,31 @@ export default function ProfilePage() {
     };
 
     try {
-      // apiClient.updateUserProfile expects an object that matches its internal ProfileData definition,
-      // which aligns with FormProfileData. The backend will perform the final mapping to JSON keys.
       const saved = await apiClient.updateUserProfile(dataToSave);
       saveUserProfileToLocal(saved);
       toast({
-        title: 'Succès',
-        description: 'Informations du profil mises à jour.',
+        title: 'Modifications enregistrées avec succès ✅',
+        variant: 'default'
       });
-      navigate('/profil-utilisateur'); // Redirect to the summary page
+      const refreshed = await apiClient.getUserProfile();
+      const formData: FormProfileData = {
+        full_name: refreshed.raison_sociale || '',
+        address_street: refreshed.adresse || '',
+        address_postal_code: refreshed.code_postal || '',
+        address_city: refreshed.ville || '',
+        siret_siren: refreshed.siret || '',
+        ape_naf_code: refreshed.ape_naf || '',
+        vat_number: refreshed.tva_intra || '',
+        legal_form: refreshed.forme_juridique || '',
+        rcs_rm: refreshed.rcs_ou_rm || '',
+        email: refreshed.email || 'demo@example.com',
+        phone: refreshed.phone || '0000000000',
+        activity_start_date: refreshed.activity_start_date || '1970-01-01',
+        social_capital: refreshed.social_capital || '0'
+      };
+      setProfile(formData);
+      setOriginalProfile(formData);
+      setIsDirty(false);
     } catch (error: any) {
       console.error('Failed to save profile:', error);
       toast({
@@ -305,7 +334,7 @@ export default function ProfilePage() {
           <Input id="activity_start_date" name="activity_start_date" type="date" value={profile.activity_start_date || ''} onChange={handleChange} />
         </div>
 
-        <Button type="submit" disabled={isSaving}>
+        <Button type="submit" disabled={isSaving || !isDirty}>
           {isSaving ? 'Enregistrement...' : 'Enregistrer les modifications'}
         </Button>
       </form>

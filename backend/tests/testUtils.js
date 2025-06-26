@@ -1,8 +1,5 @@
-const fs = require('fs').promises;
-const path = require('path');
+const SQLiteDatabase = require('../database/sqlite');
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
-const USER_PROFILE_PATH = path.join(DATA_DIR, 'profil_utilisateur.json');
 
 const DUMMY_PROFILE_DATA = {
   raison_sociale: "Test Utility Company",
@@ -18,34 +15,35 @@ const DUMMY_PROFILE_DATA = {
 
 async function setupDummyProfile() {
   try {
-    // Ensure data directory exists
-    await fs.mkdir(DATA_DIR, { recursive: true });
-    // Write the dummy profile
-    await fs.writeFile(USER_PROFILE_PATH, JSON.stringify(DUMMY_PROFILE_DATA, null, 2), 'utf-8');
-    // console.log('Dummy profile created at:', USER_PROFILE_PATH);
+    const db = await SQLiteDatabase.create();
+    db.upsertUserProfile({
+      full_name: DUMMY_PROFILE_DATA.raison_sociale,
+      address_street: DUMMY_PROFILE_DATA.adresse,
+      address_postal_code: DUMMY_PROFILE_DATA.code_postal,
+      address_city: DUMMY_PROFILE_DATA.ville,
+      siret_siren: DUMMY_PROFILE_DATA.siret,
+      ape_naf_code: DUMMY_PROFILE_DATA.ape_naf,
+      vat_number: DUMMY_PROFILE_DATA.tva_intra,
+      legal_form: DUMMY_PROFILE_DATA.forme_juridique,
+      rcs_rm: DUMMY_PROFILE_DATA.rcs_ou_rm
+    });
   } catch (error) {
     console.error('Error setting up dummy profile:', error);
-    // throw error; // rethrow to fail tests if setup is critical
   }
 }
 
 async function cleanupDummyProfile() {
   try {
-    await fs.unlink(USER_PROFILE_PATH);
-    // console.log('Dummy profile cleaned up from:', USER_PROFILE_PATH);
+    const db = await SQLiteDatabase.create();
+    db.db.run('DELETE FROM user_profile');
+    db.save();
   } catch (error) {
-    if (error.code === 'ENOENT') {
-      // File didn't exist, which is fine for cleanup
-      // console.log('Dummy profile file did not exist, no cleanup needed.');
-    } else {
-      console.error('Error cleaning up dummy profile:', error);
-    }
+    console.error('Error cleaning up dummy profile:', error);
   }
 }
 
 module.exports = {
   setupDummyProfile,
   cleanupDummyProfile,
-  DUMMY_PROFILE_DATA,
-  USER_PROFILE_PATH
+  DUMMY_PROFILE_DATA
 };

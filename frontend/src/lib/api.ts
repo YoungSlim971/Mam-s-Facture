@@ -98,7 +98,7 @@ export const apiClient = {
   // getUserProfile now returns the UserProfileJson structure
   getUserProfile: async (): Promise<UserProfileJson> => {
     const token = getAuthToken();
-    const response = await fetch(`${API_URL}/user-profile`, {
+    const response = await fetch(`${API_URL}/profile`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -121,8 +121,8 @@ export const apiClient = {
   // The backend is responsible for mapping these fields to the actual JSON structure.
   updateUserProfile: async (profileData: ProfileDataForUpdate): Promise<UserProfileJson> => {
     const token = getAuthToken();
-    const response = await fetch(`${API_URL}/user-profile`, {
-      method: 'POST',
+    const response = await fetch(`${API_URL}/profile`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,

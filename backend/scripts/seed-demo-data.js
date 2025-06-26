@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const SQLiteDatabase = require('../database/sqlite');
-const { writeUserProfile } = require('../services/userProfileService');
 
 const DATA_DIR = path.join(__dirname, '..', '..', 'data', 'mockData');
 
@@ -26,17 +25,17 @@ async function seed(dbInstance) {
   const clients = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'clients.json'), 'utf-8'));
   const factures = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'factures.json'), 'utf-8'));
 
-  // Save user profile
-  await writeUserProfile({
-    raison_sociale: user.raison_sociale,
-    adresse: user.adresse,
-    code_postal: user.code_postal,
-    ville: user.ville,
-    forme_juridique: user.forme_juridique,
-    siret: user.siret,
-    ape_naf: user.ape_naf,
-    tva_intra: user.tva_intra,
-    rcs_ou_rm: user.rcs_ou_rm,
+  // Save user profile in SQLite
+  db.upsertUserProfile({
+    full_name: user.raison_sociale,
+    address_street: user.adresse,
+    address_postal_code: user.code_postal,
+    address_city: user.ville,
+    legal_form: user.forme_juridique,
+    siret_siren: user.siret,
+    ape_naf_code: user.ape_naf,
+    vat_number: user.tva_intra,
+    rcs_rm: user.rcs_ou_rm,
     email: user.email,
     phone: user.phone,
     social_capital: user.social_capital,
