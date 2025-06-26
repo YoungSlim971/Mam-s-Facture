@@ -34,6 +34,7 @@ export async function updateInvoice(id: number, data: Partial<InvoiceType>): Pro
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
+  window.dispatchEvent(new Event('factureChange'));
 }
 
 export async function updateInvoiceStatus(
@@ -79,6 +80,7 @@ export async function updateInvoiceStatus(
   window.dispatchEvent(new CustomEvent('factureStatutChange', {
     detail: updatedInvoice,
   }));
+  window.dispatchEvent(new Event('factureChange'));
 
   return updatedInvoice;
 }

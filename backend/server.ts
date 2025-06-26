@@ -868,7 +868,7 @@ app.get('/api/invoices', (req, res, next) => {
     const monthIndex = now.getMonth();
     const factures = db.getFactures();
     const current = factures.filter(f => {
-      const d = new Date(f.date_facture);
+      const d = new Date(f.created_at || f.date_facture);
       return d.getFullYear() === year && d.getMonth() === monthIndex;
     });
     const paid = current.filter(f => f.status === 'paid').length;

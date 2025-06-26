@@ -53,6 +53,16 @@ export function StatsCarousel() {
     }
     loadPie();
     loadUnpaid();
+    const handler = () => {
+      loadPie();
+      loadUnpaid();
+    };
+    window.addEventListener('factureChange', handler);
+    window.addEventListener('factureStatutChange', handler);
+    return () => {
+      window.removeEventListener('factureChange', handler);
+      window.removeEventListener('factureStatutChange', handler);
+    };
   }, []);
 
   useEffect(() => {
