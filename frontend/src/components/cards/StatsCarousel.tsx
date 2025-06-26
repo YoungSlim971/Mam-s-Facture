@@ -20,7 +20,7 @@ interface Facture {
 export function StatsCarousel() {
   const [api, setApi] = useState<CarouselApi>();
   const [index, setIndex] = useState(0);
-  const [pieStats, setPieStats] = useState({ paid: 0, unpaid: 0 });
+  const [pieStats, setPieStats] = useState({ total: 0, paid: 0, unpaid: 0 });
   const [unpaid, setUnpaid] = useState<Facture[]>([]);
 
   const euro = useMemo(
@@ -80,7 +80,7 @@ export function StatsCarousel() {
     [unpaid]
   );
 
-  const invoicesThisMonth = pieStats.paid + pieStats.unpaid;
+  const invoicesThisMonth = pieStats.total;
 
   return (
     <div className="rounded-xl shadow-md bg-white dark:bg-gray-800 p-6 transition-all duration-300 w-full">

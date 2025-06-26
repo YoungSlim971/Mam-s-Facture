@@ -5,7 +5,7 @@ import { API_URL } from '@/lib/api';
 
 export function InvoicePieChart() {
   const [url, setUrl] = useState('');
-  const [stats, setStats] = useState({ paid: 0, unpaid: 0 });
+  const [stats, setStats] = useState({ total: 0, paid: 0, unpaid: 0 });
 
   useEffect(() => {
     async function load() {
@@ -46,7 +46,7 @@ export function InvoicePieChart() {
       <CardContent className="text-center">
         {url ? <img src={url} alt="Camembert factures" /> : <Skeleton className="h-40 w-full" />}
         <p className="mt-4 font-medium">
-          {stats.paid + stats.unpaid} facture{stats.paid + stats.unpaid > 1 ? 's' : ''} au total
+          {stats.total} facture{stats.total > 1 ? 's' : ''} au total
         </p>
         <p className="text-sm text-gray-500 dark:text-gray-400">
           {stats.paid} payée{stats.paid > 1 ? 's' : ''}, {stats.unpaid} impayée{stats.unpaid > 1 ? 's' : ''}
