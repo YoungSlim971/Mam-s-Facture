@@ -23,24 +23,29 @@ done
 cd "$(dirname "$0")"
 
 # Installe automatiquement les dépendances si nécessaire
-if ! command -v node >/dev/null 2>&1 \
-  || ! command -v pnpm >/dev/null 2>&1 \
-  || [ ! -d backend/node_modules ] || [ ! -d frontend/node_modules ]; then
-  echo "[launcher] Préparation de l'environnement (installation)..."
-  ./install_macos.sh --skip-build
-else
-  echo "[launcher] Vérification des mises à jour Homebrew..."
-  brew update >/dev/null
-  brew upgrade node pnpm >/dev/null || true
+if ! command -v node >/dev/null 2>&1 || ! command -v pnpm >/dev/null 2>&1; then
+  echo "[launcher] Node.js ou pnpm manquant, exécution de install_macos.sh..."
+  ./install_macos.sh
 fi
 
-# S'assure que les dépendances sont à jour
+# Gestionnaire de paquets : pnpm si disponible, sinon npm
 PM=pnpm
 if ! command -v pnpm >/dev/null 2>&1; then
   PM=npm
 fi
+
+# Installation des dépendances (racine, backend puis frontend)
+echo "[launcher] Installation des dépendances racine..."
+"$PM" install > /dev/null
+
+echo "[launcher] Installation des dépendances backend..."
 (cd backend && "$PM" install > /dev/null)
+
+echo "[launcher] Installation des dépendances frontend..."
 (cd frontend && "$PM" install > /dev/null)
+
+echo "[launcher] Construction du frontend..."
+(cd frontend && "$PM" run build > /dev/null)
 
 echo "[launcher] Démarrage du backend..."
 (cd backend && "$PM" start > ../backend.log 2>&1 &)
