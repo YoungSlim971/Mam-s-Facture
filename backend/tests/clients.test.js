@@ -1,7 +1,13 @@
 const request = require('supertest');
+const { setupDummyProfile, cleanupDummyProfile } = require('./testUtils');
 let app;
 beforeAll(async () => {
+  await setupDummyProfile();
   app = await require('../server');
+});
+
+afterAll(async () => {
+  await cleanupDummyProfile();
 });
 
 const API_TOKEN = 'test-token'; // Use the same token as used in the pnpm test command
@@ -91,5 +97,60 @@ describe('Client creation and listing', () => {
         logo: payload.logo
       })
     );
+  });
+});
+
+describe('Client invoice counts', () => {
+  test('includes invoice totals and updates when status changes', async () => {
+    const clientRes = await request(app)
+      .post('/api/clients')
+      .set('Authorization', `Bearer ${API_TOKEN}`)
+      .send({ nom_client: 'Count Client', telephone: '000' });
+    expect(clientRes.status).toBe(201);
+    const clientId = clientRes.body.id;
+
+    const inv1 = await request(app)
+      .post('/api/factures')
+      .set('Authorization', `Bearer ${API_TOKEN}`)
+      .send({
+        client_id: clientId,
+        nom_client: 'Count Client',
+        date_facture: '2024-01-01',
+        lignes: [{ description: 'x', quantite: 1, prix_unitaire: 10 }],
+        status: 'unpaid'
+      });
+    expect(inv1.status).toBe(201);
+    const invoiceId = inv1.body.id;
+
+    await request(app)
+      .post('/api/factures')
+      .set('Authorization', `Bearer ${API_TOKEN}`)
+      .send({
+        client_id: clientId,
+        nom_client: 'Count Client',
+        date_facture: '2024-01-02',
+        lignes: [{ description: 'y', quantite: 1, prix_unitaire: 15 }],
+        status: 'paid'
+      });
+
+    let listRes = await request(app)
+      .get('/api/clients')
+      .set('Authorization', `Bearer ${API_TOKEN}`);
+    expect(listRes.status).toBe(200);
+    let cli = listRes.body.find(c => c.id === clientId);
+    expect(cli.totalInvoices).toBe(2);
+    expect(cli.unpaidInvoices).toBe(1);
+
+    await request(app)
+      .patch(`/api/factures/${invoiceId}/status`)
+      .set('Authorization', `Bearer ${API_TOKEN}`)
+      .send({ status: 'paid' });
+
+    listRes = await request(app)
+      .get('/api/clients')
+      .set('Authorization', `Bearer ${API_TOKEN}`);
+    cli = listRes.body.find(c => c.id === clientId);
+    expect(cli.totalInvoices).toBe(2);
+    expect(cli.unpaidInvoices).toBe(0);
   });
 });

@@ -24,6 +24,8 @@ export interface Client {
   rcs_number?: string
   forme_juridique?: string
   logo?: string
+  totalInvoices?: number
+  unpaidInvoices?: number
   factures: number[]
 }
 
@@ -39,7 +41,7 @@ export default function CarteClient({ client }: { client: Client }) {
       {client.nom_entreprise && <div>{client.nom_entreprise}</div>}
       {client.telephone && <div className="text-sm text-gray-500">{client.telephone}</div>}
       <div className="text-xs text-gray-500">
-        {client.factures ? client.factures.length : 0} facture(s)
+        {client.totalInvoices ?? (client.factures ? client.factures.length : 0)} factures, {client.unpaidInvoices ?? 0} impayées
       </div>
       <Link to={`/clients/${client.id}`} className="text-blue-600 text-sm hover:underline">
         Voir fiche

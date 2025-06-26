@@ -253,7 +253,12 @@ app.post('/api/upload/logo-client', uploadClientLogo.single('logo'), (req: Reque
 // Gestion des clients
 app.get('/api/clients', (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.json(db.getClients());
+    const clients = db.getClients().map((c: any) => ({
+      ...c,
+      totalInvoices: c.nombre_de_factures ?? (c.factures ? c.factures.length : 0),
+      unpaidInvoices: c.factures_impayees ?? 0
+    }));
+    res.json(clients);
   } catch (err) {
     next(err);
   }
