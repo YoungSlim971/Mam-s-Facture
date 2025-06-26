@@ -404,45 +404,6 @@ export default function CreerFacture() {
                 </select>
                 {erreurs.clientId && <p className="mt-1 text-sm text-red-600">{erreurs.clientId}</p>}
               </div>
-              <div className="md:col-span-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                  {/* Infos client */}
-                  <div>
-                    <label className="block text-sm font-medium">Nom du client</label>
-                    <input type="text" value={nomClient || '-'} readOnly className="input-style" />
-
-                    <label className="block text-sm font-medium mt-2">Nom de l’entreprise</label>
-                    <input type="text" value={nomEntreprise || '-'} readOnly className="input-style" />
-
-                    <label className="block text-sm font-medium mt-2">E-mail</label>
-                    <input type="text" value={email || '-'} readOnly className="input-style" />
-
-                    <label className="block text-sm font-medium mt-2">Téléphone</label>
-                    <input type="text" value={telephone || '-'} readOnly className="input-style" />
-
-                    <label className="block text-sm font-medium mt-2">Adresse complète</label>
-                    <input type="text" value={adresse || '-'} readOnly className="input-style" />
-                  </div>
-
-                  {/* Infos légales */}
-                  <div>
-                    <label className="block text-sm font-medium">SIREN</label>
-                    <input type="text" value={siren || '-'} readOnly className="input-style" />
-
-                    <label className="block text-sm font-medium mt-2">SIRET</label>
-                    <input type="text" value={siret || '-'} readOnly className="input-style" />
-
-                    <label className="block text-sm font-medium mt-2">Numéro TVA</label>
-                    <input type="text" value={tva || '-'} readOnly className="input-style" />
-
-                    <label className="block text-sm font-medium mt-2">RCS / RM</label>
-                    <input type="text" value={rcs || '-'} readOnly className="input-style" />
-
-                    <label className="block text-sm font-medium mt-2">Forme juridique</label>
-                    <input type="text" value={formeJuridique || '-'} readOnly className="input-style" />
-                  </div>
-                </div>
-              </div>
               <div>
                 <label htmlFor="nomClient" className="block text-sm font-medium text-gray-700 mb-2">Nom du client *</label>
                 <input id="nomClient" type="text" value={nomClient} onChange={(e) => setNomClient(e.target.value)} className={`w-full px-3 py-2 border rounded-lg ${erreurs.nomClient ? 'border-red-300' : 'border-gray-300'}`} placeholder="Ex: Jean Dupont" />
@@ -453,12 +414,36 @@ export default function CreerFacture() {
                 <input id="nomEntreprise" type="text" value={nomEntreprise} onChange={(e) => setNomEntreprise(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: Dupont SARL" />
               </div>
               <div>
+                <label htmlFor="emailClient" className="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
+                <input id="emailClient" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: jean@exemple.com" />
+              </div>
+              <div>
                 <label htmlFor="telephoneClient" className="block text-sm font-medium text-gray-700 mb-2">Numéro de téléphone (client)</label>
                 <input id="telephoneClient" type="tel" value={telephone} onChange={(e) => setTelephone(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: 01 23 45 67 89" />
               </div>
               <div className="md:col-span-2">
                 <label htmlFor="adresseClient" className="block text-sm font-medium text-gray-700 mb-2">Adresse (client)</label>
                 <textarea id="adresseClient" value={adresse} onChange={(e) => setAdresse(e.target.value)} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: 123 Rue de la République, 75001 Paris" />
+              </div>
+              <div>
+                <label htmlFor="sirenClient" className="block text-sm font-medium text-gray-700 mb-2">SIREN</label>
+                <input id="sirenClient" type="text" value={siren} onChange={(e) => setSiren(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+              </div>
+              <div>
+                <label htmlFor="siretClient" className="block text-sm font-medium text-gray-700 mb-2">SIRET</label>
+                <input id="siretClient" type="text" value={siret} onChange={(e) => setSiret(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+              </div>
+              <div>
+                <label htmlFor="tvaClient" className="block text-sm font-medium text-gray-700 mb-2">Numéro TVA</label>
+                <input id="tvaClient" type="text" value={tva} onChange={(e) => setTva(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+              </div>
+              <div>
+                <label htmlFor="rcsClient" className="block text-sm font-medium text-gray-700 mb-2">RCS / RM</label>
+                <input id="rcsClient" type="text" value={rcs} onChange={(e) => setRcs(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+              </div>
+              <div>
+                <label htmlFor="formeJuridiqueClient" className="block text-sm font-medium text-gray-700 mb-2">Forme juridique</label>
+                <input id="formeJuridiqueClient" type="text" value={formeJuridique} onChange={(e) => setFormeJuridique(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
               </div>
             </div>
           </div>
