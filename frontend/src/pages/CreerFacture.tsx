@@ -413,7 +413,7 @@ export default function CreerFacture() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
                 <label htmlFor="clientSelect" className="block text-sm font-medium text-gray-700 mb-2">Sélectionner un client enregistré</label>
-                <select id="clientSelect" value={clientId} onChange={(e) => handleSelectClient(e.target.value)} className={`w-full px-3 py-2 border rounded-lg ${erreurs.clientId ? 'border-red-300' : 'border-gray-300'}`}>
+                <select id="clientSelect" value={clientId} onChange={(e) => handleSelectClient(e.target.value)} className={`w-full px-3 py-2 border rounded-lg ${erreurs.clientId ? 'border-red-300' : 'border-gray-300'} dark:text-white dark:placeholder-white`}>
                   <option value="">-- Aucun --</option>
                   {clients.map((c) => (<option key={c.id} value={c.id}>{c.nom_client} {c.nom_entreprise ? `(${c.nom_entreprise})` : ''}</option>))}
                 </select>
@@ -421,48 +421,48 @@ export default function CreerFacture() {
               </div>
               <div>
                 <label htmlFor="nomClient" className="block text-sm font-medium text-gray-700 mb-2">Nom du client *</label>
-                <input id="nomClient" type="text" value={nomClient} onChange={(e) => setNomClient(e.target.value)} className={`w-full px-3 py-2 border rounded-lg ${erreurs.nomClient ? 'border-red-300' : 'border-gray-300'}`} placeholder="Ex: Jean Dupont" />
+                <input id="nomClient" type="text" value={nomClient} onChange={(e) => setNomClient(e.target.value)} className={`w-full px-3 py-2 border rounded-lg ${erreurs.nomClient ? 'border-red-300' : 'border-gray-300'} dark:text-white dark:placeholder-white`} placeholder="Ex: Jean Dupont" />
                 {erreurs.nomClient && <p className="mt-1 text-sm text-red-600">{erreurs.nomClient}</p>}
               </div>
               <div>
                 <label htmlFor="nomEntreprise" className="block text-sm font-medium text-gray-700 mb-2">Nom de l'entreprise</label>
-                <input id="nomEntreprise" type="text" value={nomEntreprise} onChange={(e) => setNomEntreprise(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: Dupont SARL" />
+                <input id="nomEntreprise" type="text" value={nomEntreprise} onChange={(e) => setNomEntreprise(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:text-white dark:placeholder-white" placeholder="Ex: Dupont SARL" />
               </div>
               <div>
                 <label htmlFor="emailClient" className="block text-sm font-medium text-gray-700 mb-2">E-mail</label>
-                <input id="emailClient" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: jean@exemple.com" />
+                <input id="emailClient" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:text-white dark:placeholder-white" placeholder="Ex: jean@exemple.com" />
               </div>
               <div>
                 <label htmlFor="telephoneClient" className="block text-sm font-medium text-gray-700 mb-2">Numéro de téléphone (client)</label>
-                <input id="telephoneClient" type="tel" value={telephone} onChange={(e) => setTelephone(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: 01 23 45 67 89" />
+                <input id="telephoneClient" type="tel" value={telephone} onChange={(e) => setTelephone(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:text-white dark:placeholder-white" placeholder="Ex: 01 23 45 67 89" />
               </div>
               <div className="md:col-span-2">
                 <label htmlFor="adresseFacturation" className="block text-sm font-medium text-gray-700 mb-2">Adresse de facturation</label>
-                <textarea id="adresseFacturation" value={adresseFacturation} onChange={(e) => setAdresseFacturation(e.target.value)} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: 123 Rue de la République, 75001 Paris" />
+                <textarea id="adresseFacturation" value={adresseFacturation} onChange={(e) => setAdresseFacturation(e.target.value)} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:text-white dark:placeholder-white" placeholder="Ex: 123 Rue de la République, 75001 Paris" />
               </div>
               <div className="md:col-span-2">
                 <label htmlFor="adresseLivraison" className="block text-sm font-medium text-gray-700 mb-2">Adresse de livraison</label>
-                <textarea id="adresseLivraison" value={adresseLivraison} onChange={(e) => setAdresseLivraison(e.target.value)} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: 456 Avenue des Tests, 75002 Paris" />
+                <textarea id="adresseLivraison" value={adresseLivraison} onChange={(e) => setAdresseLivraison(e.target.value)} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:text-white dark:placeholder-white" placeholder="Ex: 456 Avenue des Tests, 75002 Paris" />
               </div>
               <div>
                 <label htmlFor="sirenClient" className="block text-sm font-medium text-gray-700 mb-2">SIREN</label>
-                <input id="sirenClient" type="text" value={siren} onChange={(e) => setSiren(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                <input id="sirenClient" type="text" value={siren} onChange={(e) => setSiren(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:text-white" />
               </div>
               <div>
                 <label htmlFor="siretClient" className="block text-sm font-medium text-gray-700 mb-2">SIRET</label>
-                <input id="siretClient" type="text" value={siret} onChange={(e) => setSiret(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                <input id="siretClient" type="text" value={siret} onChange={(e) => setSiret(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:text-white" />
               </div>
               <div>
                 <label htmlFor="tvaClient" className="block text-sm font-medium text-gray-700 mb-2">Numéro TVA</label>
-                <input id="tvaClient" type="text" value={tva} onChange={(e) => setTva(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                <input id="tvaClient" type="text" value={tva} onChange={(e) => setTva(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:text-white" />
               </div>
               <div>
                 <label htmlFor="rcsClient" className="block text-sm font-medium text-gray-700 mb-2">RCS / RM</label>
-                <input id="rcsClient" type="text" value={rcs} onChange={(e) => setRcs(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                <input id="rcsClient" type="text" value={rcs} onChange={(e) => setRcs(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:text-white" />
               </div>
               <div>
                 <label htmlFor="formeJuridiqueClient" className="block text-sm font-medium text-gray-700 mb-2">Forme juridique</label>
-                <input id="formeJuridiqueClient" type="text" value={formeJuridique} onChange={(e) => setFormeJuridique(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                <input id="formeJuridiqueClient" type="text" value={formeJuridique} onChange={(e) => setFormeJuridique(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:text-white" />
               </div>
             </div>
           </div>
@@ -473,25 +473,25 @@ export default function CreerFacture() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="numeroFacture" className="block text-sm font-medium text-gray-700 mb-2">Numéro de facture</label>
-                <input id="numeroFacture" type="text" value={numeroFacture} onChange={(e) => setNumeroFacture(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                <input id="numeroFacture" type="text" value={numeroFacture} onChange={(e) => setNumeroFacture(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:text-white" />
               </div>
               <div>
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">Objet / Intitulé de la facture</label>
-                <input id="title" type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                <input id="title" type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:text-white" />
               </div>
               <div>
                 <label htmlFor="dateFacture" className="block text-sm font-medium text-gray-700 mb-2">Date de la facture *</label>
-                <input id="dateFacture" type="date" value={dateFacture} onChange={(e) => setDateFacture(e.target.value)} className={`w-full px-3 py-2 border rounded-lg ${erreurs.dateFacture ? 'border-red-300' : 'border-gray-300'}`} />
+                <input id="dateFacture" type="date" value={dateFacture} onChange={(e) => setDateFacture(e.target.value)} className={`w-full px-3 py-2 border rounded-lg ${erreurs.dateFacture ? 'border-red-300' : 'border-gray-300'} dark:text-white`} />
                 {erreurs.dateFacture && <p className="mt-1 text-sm text-red-600">{erreurs.dateFacture}</p>}
               </div>
               <div>
                 <label htmlFor="dateLimitePaiement" className="block text-sm font-medium text-gray-700 mb-2">Date limite de paiement *</label>
-                <input id="dateLimitePaiement" type="date" value={dateLimitePaiement} onChange={(e) => setDateLimitePaiement(e.target.value)} className={`w-full px-3 py-2 border rounded-lg ${erreurs.dateLimitePaiement ? 'border-red-300' : 'border-gray-300'}`} />
+                <input id="dateLimitePaiement" type="date" value={dateLimitePaiement} onChange={(e) => setDateLimitePaiement(e.target.value)} className={`w-full px-3 py-2 border rounded-lg ${erreurs.dateLimitePaiement ? 'border-red-300' : 'border-gray-300'} dark:text-white`} />
                 {erreurs.dateLimitePaiement && <p className="mt-1 text-sm text-red-600">{erreurs.dateLimitePaiement}</p>}
               </div>
               <div>
                 <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">Statut</label>
-                <select id="status" value={status} onChange={(e) => setStatus(e.target.value as 'paid' | 'unpaid')} className="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                <select id="status" value={status} onChange={(e) => setStatus(e.target.value as 'paid' | 'unpaid')} className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:text-white">
                   <option value="unpaid">Non payée</option>
                   <option value="paid">Payée</option>
                 </select>
@@ -525,16 +525,16 @@ export default function CreerFacture() {
             </div>
             <div>
               <label htmlFor="editableTvaRate" className="block text-sm font-medium text-gray-700 mb-1">Taux de TVA applicable (%)</label>
-              <input id="editableTvaRate" type="number" step="0.01" value={editableTvaRate} onChange={(e) => setEditableTvaRate(parseFloat(e.target.value) || 0)} className={`w-1/4 px-3 py-2 border rounded-lg ${erreurs.editableTvaRate ? 'border-red-300' : 'border-gray-300'}`} />
+              <input id="editableTvaRate" type="number" step="0.01" value={editableTvaRate} onChange={(e) => setEditableTvaRate(parseFloat(e.target.value) || 0)} className={`w-1/4 px-3 py-2 border rounded-lg ${erreurs.editableTvaRate ? 'border-red-300' : 'border-gray-300'} dark:text-white`} />
               {erreurs.editableTvaRate && <p className="mt-1 text-sm text-red-600">{erreurs.editableTvaRate}</p>}
             </div>
             {erreurs.lignes && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg"><p className="text-sm text-red-600">{erreurs.lignes}</p></div>}
             <div className="space-y-4 mt-4">
               {lignes.map((ligne, index) => (
                 <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 bg-gray-50 rounded-lg items-start">
-                  <div className="md:col-span-5"><label className="block text-sm font-medium text-gray-700 mb-1">Description</label><input type="text" value={ligne.description} onChange={(e) => mettreAJourLigne(index, 'description', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: Développement site web" /></div>
-                  <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Quantité</label><input type="number" min="0.01" step="0.01" value={ligne.quantite} onChange={(e) => mettreAJourLigne(index, 'quantite', e.target.value)} className={`w-full px-3 py-2 border rounded-lg ${erreurs[`quantite_${index}`] ? 'border-red-300' : 'border-gray-300'}`} />{erreurs[`quantite_${index}`] && <p className="mt-1 text-xs text-red-600">{erreurs[`quantite_${index}`]}</p>}</div>
-                  <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Prix unitaire TTC (€)</label><input type="number" min="0" step="0.01" value={ligne.prix_unitaire} onChange={(e) => mettreAJourLigne(index, 'prix_unitaire', e.target.value)} className={`w-full px-3 py-2 border rounded-lg ${erreurs[`prix_${index}`] ? 'border-red-300' : 'border-gray-300'}`} />{/* Helper text for VAT part of TTC removed for clarity, as overall VAT rate is now editable. Users should know if they input HT or TTC. This form assumes TTC input. */}{erreurs[`prix_${index}`] && <p className="mt-1 text-xs text-red-600">{erreurs[`prix_${index}`]}</p>}</div>
+                  <div className="md:col-span-5"><label className="block text-sm font-medium text-gray-700 mb-1">Description</label><input type="text" value={ligne.description} onChange={(e) => mettreAJourLigne(index, 'description', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg dark:text-white dark:placeholder-white" placeholder="Ex: Développement site web" /></div>
+                  <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Quantité</label><input type="number" min="0.01" step="0.01" value={ligne.quantite} onChange={(e) => mettreAJourLigne(index, 'quantite', e.target.value)} className={`w-full px-3 py-2 border rounded-lg ${erreurs[`quantite_${index}`] ? 'border-red-300' : 'border-gray-300'} dark:text-white`} />{erreurs[`quantite_${index}`] && <p className="mt-1 text-xs text-red-600">{erreurs[`quantite_${index}`]}</p>}</div>
+                  <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Prix unitaire TTC (€)</label><input type="number" min="0" step="0.01" value={ligne.prix_unitaire} onChange={(e) => mettreAJourLigne(index, 'prix_unitaire', e.target.value)} className={`w-full px-3 py-2 border rounded-lg ${erreurs[`prix_${index}`] ? 'border-red-300' : 'border-gray-300'} dark:text-white`} />{/* Helper text for VAT part of TTC removed for clarity, as overall VAT rate is now editable. Users should know if they input HT or TTC. This form assumes TTC input. */}{erreurs[`prix_${index}`] && <p className="mt-1 text-xs text-red-600">{erreurs[`prix_${index}`]}</p>}</div>
                   <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Sous-total TTC</label><div className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-right font-semibold text-green-600">{formatEuro(ligne.quantite * ligne.prix_unitaire)}</div></div>
                   <div className="md:col-span-1 flex items-end h-full"><button type="button" onClick={() => supprimerLigne(index)} disabled={lignes.length === 1} className="w-full p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50" title="Supprimer cette ligne"><Trash2 className="h-4 w-4 mx-auto" /></button></div>
                 </div>
