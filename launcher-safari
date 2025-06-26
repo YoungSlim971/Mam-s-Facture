@@ -22,12 +22,24 @@ echo "🧹 [0/5] Libération des ports si nécessaires..."
 PORTS_TO_FREE=(3001 5173)
 
 for PORT in "${PORTS_TO_FREE[@]}"; do
-  PID=$(lsof -ti tcp:$PORT)
-  if [ -n "$PID" ]; then
-    echo "⚠️ Port $PORT utilisé par le process $PID, on le tue..."
-    kill -9 $PID || echo "❌ Impossible de tuer le process $PID sur le port $PORT"
+  PIDS=$(lsof -ti tcp:"$PORT" 2>/dev/null || true)
+  if [[ -z "$PIDS" ]]; then
+    echo "✅ Port $PORT libre"
+    continue
+  fi
+
+  KILLED=false
+  for PID in $PIDS; do
+    CMD=$(ps -p "$PID" -o comm= 2>/dev/null | tr -d ' ')
+    if [[ "$CMD" == node* || "$CMD" == vite* ]]; then
+      kill -9 "$PID" && KILLED=true
+    fi
+  done
+
+  if $KILLED; then
+    echo "🔴 Port $PORT occupé → terminé"
   else
-    echo "✅ Port $PORT déjà libre"
+    echo "⚠️ Port $PORT occupé par un processus non Node.js/Vite"
   fi
 done
 
