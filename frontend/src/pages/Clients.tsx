@@ -34,6 +34,8 @@ interface Client {
   adresse_livraison_rue?: string;
   adresse_livraison_cp?: string;
   adresse_livraison_ville?: string;
+  totalInvoices?: number;
+  unpaidInvoices?: number;
   factures: number[]
 }
 
@@ -492,7 +494,7 @@ export default function Clients() {
                 {c.email && <div>Email : {c.email}</div>}
                 {c.tva && <div>TVA: {c.tva}</div>}
                 <div className="text-xs text-zinc-500">
-                  {(c.factures || []).length} facture(s)
+                  {c.totalInvoices ?? (c.factures || []).length} factures, {c.unpaidInvoices ?? 0} impayées
                 </div>
                 <div>
                   <Link

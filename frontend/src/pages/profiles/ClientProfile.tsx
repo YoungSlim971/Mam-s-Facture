@@ -28,6 +28,8 @@ interface Client {
   rcs_number?: string
   rcs?: string
   logo?: string
+  totalInvoices?: number
+  unpaidInvoices?: number
   factures: number[]
 }
 
@@ -106,7 +108,7 @@ export default function ClientProfile() {
             <div>N° TVA : {client.tva || '-'}</div>
           </fieldset>
 
-          <div>{(client.factures || []).length} facture(s)</div>
+          <div>{client.totalInvoices ?? (client.factures || []).length} factures, {client.unpaidInvoices ?? 0} impayées</div>
         </CardContent>
       </Card>
     </div>
