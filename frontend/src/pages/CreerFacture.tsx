@@ -21,9 +21,14 @@ interface ClientOption {
   telephone?: string;
   email?: string;
   adresse?: string; // Generic address, might be composed from structured fields
+  adresse_facturation?: string;
+  adresse_livraison?: string;
   adresse_facturation_rue?: string;
   adresse_facturation_cp?: string;
   adresse_facturation_ville?: string;
+  adresse_livraison_rue?: string;
+  adresse_livraison_cp?: string;
+  adresse_livraison_ville?: string;
   intitule?: string;
   // Client's own legal details - not directly used on invoice form state for seller's info
   siren?: string;
@@ -65,7 +70,8 @@ export default function CreerFacture() {
   const [nomClient, setNomClient] = useState(''); // Displayed client name
   const [nomEntreprise, setNomEntreprise] = useState(''); // Displayed client company name
   const [telephone, setTelephone] = useState(''); // Client phone
-  const [adresse, setAdresse] = useState(''); // Client address display
+  const [adresseFacturation, setAdresseFacturation] = useState(''); // Client billing address
+  const [adresseLivraison, setAdresseLivraison] = useState(''); // Client delivery address
   const [email, setEmail] = useState('');
   const [siren, setSiren] = useState('');
   const [siret, setSiret] = useState('');
@@ -184,7 +190,8 @@ export default function CreerFacture() {
       setNomClient('');
       setNomEntreprise('');
       setTelephone('');
-      setAdresse('');
+      setAdresseFacturation('');
+      setAdresseLivraison('');
       setEmail('');
       setSiren('');
       setSiret('');
@@ -202,10 +209,16 @@ export default function CreerFacture() {
       setNomEntreprise(client.nom_entreprise || '');
       setTelephone(client.telephone || '');
       setEmail(client.email || '');
-      const clientAddressDisplay = client.adresse_facturation_rue && client.adresse_facturation_cp && client.adresse_facturation_ville
-        ? `${client.adresse_facturation_rue}, ${client.adresse_facturation_cp} ${client.adresse_facturation_ville}`
-        : client.adresse || '';
-      setAdresse(clientAddressDisplay);
+      const billingAddress = client.adresse_facturation
+        || (client.adresse_facturation_rue && client.adresse_facturation_cp && client.adresse_facturation_ville
+            ? `${client.adresse_facturation_rue}, ${client.adresse_facturation_cp} ${client.adresse_facturation_ville}`
+            : client.adresse || '');
+      setAdresseFacturation(billingAddress);
+      const deliveryAddress = client.adresse_livraison
+        || (client.adresse_livraison_rue && client.adresse_livraison_cp && client.adresse_livraison_ville
+            ? `${client.adresse_livraison_rue}, ${client.adresse_livraison_cp} ${client.adresse_livraison_ville}`
+            : '');
+      setAdresseLivraison(deliveryAddress);
       setSiren(client.siren || '');
       setSiret(client.siret || '');
       setTva(client.tva || '');
@@ -312,7 +325,8 @@ export default function CreerFacture() {
         nom_client: nomClient.trim(),
         nom_entreprise: nomEntreprise.trim(),
         telephone_client: telephone.trim(), // Renamed to avoid conflict if backend has 'telephone' for seller
-        adresse_client: adresse.trim(),     // Renamed for clarity
+        adresse_client: adresseFacturation.trim(),
+        adresse_livraison: adresseLivraison.trim(),
 
         date_facture: dateFacture,
         date_limite_paiement: dateLimitePaiement, // ADDED
@@ -422,8 +436,12 @@ export default function CreerFacture() {
                 <input id="telephoneClient" type="tel" value={telephone} onChange={(e) => setTelephone(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: 01 23 45 67 89" />
               </div>
               <div className="md:col-span-2">
-                <label htmlFor="adresseClient" className="block text-sm font-medium text-gray-700 mb-2">Adresse (client)</label>
-                <textarea id="adresseClient" value={adresse} onChange={(e) => setAdresse(e.target.value)} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: 123 Rue de la République, 75001 Paris" />
+                <label htmlFor="adresseFacturation" className="block text-sm font-medium text-gray-700 mb-2">Adresse de facturation</label>
+                <textarea id="adresseFacturation" value={adresseFacturation} onChange={(e) => setAdresseFacturation(e.target.value)} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: 123 Rue de la République, 75001 Paris" />
+              </div>
+              <div className="md:col-span-2">
+                <label htmlFor="adresseLivraison" className="block text-sm font-medium text-gray-700 mb-2">Adresse de livraison</label>
+                <textarea id="adresseLivraison" value={adresseLivraison} onChange={(e) => setAdresseLivraison(e.target.value)} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Ex: 456 Avenue des Tests, 75002 Paris" />
               </div>
               <div>
                 <label htmlFor="sirenClient" className="block text-sm font-medium text-gray-700 mb-2">SIREN</label>
