@@ -39,6 +39,8 @@ interface Client {
 
 export default function Clients() {
   const [clients, setClients] = useState<Client[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
   // New client form state
   const [nom, setNom] = useState('') // Nom / Raison sociale (uses nom_client for individual, entreprise for company)
@@ -93,11 +95,17 @@ export default function Clients() {
 
 
   const chargerClients = async () => {
+    setIsLoading(true)
+    setError(null)
     try {
       const data = await apiClient.getClients();
+      console.log('Clients récupérés:', data)
       setClients(data);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erreur chargement clients:', err);
+      setError('Erreur lors du chargement des clients.');
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -222,6 +230,14 @@ export default function Clients() {
         variant: 'destructive',
       });
     }
+  }
+
+  if (isLoading) {
+    return <div className="p-6 text-center">Chargement des clients...</div>
+  }
+
+  if (error) {
+    return <div className="p-6 text-center text-red-600">{error}</div>
   }
 
   return (

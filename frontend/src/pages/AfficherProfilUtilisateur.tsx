@@ -9,27 +9,30 @@ import { ArrowLeft, Edit3 } from 'lucide-react';
 const AfficherProfilUtilisateur: React.FC = () => {
   const [profile, setProfile] = useState<UserProfileJson | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchProfileData = async () => {
       setIsLoading(true);
+      setError(null);
       try {
         const data = await apiClient.getUserProfile(); // Fetches the JSON structure
+        console.log('Profil récupéré:', data);
         if (data) {
           setProfile(data);
         } else {
-          // This case should ideally be handled by the 404 catch block
           toast({
             title: 'Profil non trouvé',
             description: 'Aucun profil utilisateur configuré. Veuillez compléter vos informations.',
             variant: 'default',
           });
-          navigate('/profile');
+          setProfile(null);
         }
       } catch (error: any) {
         console.error('Failed to fetch profile for display:', error);
+        setError('Impossible de charger les informations du profil.');
         if (error.message && error.message.includes('404')) {
            toast({
             title: 'Profil non trouvé',
@@ -43,25 +46,27 @@ const AfficherProfilUtilisateur: React.FC = () => {
                 variant: 'destructive',
             });
         }
-        navigate('/profile'); // Redirect to edit page if profile doesn't exist or error
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchProfileData();
-  }, [navigate, toast]);
+  }, [toast]);
 
   if (isLoading) {
     return <div className="container mx-auto p-4 text-center">Chargement du profil...</div>;
   }
 
+  if (error) {
+    return <div className="container mx-auto p-4 text-center text-red-600">{error}</div>;
+  }
+
   if (!profile) {
-    // This is a fallback, useEffect should already redirect
     return (
-        <div className="container mx-auto p-4 text-center">
-            <p>Profil non trouvé. Vous allez être redirigé...</p>
-        </div>
+      <div className="container mx-auto p-4 text-center">
+        <p>Aucune information utilisateur trouvée.</p>
+      </div>
     );
   }
 
