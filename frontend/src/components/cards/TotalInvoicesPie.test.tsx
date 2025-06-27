@@ -1,26 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { InvoicesProvider } from '@/context/InvoicesContext';
 import { TotalInvoicesPie } from './TotalInvoicesPie';
+import { apiClient } from '@/lib/api';
 
-jest.mock('@/lib/api', () => ({ API_URL: 'http://localhost' }));
+jest.mock('@/lib/api', () => ({
+  apiClient: {
+    getInvoiceSummary: jest.fn(),
+  },
+}));
 
 test('affiche un graphique', async () => {
-  global.fetch = jest.fn().mockResolvedValueOnce({
-    ok: true,
-    json: () =>
-      Promise.resolve({ invoices: [
-        { id: 1, status: 'paid' },
-        { id: 2, status: 'unpaid' },
-        { id: 3, status: 'paid' },
-      ] })
-  }) as any;
+  (apiClient.getInvoiceSummary as jest.Mock).mockResolvedValue({ payees: 2, non_payees: 1 });
 
-  render(
-    <InvoicesProvider>
-      <TotalInvoicesPie />
-    </InvoicesProvider>
-  );
+  render(<TotalInvoicesPie />);
 
   const chart = await screen.findByTestId('invoice-pie-chart');
   expect(chart).toBeInTheDocument();
