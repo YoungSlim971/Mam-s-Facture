@@ -9,14 +9,14 @@ const fetchMock = jest.fn().mockResolvedValue({
 
 global.fetch = fetchMock as any;
 
-test('génère une url de graphique', async () => {
+test('affiche un graphique', async () => {
   render(<InvoicePieChart />);
   await waitFor(() =>
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringContaining('/invoices/stats?month=')
     )
   );
-  const img = await screen.findByRole('img');
-  expect(img.getAttribute('src')).toMatch('quickchart.io');
+  const chart = await screen.findByTestId('invoice-pie-chart');
+  expect(chart).toBeInTheDocument();
   expect(await screen.findByText(/5 facture/)).toBeInTheDocument();
 });
