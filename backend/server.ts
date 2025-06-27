@@ -405,6 +405,14 @@ app.get('/api/factures', (req, res, next) => {
       filters.status = statusFilterToApply;
     }
     const allFactures = db.getFactures(filters);
+    console.table(
+      allFactures.map(f => ({
+        numero: f.numero_facture,
+        client: f.nom_client,
+        status: f.status,
+        montant: f.montant_total
+      }))
+    );
 
     // Tri
     const sortFieldMap = {
