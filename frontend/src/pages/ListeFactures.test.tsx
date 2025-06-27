@@ -6,12 +6,14 @@ import { InvoicesProvider } from '@/context/InvoicesContext';
 
 // Mock the api module
 const mockGetInvoices = jest.fn();
+const mockGetClients = jest.fn();
 jest.mock('@/lib/api', () => {
   return {
     API_URL: 'http://localhost:3000/api/mock',
     GEMINI_API_KEY: 'mock-gemini-key',
     apiClient: {
       getInvoices: (...args: any[]) => mockGetInvoices(...args),
+      getClients: (...args: any[]) => mockGetClients(...args),
       getInvoiceSummary: jest.fn(),
     },
   };
@@ -35,6 +37,7 @@ const facturesResponse = {
 };
 
 mockGetInvoices.mockResolvedValue(facturesResponse.factures);
+mockGetClients.mockResolvedValue([]);
 
 global.fetch = jest
   .fn()
