@@ -219,5 +219,18 @@ export const apiClient = {
     }
     return response.json();
   },
+
+  getInvoiceSummary: async (): Promise<{ payees: number; non_payees: number }> => {
+    const token = getAuthToken();
+    const response = await fetch(`${API_URL}/invoices/summary`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch invoice summary: ${response.statusText}`);
+    }
+    return response.json();
+  },
   // ... other existing api client methods if any
 };
