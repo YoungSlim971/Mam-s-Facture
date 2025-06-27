@@ -7,9 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "yes | pnpm install && eslint .",
-    "preview": "yes | pnpm install && vite preview",
+    "preview": "vite preview",
     "test": "jest",
-    "test:e2e": "pnpm exec playwright test"
+    "test:e2e": "pnpm exec playwright test",
+    "clean": "rm -rf dist .vite"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
