@@ -1,0 +1,104 @@
+# Page snapshot
+
+```yaml
+- region "Notifications alt+T"
+- complementary:
+  - heading "MAM’s FACTURE" [level=1]
+  - link "Accueil":
+    - /url: /
+    - img
+    - text: Accueil
+  - link "Toutes les factures":
+    - /url: /factures
+    - img
+    - text: Toutes les factures
+  - link "Factures non payées":
+    - /url: /factures?statut=nonpayee
+    - img
+    - text: Factures non payées
+  - link "Factures payées":
+    - /url: /factures?statut=payee
+    - img
+    - text: Factures payées
+  - link "Créer une facture":
+    - /url: /factures/nouvelle
+    - img
+    - text: Créer une facture
+  - link "Clients":
+    - /url: /clients
+    - img
+    - text: Clients
+  - link "Mes informations":
+    - /url: /profile
+    - img
+    - text: Mes informations
+  - button "Changer le thème":
+    - img
+    - text: Changer le thème
+  - text: Changer le thème
+  - button "Déconnexion":
+    - img
+    - text: Déconnexion
+- banner:
+  - heading "Accueil" [level=1]
+  - button "Accueil":
+    - img
+    - text: Accueil
+- main:
+  - img
+  - heading "MAM's FACTURE" [level=1]
+  - text: Gestion de factures simplifiée
+  - main:
+    - heading "Bienvenue dans votre espace de facturation, Caroline MIRRE" [level=2]
+    - paragraph: Gérez vos factures facilement avec notre solution complète. Créez, modifiez et exportez vos factures en quelques clics.
+    - heading "Citation du jour" [level=3]
+    - blockquote:
+      - paragraph: “La mesure de l'intelligence est la capacité de changer.”
+      - text: — Albert Einstein
+    - heading "Coucher de soleil" [level=3]
+    - img "Coucher de soleil"
+    - region:
+      - group:
+        - link "Répartition des factures Aucune facture enregistrée 0 facture au total 0 payée, 0 non payée":
+          - /url: /factures?status=unpaid
+          - text: Répartition des factures Aucune facture enregistrée
+          - paragraph: 0 facture au total
+          - paragraph: 0 payée, 0 non payée
+      - group:
+        - text: Paiements en attente
+        - paragraph: 2 800,00 €
+      - group:
+        - text: Factures générées ce mois-ci
+        - paragraph: "0"
+      - button "Previous slide" [disabled]:
+        - img
+        - text: Previous slide
+      - button "Next slide":
+        - img
+        - text: Next slide
+    - link "Toutes les factures Consultez, recherchez et gérez toutes vos factures existantes. Filtrez par période, client ou montant. Accéder à la liste":
+      - /url: /factures
+      - img
+      - heading "Toutes les factures" [level=3]
+      - paragraph: Consultez, recherchez et gérez toutes vos factures existantes. Filtrez par période, client ou montant.
+      - text: Accéder à la liste
+      - img
+    - link "Créer une nouvelle facture Créez rapidement une nouvelle facture avec notre formulaire intuitif. Calculs automatiques et mise en forme professionnelle. Commencer maintenant":
+      - /url: /factures/nouvelle
+      - img
+      - heading "Créer une nouvelle facture" [level=3]
+      - paragraph: Créez rapidement une nouvelle facture avec notre formulaire intuitif. Calculs automatiques et mise en forme professionnelle.
+      - text: Commencer maintenant
+      - img
+    - heading "Fonctionnalités principales" [level=3]
+    - img
+    - heading "Gestion complète" [level=4]
+    - paragraph: Créez, modifiez, supprimez et exportez vos factures en PDF
+    - img
+    - heading "Gestion clients" [level=4]
+    - paragraph: Enregistrez les informations de vos clients pour un accès rapide
+    - img
+    - heading "Export PDF" [level=4]
+    - paragraph: Générez des PDFs professionnels prêts à envoyer à vos clients
+  - paragraph: © 2024 MAM's FACTURE. Tous droits réservés.
+```
