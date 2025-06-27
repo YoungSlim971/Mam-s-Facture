@@ -62,9 +62,18 @@ if [[ ${PERM_ERROR:-} ]]; then
 fi
 cd "$(dirname "$0")"
 
-echo "🚀 [3/5] Lancement des serveurs..."
-pnpm dev:all &
-SERVERS_PID=$!
+echo "🌱 Injection des données de démonstration..."
+pnpm exec ts-node backend/scripts/seed-demo-data.js
+
+echo "🚀 Lancement du backend..."
+(cd backend && pnpm dev) &
+BACKEND_PID=$!
+
+echo "🎨 Lancement du frontend..."
+(cd frontend && pnpm dev) &
+FRONTEND_PID=$!
+
+SERVERS_PID="$BACKEND_PID $FRONTEND_PID"
 
 # Attente que le port 5173 soit disponible
 for i in {1..15}; do
@@ -75,15 +84,16 @@ for i in {1..15}; do
   sleep 1
 done
 
+
 if [[ -z ${READY:-} ]]; then
-  kill "$SERVERS_PID"
+  kill $SERVERS_PID
   error_exit "Le port 5173 n'est pas disponible."
 fi
 
 echo "🌐 [4/5] Ouverture de Safari..."
-open -a Safari http://localhost:5173 || { kill "$SERVERS_PID"; error_exit "Impossible d'ouvrir Safari."; }
+open -a Safari http://localhost:5173 || { kill $SERVERS_PID; error_exit "Impossible d'ouvrir Safari."; }
 
 echo "🎉 [5/5] L'application est lancée !"
 
-trap "kill \"$SERVERS_PID\"" SIGINT
-wait "$SERVERS_PID" || echo "⚠️  Backend crashed — vérifiez les permissions ou le port 3001" >&2
+trap "kill $SERVERS_PID" SIGINT
+wait $SERVERS_PID || echo "⚠️  Backend crashed — vérifiez les permissions ou le port 3001" >&2
