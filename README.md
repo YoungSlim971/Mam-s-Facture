@@ -88,6 +88,14 @@ Le script n'insère les données que si la base est vide afin de ne pas écraser
 travail existant. Il peut ainsi être lancé avant des tests manuels ou automatiqu
 es pour disposer d'exemples réalistes.
 
+Pour générer rapidement plusieurs factures supplémentaires liées aux clients existants :
+
+```bash
+node backend/scripts/generate-invoices.js 10
+```
+
+Le script crée un nombre donné de factures (10 par défaut) avec 50 % de statuts "paid" et 50 % "unpaid" puis les affiche dans la console.
+
 ## 📁 Structure du projet
 ```
 Mam-s-Facture/
