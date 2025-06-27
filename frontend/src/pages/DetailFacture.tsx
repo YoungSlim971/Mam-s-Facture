@@ -93,6 +93,7 @@ export default function DetailFacture() {
       }
 
       alert('Facture supprimée avec succès');
+      window.dispatchEvent(new Event('factureChange'));
       navigate('/factures');
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Erreur lors de la suppression');

@@ -8,26 +8,20 @@ export function TotalInvoicesPie() {
   const [stats, setStats] = useState<{ payees: number; non_payees: number } | null>(null);
 
   useEffect(() => {
-    console.log('TotalInvoicesPie mounted');
-    async function load() {
-      try {
-        const data = await apiClient.getInvoiceSummary();
-        console.log('Fetched invoice summary:', data);
-        const { payees = 0, non_payees = 0 } = data || {};
-        setStats({ payees, non_payees });
-      } catch (err) {
-        console.error('Fetch error:', err);
-        setStats({ payees: 0, non_payees: 0 });
-      }
-    }
-    load();
-    const handler = () => load();
-    window.addEventListener('factureChange', handler);
-    window.addEventListener('factureStatutChange', handler);
-    return () => {
-      window.removeEventListener('factureChange', handler);
-      window.removeEventListener('factureStatutChange', handler);
+    const fetchSummary = () => {
+      apiClient
+        .getInvoiceSummary()
+        .then(data => setStats({ payees: data.payees ?? 0, non_payees: data.non_payees ?? 0 }))
+        .catch(console.error);
     };
+
+    fetchSummary();
+
+    const handler = () => fetchSummary();
+
+    window.addEventListener('factureChange', handler);
+
+    return () => window.removeEventListener('factureChange', handler);
   }, []);
 
   const total = stats ? stats.payees + stats.non_payees : 0;

@@ -137,6 +137,7 @@ export default function ListeFactures() {
       }
 
       alert('Facture supprimée avec succès');
+      window.dispatchEvent(new Event('factureChange'));
       chargerFactures();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Erreur lors de la suppression');
