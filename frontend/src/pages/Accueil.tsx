@@ -48,7 +48,7 @@ export default function Accueil() {
         </p>
       </div>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 mb-4">
         <QuoteCard />
         <SunsetImageCard />
         <StatsCarousel />

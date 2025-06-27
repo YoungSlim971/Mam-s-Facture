@@ -45,7 +45,9 @@ export function InvoicePieChart() {
   }, []);
 
   return (
-    <Card>
+    <Card
+      className="w-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg bg-gradient-to-br from-[var(--gradient-start)] via-[var(--gradient-mid)] to-[var(--gradient-end)] text-white dark:from-indigo-900 dark:via-violet-900 dark:to-indigo-950"
+    >
       <CardHeader>
         <CardTitle>Statut du mois</CardTitle>
       </CardHeader>
@@ -54,7 +56,7 @@ export function InvoicePieChart() {
         <p className="mt-4 font-medium">
           {stats.total} facture{stats.total > 1 ? 's' : ''} au total
         </p>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-sm text-gray-200">
           {stats.paid} payée{stats.paid > 1 ? 's' : ''}, {stats.unpaid} impayée{stats.unpaid > 1 ? 's' : ''}
         </p>
       </CardContent>
