@@ -20,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { API_URL } from '@/lib/api';
+import { API_URL, apiClient } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import StatutBadge from '@/components/StatutBadge';
 import { updateInvoiceStatus } from '@/utils/invoiceService';
@@ -31,12 +31,20 @@ interface Facture {
   numero_facture: string;
   nom_client: string;
   nom_entreprise?: string;
+  client_id?: number;
   status?: 'paid' | 'unpaid';
   date_facture: string;
   date_facture_fr: string;
   montant_total: number;
   montant_total_fr: string;
   nombre_lignes: number;
+}
+
+interface Client {
+  id: number;
+  nom_client: string;
+  prenom_client?: string;
+  nom_entreprise?: string;
 }
 
 interface PaginationInfo {
@@ -61,6 +69,8 @@ export default function ListeFactures() {
     total: 0,
     totalPages: 0
   });
+  const [clients, setClients] = useState<Client[]>([]);
+  const [clientsLoading, setClientsLoading] = useState(true);
 
   // Filtres
   const [recherche, setRecherche] = useState('');
@@ -121,11 +131,39 @@ export default function ListeFactures() {
     return filteredFactures.slice(start, start + pagination.limit);
   }, [filteredFactures, pagination.page, pagination.limit]);
 
+  const getClientName = useCallback(
+    (facture: Facture) => {
+      const client = clients.find(c => c.id === facture.client_id);
+      console.log('Jointure facture/client', facture.id, client?.id);
+      if (!client) return 'Client inconnu';
+      return (
+        client.nom_entreprise ||
+        [client.nom_client, client.prenom_client].filter(Boolean).join(' ')
+      );
+    },
+    [clients]
+  );
+
   useEffect(() => {
     const handler = () => refresh();
     window.addEventListener('factureStatutChange', handler);
     return () => window.removeEventListener('factureStatutChange', handler);
   }, [refresh]);
+
+  useEffect(() => {
+    const loadClients = async () => {
+      try {
+        const data = await apiClient.getClients();
+        console.log('Jointure facture/client', data.length);
+        setClients(data);
+      } catch (err) {
+        console.error('Erreur chargement clients:', err);
+      } finally {
+        setClientsLoading(false);
+      }
+    };
+    loadClients();
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -412,12 +450,11 @@ export default function ListeFactures() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="font-medium text-gray-900">
-                            {facture.nom_client}
-                          </div>
-                          {facture.nom_entreprise && (
-                            <div className="text-sm text-gray-500">
-                              {facture.nom_entreprise}
+                          {clientsLoading ? (
+                            <div className="text-sm text-gray-500">Chargement client...</div>
+                          ) : (
+                            <div className="font-medium text-gray-900">
+                              {getClientName(facture)}
                             </div>
                           )}
                         </td>
