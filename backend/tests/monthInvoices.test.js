@@ -12,10 +12,13 @@ afterAll(async () => {
   await cleanupDummyProfile();
 });
 
-describe('GET /api/invoices?month=current', () => {
+describe('GET /api/invoices/stats?month=<now>&year=<now>', () => {
   test('counts invoices created this month', async () => {
+    const now = new Date();
+    const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+    const currentYear = now.getFullYear();
     const initialRes = await request(app)
-      .get('/api/invoices?month=current')
+      .get(`/api/invoices/stats?month=${currentMonth}&year=${currentYear}`)
       .set('Authorization', `Bearer ${API_TOKEN}`);
     expect(initialRes.status).toBe(200);
     const {
@@ -45,7 +48,7 @@ describe('GET /api/invoices?month=current', () => {
       });
 
     const afterRes = await request(app)
-      .get('/api/invoices?month=current')
+      .get(`/api/invoices/stats?month=${currentMonth}&year=${currentYear}`)
       .set('Authorization', `Bearer ${API_TOKEN}`);
     expect(afterRes.status).toBe(200);
     expect(afterRes.body.paid).toBe(initPaid + 1);
@@ -54,10 +57,10 @@ describe('GET /api/invoices?month=current', () => {
   });
 });
 
-describe('GET /api/invoices?month=06&year=2025', () => {
+describe('GET /api/invoices/stats?month=06&year=2025', () => {
   test('counts invoices for a specific month', async () => {
     const initialRes = await request(app)
-      .get('/api/invoices?month=06&year=2025')
+      .get('/api/invoices/stats?month=06&year=2025')
       .set('Authorization', `Bearer ${API_TOKEN}`);
     expect(initialRes.status).toBe(200);
     const {
@@ -87,7 +90,7 @@ describe('GET /api/invoices?month=06&year=2025', () => {
       });
 
     const afterRes = await request(app)
-      .get('/api/invoices?month=06&year=2025')
+      .get('/api/invoices/stats?month=06&year=2025')
       .set('Authorization', `Bearer ${API_TOKEN}`);
     expect(afterRes.status).toBe(200);
     expect(afterRes.body.paid).toBe(initPaid + 1);
