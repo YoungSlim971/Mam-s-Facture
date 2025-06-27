@@ -2,18 +2,21 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PieChart, Pie, Cell, Legend } from 'recharts';
+import { apiClient } from '@/lib/api';
 
 export function TotalInvoicesPie() {
   const [stats, setStats] = useState<{ payees: number; non_payees: number } | null>(null);
 
   useEffect(() => {
+    console.log('TotalInvoicesPie mounted');
     async function load() {
       try {
-        const res = await fetch('/api/invoices/summary');
-        const data = await res.json();
+        const data = await apiClient.getInvoiceSummary();
+        console.log('Fetched invoice summary:', data);
         const { payees = 0, non_payees = 0 } = data || {};
         setStats({ payees, non_payees });
-      } catch {
+      } catch (err) {
+        console.error('Fetch error:', err);
         setStats({ payees: 0, non_payees: 0 });
       }
     }
