@@ -34,7 +34,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
           <FileText className="h-5 w-5" />
           <span>Toutes les factures</span>
         </NavLink>
-        <NavLink to="/factures?statut=impayee" className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-sky-400">
+        <NavLink to="/factures?statut=nonpayee" className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-sky-400">
           <CircleAlert className="h-5 w-5" />
           <span>Factures non payées</span>
         </NavLink>

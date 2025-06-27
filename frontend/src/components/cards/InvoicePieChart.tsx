@@ -60,7 +60,7 @@ export function InvoicePieChart() {
             <Pie
               data={[
                 { name: 'Payées', value: stats.paid },
-                { name: 'Impayées', value: stats.unpaid },
+                { name: 'Non payées', value: stats.unpaid },
               ]}
               dataKey="value"
               nameKey="name"
@@ -79,7 +79,7 @@ export function InvoicePieChart() {
             </p>
             <p className="text-sm text-gray-200">
               {stats.paid} payée{stats.paid > 1 ? 's' : ''}, {stats.unpaid}{' '}
-              impayée{stats.unpaid > 1 ? 's' : ''}
+              non payée{stats.unpaid > 1 ? 's' : ''}
             </p>
           </>
         )}

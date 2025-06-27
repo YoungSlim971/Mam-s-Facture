@@ -41,7 +41,7 @@ export default function CarteClient({ client }: { client: Client }) {
       {client.nom_entreprise && <div>{client.nom_entreprise}</div>}
       {client.telephone && <div className="text-sm text-gray-500">{client.telephone}</div>}
       <div className="text-xs text-gray-500">
-        {client.totalInvoices ?? (client.factures ? client.factures.length : 0)} factures, {client.unpaidInvoices ?? 0} impayées
+        {client.totalInvoices ?? (client.factures ? client.factures.length : 0)} factures, {client.unpaidInvoices ?? 0} non payées
       </div>
       <Link to={`/clients/${client.id}`} className="text-blue-600 text-sm hover:underline">
         Voir fiche
