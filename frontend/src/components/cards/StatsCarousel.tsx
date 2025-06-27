@@ -10,7 +10,7 @@ import {
   type CarouselApi,
 } from '@/components/ui/carousel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { InvoicePieChart } from './InvoicePieChart';
+import { TotalInvoicesPie } from './TotalInvoicesPie';
 import { API_URL } from '@/lib/api';
 
 interface Facture {
@@ -101,7 +101,7 @@ export function StatsCarousel() {
               transition={{ duration: 0.3 }}
             >
               <Link to="/factures?status=unpaid" className="block">
-                <InvoicePieChart />
+                <TotalInvoicesPie />
               </Link>
             </motion.div>
           </CarouselItem>
