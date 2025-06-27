@@ -7,6 +7,7 @@ import { getUserProfileFromLocal, fetchAndSyncUserProfile } from '@/utils/userPr
 import { computeTotals } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import numeral from 'numeral';
+import { useInvoices } from '@/context/InvoicesContext';
 
 interface LigneFacture {
   description: string;
@@ -64,6 +65,7 @@ interface SellerProfileState {
 export default function CreerFacture() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { refresh } = useInvoices();
   const goBack = () => (window.history.length > 1 ? navigate(-1) : navigate('/'));
   
   // Client & Invoice specific states
@@ -371,6 +373,7 @@ export default function CreerFacture() {
       const data = await response.json();
       toast({ title: 'Facture créée', description: `La facture ${data.numero_facture || numeroFacture} a été créée avec succès.` });
       window.dispatchEvent(new Event('factureChange'));
+      await refresh();
       navigate('/factures');
     } catch (err) {
       toast({ title: 'Erreur de création', description: (err instanceof Error ? err.message : 'Une erreur est survenue.'), variant: 'destructive' });

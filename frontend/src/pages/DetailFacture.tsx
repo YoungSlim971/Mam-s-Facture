@@ -8,6 +8,7 @@ import { computeTotals } from '@/lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import StatutBadge from '@/components/StatutBadge';
+import { useInvoices } from '@/context/InvoicesContext';
 
 interface Facture {
   id: number;
@@ -45,6 +46,7 @@ interface LigneFacture {
 export default function DetailFacture() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { refresh } = useInvoices();
   const [facture, setFacture] = useState<Facture | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -94,6 +96,7 @@ export default function DetailFacture() {
 
       alert('Facture supprimée avec succès');
       window.dispatchEvent(new Event('factureChange'));
+      await refresh();
       navigate('/factures');
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Erreur lors de la suppression');

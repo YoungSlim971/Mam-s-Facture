@@ -4,7 +4,8 @@ import { ArrowLeft, Plus, Trash2, Save, Calculator } from 'lucide-react';
 import LogoDropzone from '@/components/LogoDropzone';
 import { API_URL, apiClient } from '@/lib/api';
 import { computeTotals } from '@/lib/utils';
-import { updateInvoice, cacheInvoicesLocally } from '@/utils/invoiceService';
+import { updateInvoice } from '@/utils/invoiceService';
+import { useInvoices } from '@/context/InvoicesContext';
 
 interface LigneFacture {
   description: string;
@@ -43,6 +44,7 @@ interface Facture {
 export default function ModifierFacture() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { refresh } = useInvoices();
   const goBack = () => (window.history.length > 1 ? navigate(-1) : navigate('/'));
   
   // État du formulaire
@@ -264,8 +266,7 @@ export default function ModifierFacture() {
         lignes: lignesValides,
       });
 
-      cacheInvoicesLocally([]);
-
+      await refresh();
       alert('Facture modifiée avec succès !');
       navigate(`/factures/${id}`);
     } catch (err) {

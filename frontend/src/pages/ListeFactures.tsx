@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Search,
@@ -23,11 +23,8 @@ import {
 import { API_URL } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import StatutBadge from '@/components/StatutBadge';
-import {
-  fetchInvoices,
-  updateInvoiceStatus,
-  cacheInvoicesLocally,
-} from '@/utils/invoiceService';
+import { updateInvoiceStatus } from '@/utils/invoiceService';
+import { useInvoices } from '@/context/InvoicesContext';
 
 interface Facture {
   id: number;
@@ -51,9 +48,7 @@ interface PaginationInfo {
 
 export default function ListeFactures() {
   const location = useLocation();
-  const [factures, setFactures] = useState<Facture[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { invoices: factures, isLoading: loading, error, refresh } = useInvoices();
   const [pagination, setPagination] = useState<PaginationInfo>({
     page: 1,
     limit: 10,
@@ -69,45 +64,62 @@ export default function ListeFactures() {
   const [sortField, setSortField] = useState('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  const chargerFactures = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      params.set('page', pagination.page.toString());
-      params.set('limit', pagination.limit.toString());
-      params.set('search', recherche);
-      params.set('dateDebut', dateDebut);
-      params.set('dateFin', dateFin);
-      if (statusFilter) {
-        params.set('statut', statusFilter === 'paid' ? 'payee' : 'nonpayee');
-      }
-      params.set('sortBy', sortField);
-      params.set('order', sortOrder);
-
-      const response = await fetch(`${API_URL}/factures?${params}`);
-      if (!response.ok) {
-        throw new Error('Erreur lors du chargement des factures');
-      }
-
-      const data = await response.json();
-      setFactures(data.factures);
-      setPagination(data.pagination);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
-    } finally {
-      setLoading(false);
+  const filteredFactures = useMemo(() => {
+    let list = [...factures];
+    if (recherche) {
+      const r = recherche.toLowerCase();
+      list = list.filter(f =>
+        f.nom_client.toLowerCase().includes(r) ||
+        (f.nom_entreprise || '').toLowerCase().includes(r) ||
+        f.numero_facture.toLowerCase().includes(r)
+      );
     }
-  }, [pagination.page, pagination.limit, recherche, dateDebut, dateFin, statusFilter, sortField, sortOrder]);
+    if (dateDebut) {
+      list = list.filter(f => new Date(f.date_facture) >= new Date(dateDebut));
+    }
+    if (dateFin) {
+      list = list.filter(f => new Date(f.date_facture) <= new Date(dateFin));
+    }
+    if (statusFilter) {
+      list = list.filter(f =>
+        statusFilter === 'paid' ? f.status === 'paid' : f.status !== 'paid'
+      );
+    }
+    list.sort((a, b) => {
+      let fieldA: string | number = a.date_facture;
+      let fieldB: string | number = b.date_facture;
+      if (sortField === 'nom') {
+        fieldA = a.nom_client;
+        fieldB = b.nom_client;
+      } else if (sortField === 'entreprise') {
+        fieldA = a.nom_entreprise || '';
+        fieldB = b.nom_entreprise || '';
+      }
+      if (fieldA < fieldB) return sortOrder === 'asc' ? -1 : 1;
+      if (fieldA > fieldB) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return list;
+  }, [factures, recherche, dateDebut, dateFin, statusFilter, sortField, sortOrder]);
 
   useEffect(() => {
-    chargerFactures();
-  }, [chargerFactures]);
+    setPagination(prev => ({
+      ...prev,
+      total: filteredFactures.length,
+      totalPages: Math.ceil(filteredFactures.length / prev.limit) || 1,
+    }));
+  }, [filteredFactures, setPagination]);
+
+  const paginated = useMemo(() => {
+    const start = (pagination.page - 1) * pagination.limit;
+    return filteredFactures.slice(start, start + pagination.limit);
+  }, [filteredFactures, pagination.page, pagination.limit]);
 
   useEffect(() => {
-    const handler = () => chargerFactures();
+    const handler = () => refresh();
     window.addEventListener('factureStatutChange', handler);
     return () => window.removeEventListener('factureStatutChange', handler);
-  }, [chargerFactures]);
+  }, [refresh]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -138,7 +150,7 @@ export default function ListeFactures() {
 
       alert('Facture supprimée avec succès');
       window.dispatchEvent(new Event('factureChange'));
-      chargerFactures();
+      await refresh();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Erreur lors de la suppression');
     }
@@ -175,12 +187,8 @@ export default function ListeFactures() {
 
   const marquerPayee = async (id: number) => {
     try {
-    const updated = await updateInvoiceStatus(id, 'paid');
-    setFactures(prev => {
-      const list = prev.map(f => (f.id === id ? { ...f, ...updated } : f));
-      cacheInvoicesLocally(list);
-      return statusFilter === 'unpaid' ? list.filter(f => f.id !== id) : list;
-    });
+    await updateInvoiceStatus(id, 'paid');
+    await refresh();
       toast({ description: 'Statut mis à jour' });
       window.dispatchEvent(new Event('factureStatutChange'));
     } catch (err) {
@@ -335,7 +343,7 @@ export default function ListeFactures() {
             </h3>
           </div>
 
-          {factures.length === 0 ? (
+          {filteredFactures.length === 0 ? (
             <div className="p-12 text-center">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -382,7 +390,7 @@ export default function ListeFactures() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {factures.map((facture) => (
+                    {paginated.map((facture) => (
                       <tr key={facture.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="font-medium text-gray-900">
