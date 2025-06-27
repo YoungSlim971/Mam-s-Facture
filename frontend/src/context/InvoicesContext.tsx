@@ -14,6 +14,7 @@ interface InvoicesContextValue {
   total: number;
   payees: number;
   nonPayees: number;
+  usingDemoData: boolean;
   refresh: () => Promise<void>;
 }
 
@@ -23,6 +24,7 @@ export function InvoicesProvider({ children }: { children: React.ReactNode }) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [usingDemo, setUsingDemo] = useState(false);
   const fetched = useRef(false);
 
   const fetchInvoices = useCallback(async () => {
@@ -32,9 +34,22 @@ export function InvoicesProvider({ children }: { children: React.ReactNode }) {
     try {
       const data = await apiClient.getInvoices();
       setInvoices(data);
+      setUsingDemo(false);
     } catch (e: any) {
       console.error('Erreur chargement factures:', e);
       setError(e.message || 'Erreur inconnue');
+      const isDev = process.env.NODE_ENV === 'development';
+      if (isDev) {
+        try {
+          const res = await fetch('/demo/invoices.json');
+          const demo = await res.json();
+          setInvoices(demo);
+          setUsingDemo(true);
+          setError(null);
+        } catch (err) {
+          console.error('Erreur chargement des données de démo:', err);
+        }
+      }
     } finally {
       setIsLoading(false);
     }
@@ -60,6 +75,7 @@ export function InvoicesProvider({ children }: { children: React.ReactNode }) {
     total,
     payees,
     nonPayees,
+    usingDemoData: usingDemo,
     refresh,
   };
 
