@@ -108,11 +108,36 @@ export const apiClient = {
       throw new Error(`Failed to fetch user profile: ${response.statusText}`);
     }
     const data = await response.json();
-    // The backend might return data that includes fields beyond the strict UserProfileJson,
-    // (e.g. if it used to use the old DB structure and returns all fields).
-    // Or it might return exactly UserProfileJson.
-    // The type cast here assumes the response is compatible.
-    // ProfilePage.tsx's useEffect handles mapping this to its FormProfileData.
+    console.log('Profil reçu depuis l\'API:', data);
+
+    if ('full_name' in data) {
+      const mapped: UserProfileJson = {
+        raison_sociale: data.full_name || '',
+        adresse: data.address_street || '',
+        code_postal: data.address_postal_code || '',
+        ville: data.address_city || '',
+        forme_juridique: data.legal_form || '',
+        siret: data.siret_siren || '',
+        ape_naf: data.ape_naf_code || '',
+        tva_intra: data.vat_number || '',
+        rcs_ou_rm: data.rcs_rm || '',
+        email: data.email,
+        phone: data.phone,
+        activity_start_date: data.activity_start_date,
+        social_capital: data.social_capital,
+        full_name: data.full_name,
+        address_street: data.address_street,
+        address_postal_code: data.address_postal_code,
+        address_city: data.address_city,
+        siret_siren: data.siret_siren,
+        ape_naf_code: data.ape_naf_code,
+        vat_number: data.vat_number,
+        legal_form: data.legal_form,
+      };
+      return mapped;
+    }
+
+    // Backend might already return the JSON structure
     return data as UserProfileJson;
   },
 

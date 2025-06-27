@@ -288,11 +288,11 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
                 <div>
                   <p className="font-medium text-gray-500">Raison Sociale</p>
-                  <p className="text-gray-900">{userProfile.raison_sociale || 'N/A'}</p>
+                  <p className="text-gray-900">{userProfile.raison_sociale || '-'}</p>
                 </div>
                 <div>
                   <p className="font-medium text-gray-500">Forme Juridique</p>
-                  <p className="text-gray-900">{userProfile.forme_juridique || 'N/A'}</p>
+                  <p className="text-gray-900">{userProfile.forme_juridique || '-'}</p>
                 </div>
                 <div className="md:col-span-2">
                   <p className="font-medium text-gray-500">Adresse complète</p>
@@ -300,19 +300,19 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <p className="font-medium text-gray-500">SIRET</p>
-                  <p className="text-gray-900">{userProfile.siret || 'N/A'}</p>
+                  <p className="text-gray-900">{userProfile.siret || '-'}</p>
                 </div>
                 <div>
                   <p className="font-medium text-gray-500">Code APE/NAF</p>
-                  <p className="text-gray-900">{userProfile.ape_naf || 'N/A'}</p>
+                  <p className="text-gray-900">{userProfile.ape_naf || '-'}</p>
                 </div>
                 <div>
                   <p className="font-medium text-gray-500">N° TVA Intracommunautaire</p>
-                  <p className="text-gray-900">{userProfile.tva_intra || 'N/A'}</p>
+                  <p className="text-gray-900">{userProfile.tva_intra || '-'}</p>
                 </div>
                 <div>
                   <p className="font-medium text-gray-500">RCS ou RM</p>
-                  <p className="text-gray-900">{userProfile.rcs_ou_rm || 'N/A'}</p>
+                  <p className="text-gray-900">{userProfile.rcs_ou_rm || '-'}</p>
                 </div>
               </div>
               <div className="pt-6 text-center">
