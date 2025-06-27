@@ -2,11 +2,12 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 import ListeFactures from './ListeFactures';
+import { InvoicesProvider } from '@/context/InvoicesContext';
 
 // Mock the api module
 jest.mock('@/lib/api', () => ({
-  API_URL: 'http://localhost:3000/api/mock', // Provide a mock API_URL
-  GEMINI_API_KEY: 'mock-gemini-key', // Provide a mock GEMINI_API_KEY
+  API_URL: 'http://localhost:3000/api/mock',
+  GEMINI_API_KEY: 'mock-gemini-key',
 }));
 
 const facturesResponse = {
@@ -28,14 +29,16 @@ const facturesResponse = {
 
 global.fetch = jest
   .fn()
-  .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(facturesResponse) })
+  .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ invoices: facturesResponse.factures }) })
   .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 1, status: 'paid' }) });
 
 test('marque une facture comme payée', async () => {
   render(
-    <BrowserRouter>
-      <ListeFactures />
-    </BrowserRouter>
+    <InvoicesProvider>
+      <BrowserRouter>
+        <ListeFactures />
+      </BrowserRouter>
+    </InvoicesProvider>
   );
   await waitFor(() => expect(fetch as any).toHaveBeenCalled());
 
