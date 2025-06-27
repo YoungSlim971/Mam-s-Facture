@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { API_URL } from '@/lib/api';
 import { PieChart, Pie, Cell, Legend } from 'recharts';
 
 export function InvoicePieChart() {
@@ -15,14 +14,21 @@ export function InvoicePieChart() {
     async function load() {
       try {
         const now = new Date();
-        const month = now.getMonth() + 1;
+        const monthIndex = now.getMonth();
         const year = now.getFullYear();
+        const formattedMonth = String(monthIndex + 1).padStart(2, '0');
+        console.log('Fetching stats for:', formattedMonth, year);
         const res = await fetch(
-          `${API_URL}/invoices/stats?month=${month}&year=${year}`
+          `/api/invoices/stats?month=${formattedMonth}&year=${year}`
         );
         const data = await res.json();
         console.log('Statistiques récupérées :', data);
-        setStats(data);
+        const {
+          total = 0,
+          payees = 0,
+          non_payees = 0
+        } = data || {};
+        setStats({ total, payees, non_payees });
       } catch {
         setStats({ total: 0, payees: 0, non_payees: 0 });
       }
