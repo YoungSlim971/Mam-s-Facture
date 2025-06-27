@@ -396,6 +396,7 @@ app.get('/api/factures', (req, res, next) => {
     let statusFilterToApply = status; // req.query.status
     if (!statusFilterToApply && statut) { // req.query.statut
       if (statut === 'payee') statusFilterToApply = 'paid';
+      else if (statut === 'nonpayee' || statut === 'non-payee') statusFilterToApply = 'unpaid';
       else if (statut === 'impayee') statusFilterToApply = 'unpaid';
       // Allow other values if they come directly from 'status'
     }
@@ -896,8 +897,11 @@ app.get('/api/invoices/stats', (req, res, next) => {
       const d = new Date(f.created_at || f.date_facture);
       return d.getFullYear() === targetYear && d.getMonth() === targetMonth;
     });
-    const paid = filtered.filter(f => f.status === 'paid').length;
-    const unpaid = filtered.filter(f => f.status !== 'paid').length;
+    console.log('🧾 Filtered invoices:', filtered);
+    const paidStatuses = ['paid', 'payée'];
+    const unpaidStatuses = ['unpaid', 'non payé', 'non payée', 'impayée'];
+    const paid = filtered.filter(f => paidStatuses.includes(f.status)).length;
+    const unpaid = filtered.filter(f => unpaidStatuses.includes(f.status)).length;
     const result = { total: filtered.length, paid, unpaid };
     console.log('🔢 Stats:', result);
     res.json(result);

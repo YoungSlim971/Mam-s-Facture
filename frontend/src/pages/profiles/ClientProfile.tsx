@@ -108,7 +108,7 @@ export default function ClientProfile() {
             <div>N° TVA : {client.tva || '-'}</div>
           </fieldset>
 
-          <div>{client.totalInvoices ?? (client.factures || []).length} factures, {client.unpaidInvoices ?? 0} impayées</div>
+          <div>{client.totalInvoices ?? (client.factures || []).length} factures, {client.unpaidInvoices ?? 0} non payées</div>
         </CardContent>
       </Card>
     </div>

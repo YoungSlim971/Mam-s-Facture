@@ -494,7 +494,7 @@ export default function Clients() {
                 {c.email && <div>Email : {c.email}</div>}
                 {c.tva && <div>TVA: {c.tva}</div>}
                 <div className="text-xs text-zinc-500">
-                  {c.totalInvoices ?? (c.factures || []).length} factures, {c.unpaidInvoices ?? 0} impayées
+                  {c.totalInvoices ?? (c.factures || []).length} factures, {c.unpaidInvoices ?? 0} non payées
                 </div>
                 <div>
                   <Link

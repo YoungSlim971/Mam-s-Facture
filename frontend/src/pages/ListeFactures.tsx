@@ -79,7 +79,7 @@ export default function ListeFactures() {
       params.set('dateDebut', dateDebut);
       params.set('dateFin', dateFin);
       if (statusFilter) {
-        params.set('statut', statusFilter === 'paid' ? 'payee' : 'impayee');
+        params.set('statut', statusFilter === 'paid' ? 'payee' : 'nonpayee');
       }
       params.set('sortBy', sortField);
       params.set('order', sortOrder);
@@ -114,7 +114,9 @@ export default function ListeFactures() {
     const st = params.get('status');
     const statut = params.get('statut');
     if (statut) {
-      setStatusFilter(statut === 'payee' ? 'paid' : 'unpaid');
+      setStatusFilter(
+        statut === 'payee' ? 'paid' : statut === 'nonpayee' ? 'unpaid' : 'unpaid'
+      );
     } else if (st) {
       setStatusFilter(st);
     }
