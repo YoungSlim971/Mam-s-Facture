@@ -1,58 +1,50 @@
 [
   {
     "clientKey": "Renoir Design",
-    "numero": "F001",
-    "status": "unpaid",
-    "description": "Site vitrine 3 pages",
-    "montant": 800,
-    "date": "2024-01-20"
+    "numero": "F2025-001",
+    "status": "paid",
+    "description": "Identité visuelle",
+    "montant": 500,
+    "date": "2025-06-01"
   },
   {
     "clientKey": "Renoir Design",
-    "numero": "F002",
+    "numero": "F2025-002",
     "status": "paid",
-    "description": "Logo vectoriel",
+    "description": "Maquette site web",
+    "montant": 1200,
+    "date": "2025-06-10"
+  },
+  {
+    "clientKey": "Renoir Design",
+    "numero": "F2025-003",
+    "status": "unpaid",
+    "description": "Dépliant promotionnel",
     "montant": 300,
-    "date": "2024-02-05"
-  },
-  {
-    "clientKey": "Renoir Design",
-    "numero": "F003",
-    "status": "unpaid",
-    "description": "Charte graphique",
-    "montant": 600,
-    "date": "2024-03-10"
-  },
-  {
-    "clientKey": "Renoir Design",
-    "numero": "F004",
-    "status": "paid",
-    "description": "Carte de visite imprimée",
-    "montant": 150,
-    "date": "2024-03-20"
+    "date": "2025-06-20"
   },
   {
     "clientKey": "MJ Architecture",
-    "numero": "F2025-045",
+    "numero": "F2025-010",
     "status": "paid",
-    "description": "Consultation chantier - Projet Rivoli",
-    "montant": 950,
+    "description": "Etude de faisabilité",
+    "montant": 1500,
     "date": "2025-06-05"
   },
   {
     "clientKey": "MJ Architecture",
-    "numero": "F2025-052",
+    "numero": "F2025-011",
     "status": "unpaid",
-    "description": "Plans de rénovation – Appartement Voltaire",
-    "montant": 1400,
+    "description": "Plans détaillés",
+    "montant": 2000,
     "date": "2025-06-15"
   },
   {
     "clientKey": "MJ Architecture",
-    "numero": "F2025-060",
-    "status": "paid",
-    "description": "Mission express – Vérification conformité permis",
-    "montant": 550,
+    "numero": "F2025-012",
+    "status": "unpaid",
+    "description": "Suivi de chantier",
+    "montant": 800,
     "date": "2025-06-25"
   }
 ]
