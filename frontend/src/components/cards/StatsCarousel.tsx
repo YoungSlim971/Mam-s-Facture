@@ -32,9 +32,16 @@ export function StatsCarousel() {
   useEffect(() => {
     async function loadPie() {
       try {
-        const r = await fetch(`${API_URL}/invoices?month=current`);
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const year = now.getFullYear();
+        const r = await fetch(
+          `${API_URL}/invoices/stats?month=${month}&year=${year}`
+        );
         if (r.ok) {
-          setPieStats(await r.json());
+          const d = await r.json();
+          console.log('📥 Stats data:', d);
+          setPieStats(d);
         }
       } catch {
         /* ignore */

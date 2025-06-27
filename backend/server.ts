@@ -861,8 +861,8 @@ app.get('/api/quote', (req, res, next) => {
   }
 });
 
-// Route pour le camembert factures payées vs impayées du mois courant
-app.get('/api/invoices', (req, res, next) => {
+// Route pour obtenir les statistiques de factures d'un mois donné
+app.get('/api/invoices/stats', (req, res, next) => {
   const { month, year } = req.query;
 
   try {
@@ -891,13 +891,16 @@ app.get('/api/invoices', (req, res, next) => {
     }
 
     const factures = db.getFactures();
+    console.log('📊 Fetching stats for:', month, year);
     const filtered = factures.filter(f => {
       const d = new Date(f.created_at || f.date_facture);
       return d.getFullYear() === targetYear && d.getMonth() === targetMonth;
     });
     const paid = filtered.filter(f => f.status === 'paid').length;
     const unpaid = filtered.filter(f => f.status !== 'paid').length;
-    res.json({ total: filtered.length, paid, unpaid });
+    const result = { total: filtered.length, paid, unpaid };
+    console.log('🔢 Stats:', result);
+    res.json(result);
   } catch (err) {
     next(err);
   }

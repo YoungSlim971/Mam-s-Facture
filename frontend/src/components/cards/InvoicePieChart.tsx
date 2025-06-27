@@ -10,8 +10,14 @@ export function InvoicePieChart() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`${API_URL}/invoices?month=current`);
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const year = now.getFullYear();
+        const res = await fetch(
+          `${API_URL}/invoices/stats?month=${month}&year=${year}`
+        );
         const data = await res.json();
+        console.log('📥 Stats data:', data);
         setStats(data);
         const cfg = {
           type: 'pie',

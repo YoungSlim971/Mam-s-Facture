@@ -12,7 +12,9 @@ global.fetch = fetchMock as any;
 test('génère une url de graphique', async () => {
   render(<InvoicePieChart />);
   await waitFor(() =>
-    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/invoices?month=current'))
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/invoices/stats?month=')
+    )
   );
   const img = await screen.findByRole('img');
   expect(img.getAttribute('src')).toMatch('quickchart.io');
