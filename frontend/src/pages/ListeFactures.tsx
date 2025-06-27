@@ -48,7 +48,13 @@ interface PaginationInfo {
 
 export default function ListeFactures() {
   const location = useLocation();
-  const { invoices: factures, isLoading: loading, error, refresh } = useInvoices();
+  const {
+    invoices: factures,
+    isLoading: loading,
+    error,
+    refresh,
+    usingDemoData,
+  } = useInvoices();
   const [pagination, setPagination] = useState<PaginationInfo>({
     page: 1,
     limit: 10,
@@ -216,6 +222,11 @@ export default function ListeFactures() {
 
   return (
     <div className="min-h-screen">
+      {usingDemoData && (
+        <div className="bg-yellow-100 text-yellow-800 text-center py-1 text-sm">
+          ⚠️ Données de démo affichées
+        </div>
+      )}
       {/* Header */}
       <header
         className="bg-gradient-to-r from-[var(--gradient-start)] via-[var(--gradient-mid)] to-[var(--gradient-end)] text-white shadow-sm border-b border-gray-200"
