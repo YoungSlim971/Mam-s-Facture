@@ -7,8 +7,8 @@ import { PieChart, Pie, Cell, Legend } from 'recharts';
 export function InvoicePieChart() {
   const [stats, setStats] = useState<{
     total: number;
-    paid: number;
-    unpaid: number;
+    payees: number;
+    non_payees: number;
   } | null>(null);
 
   useEffect(() => {
@@ -21,10 +21,10 @@ export function InvoicePieChart() {
           `${API_URL}/invoices/stats?month=${month}&year=${year}`
         );
         const data = await res.json();
-        console.log('📥 Stats data:', data);
+        console.log('Statistiques récupérées :', data);
         setStats(data);
       } catch {
-        setStats({ total: 0, paid: 0, unpaid: 0 });
+        setStats({ total: 0, payees: 0, non_payees: 0 });
       }
     }
     load();
@@ -59,8 +59,8 @@ export function InvoicePieChart() {
           >
             <Pie
               data={[
-                { name: 'Payées', value: stats.paid },
-                { name: 'Non payées', value: stats.unpaid },
+                { name: 'Payées', value: stats.payees },
+                { name: 'Non payées', value: stats.non_payees },
               ]}
               dataKey="value"
               nameKey="name"
@@ -78,8 +78,8 @@ export function InvoicePieChart() {
               {stats.total} facture{stats.total > 1 ? 's' : ''} au total
             </p>
             <p className="text-sm text-gray-200">
-              {stats.paid} payée{stats.paid > 1 ? 's' : ''}, {stats.unpaid}{' '}
-              non payée{stats.unpaid > 1 ? 's' : ''}
+              {stats.payees} payée{stats.payees > 1 ? 's' : ''}, {stats.non_payees}{' '}
+              non payée{stats.non_payees > 1 ? 's' : ''}
             </p>
           </>
         )}

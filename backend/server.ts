@@ -902,7 +902,7 @@ app.get('/api/invoices/stats', (req, res, next) => {
     const unpaidStatuses = ['unpaid', 'non payé', 'non payée', 'impayée'];
     const paid = filtered.filter(f => paidStatuses.includes(f.status)).length;
     const unpaid = filtered.filter(f => unpaidStatuses.includes(f.status)).length;
-    const result = { total: filtered.length, paid, unpaid };
+    const result = { total: filtered.length, payees: paid, non_payees: unpaid };
     console.log('🔢 Stats:', result);
     res.json(result);
   } catch (err) {
