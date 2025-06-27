@@ -20,7 +20,7 @@ interface Facture {
 export function StatsCarousel() {
   const [api, setApi] = useState<CarouselApi>();
   const [index, setIndex] = useState(0);
-  const [pieStats, setPieStats] = useState({ total: 0, paid: 0, unpaid: 0 });
+  const [pieStats, setPieStats] = useState({ total: 0, payees: 0, non_payees: 0 });
   const [unpaid, setUnpaid] = useState<Facture[]>([]);
 
   const euro = useMemo(
@@ -40,7 +40,7 @@ export function StatsCarousel() {
         );
         if (r.ok) {
           const d = await r.json();
-          console.log('📥 Stats data:', d);
+          console.log('Statistiques récupérées :', d);
           setPieStats(d);
         }
       } catch {

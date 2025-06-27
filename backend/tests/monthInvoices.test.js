@@ -22,8 +22,8 @@ describe('GET /api/invoices/stats?month=<now>&year=<now>', () => {
       .set('Authorization', `Bearer ${API_TOKEN}`);
     expect(initialRes.status).toBe(200);
     const {
-      paid: initPaid = 0,
-      unpaid: initUnpaid = 0,
+      payees: initPaid = 0,
+      non_payees: initUnpaid = 0,
       total: initTotal = 0,
     } = initialRes.body;
 
@@ -51,8 +51,8 @@ describe('GET /api/invoices/stats?month=<now>&year=<now>', () => {
       .get(`/api/invoices/stats?month=${currentMonth}&year=${currentYear}`)
       .set('Authorization', `Bearer ${API_TOKEN}`);
     expect(afterRes.status).toBe(200);
-    expect(afterRes.body.paid).toBe(initPaid + 1);
-    expect(afterRes.body.unpaid).toBe(initUnpaid + 1);
+    expect(afterRes.body.payees).toBe(initPaid + 1);
+    expect(afterRes.body.non_payees).toBe(initUnpaid + 1);
     expect(afterRes.body.total).toBe(initTotal + 2);
   });
 });
@@ -64,8 +64,8 @@ describe('GET /api/invoices/stats?month=06&year=2025', () => {
       .set('Authorization', `Bearer ${API_TOKEN}`);
     expect(initialRes.status).toBe(200);
     const {
-      paid: initPaid = 0,
-      unpaid: initUnpaid = 0,
+      payees: initPaid = 0,
+      non_payees: initUnpaid = 0,
       total: initTotal = 0,
     } = initialRes.body;
 
@@ -93,8 +93,8 @@ describe('GET /api/invoices/stats?month=06&year=2025', () => {
       .get('/api/invoices/stats?month=06&year=2025')
       .set('Authorization', `Bearer ${API_TOKEN}`);
     expect(afterRes.status).toBe(200);
-    expect(afterRes.body.paid).toBe(initPaid + 1);
-    expect(afterRes.body.unpaid).toBe(initUnpaid + 1);
+    expect(afterRes.body.payees).toBe(initPaid + 1);
+    expect(afterRes.body.non_payees).toBe(initUnpaid + 1);
     expect(afterRes.body.total).toBe(initTotal + 2);
   });
 });

@@ -4,7 +4,7 @@ jest.mock('@/lib/api', () => ({ API_URL: 'http://localhost:3001/api' }));
 import { InvoicePieChart } from './InvoicePieChart';
 
 const fetchMock = jest.fn().mockResolvedValue({
-  json: () => Promise.resolve({ total: 5, paid: 3, unpaid: 2 })
+  json: () => Promise.resolve({ total: 5, payees: 3, non_payees: 2 })
 });
 
 global.fetch = fetchMock as any;
