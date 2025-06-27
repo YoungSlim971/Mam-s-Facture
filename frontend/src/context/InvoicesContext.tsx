@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { API_URL } from '@/lib/api';
+import { apiClient } from '@/lib/api';
 
 export interface Invoice {
   id: number;
@@ -30,11 +30,10 @@ export function InvoicesProvider({ children }: { children: React.ReactNode }) {
     fetched.current = true;
     setIsLoading(true);
     try {
-      const res = await fetch(`${API_URL}/invoices`);
-      if (!res.ok) throw new Error('Erreur lors du chargement des factures');
-      const data = await res.json();
-      setInvoices(data.invoices || data);
+      const data = await apiClient.getInvoices();
+      setInvoices(data);
     } catch (e: any) {
+      console.error('Erreur chargement factures:', e);
       setError(e.message || 'Erreur inconnue');
     } finally {
       setIsLoading(false);

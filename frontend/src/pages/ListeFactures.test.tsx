@@ -5,10 +5,17 @@ import ListeFactures from './ListeFactures';
 import { InvoicesProvider } from '@/context/InvoicesContext';
 
 // Mock the api module
-jest.mock('@/lib/api', () => ({
-  API_URL: 'http://localhost:3000/api/mock',
-  GEMINI_API_KEY: 'mock-gemini-key',
-}));
+const mockGetInvoices = jest.fn();
+jest.mock('@/lib/api', () => {
+  return {
+    API_URL: 'http://localhost:3000/api/mock',
+    GEMINI_API_KEY: 'mock-gemini-key',
+    apiClient: {
+      getInvoices: (...args: any[]) => mockGetInvoices(...args),
+      getInvoiceSummary: jest.fn(),
+    },
+  };
+});
 
 const facturesResponse = {
   factures: [
@@ -27,9 +34,10 @@ const facturesResponse = {
   pagination: { page: 1, limit: 10, total: 1, totalPages: 1 }
 };
 
+mockGetInvoices.mockResolvedValue(facturesResponse.factures);
+
 global.fetch = jest
   .fn()
-  .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ invoices: facturesResponse.factures }) })
   .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 1, status: 'paid' }) });
 
 test('marque une facture comme payée', async () => {
@@ -40,7 +48,7 @@ test('marque une facture comme payée', async () => {
       </BrowserRouter>
     </InvoicesProvider>
   );
-  await waitFor(() => expect(fetch as any).toHaveBeenCalled());
+  await waitFor(() => expect(mockGetInvoices).toHaveBeenCalled());
 
   const btn = await screen.findByTitle('Marquer comme payée');
   fireEvent.click(btn);

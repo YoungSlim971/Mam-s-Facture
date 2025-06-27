@@ -239,7 +239,12 @@ export default function Clients() {
   }
 
   if (error) {
-    return <div className="p-6 text-center text-red-600">{error}</div>
+    return (
+      <div className="p-6 text-center space-y-2">
+        <p className="text-red-600">{error}</p>
+        <Button onClick={chargerClients} variant="outline">Réessayer</Button>
+      </div>
+    )
   }
 
   return (
