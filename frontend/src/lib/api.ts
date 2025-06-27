@@ -164,15 +164,21 @@ export const apiClient = {
 
   getClients: async (): Promise<any[]> => {
     const token = getAuthToken();
-    const response = await fetch(`${API_URL}/clients`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to fetch clients: ${response.statusText}`);
+    try {
+      const response = await fetch(`${API_URL}/clients`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        console.error('API getClients error', response.status, response.statusText);
+        throw new Error(`Failed to fetch clients: ${response.statusText}`);
+      }
+      return response.json();
+    } catch (err: any) {
+      console.error('Network error fetching clients:', err.message);
+      throw err;
     }
-    return response.json();
   },
 
   getClient: async (id: number): Promise<any> => {
@@ -218,6 +224,26 @@ export const apiClient = {
       throw new Error(`Failed to update client ${id}: ${response.statusText}`);
     }
     return response.json();
+  },
+
+  getInvoices: async (): Promise<any[]> => {
+    const token = getAuthToken();
+    try {
+      const response = await fetch(`${API_URL}/factures`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        console.error('API getInvoices error', response.status, response.statusText);
+        throw new Error(`Failed to fetch invoices: ${response.statusText}`);
+      }
+      const data = await response.json();
+      return data.factures || data;
+    } catch (err: any) {
+      console.error('Network error fetching invoices:', err.message);
+      throw err;
+    }
   },
 
   getInvoiceSummary: async (): Promise<{ payees: number; non_payees: number }> => {
