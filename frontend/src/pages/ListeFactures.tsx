@@ -25,6 +25,7 @@ import { toast } from '@/hooks/use-toast';
 import StatutBadge from '@/components/StatutBadge';
 import { updateInvoiceStatus } from '@/utils/invoiceService';
 import { useInvoices } from '@/context/InvoicesContext';
+import { getClientName as getClientNameById } from '@/utils/clientUtils';
 
 interface Facture {
   id: number;
@@ -131,16 +132,8 @@ export default function ListeFactures() {
     return filteredFactures.slice(start, start + pagination.limit);
   }, [filteredFactures, pagination.page, pagination.limit]);
 
-  const getClientName = useCallback(
-    (facture: Facture) => {
-      const client = clients.find(c => c.id === facture.client_id);
-      console.log('Jointure facture/client', facture.id, client?.id);
-      if (!client) return 'Client inconnu';
-      return (
-        client.nom_entreprise ||
-        [client.nom_client, client.prenom_client].filter(Boolean).join(' ')
-      );
-    },
+  const getClientNameForInvoice = useCallback(
+    (facture: Facture) => getClientNameById(facture.client_id, clients),
     [clients]
   );
 
@@ -454,7 +447,7 @@ export default function ListeFactures() {
                             <div className="text-sm text-gray-500">Chargement client...</div>
                           ) : (
                             <div className="font-medium text-gray-900">
-                              {getClientName(facture)}
+                              {getClientNameForInvoice(facture)}
                             </div>
                           )}
                         </td>

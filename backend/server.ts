@@ -924,6 +924,20 @@ app.get('/api/invoices/summary', (req, res, next) => {
   }
 });
 
+// Alias pour /api/factures/summary
+app.get('/api/factures/summary', (req, res, next) => {
+  try {
+    const factures = db.getFactures();
+    const paidStatuses = ['paid', 'payée'];
+    const unpaidStatuses = ['unpaid', 'non payé', 'non payée', 'impayée'];
+    const paid = factures.filter(f => paidStatuses.includes(f.status)).length;
+    const unpaid = factures.filter(f => unpaidStatuses.includes(f.status)).length;
+    res.json({ payees: paid, non_payees: unpaid });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Route de statistiques
 app.get('/api/stats', (req, res, next) => {
   try {
